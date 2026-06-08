@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  USER
+}
+
+model User {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  passwordHash String        @map("password_hash")
+  name         String
+  role         Role          @default(USER)
+  isActive     Boolean       @default(true) @map("is_active")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  files        File[]        @relation("UploadedFiles")
+  fileVersions FileVersion[] @relation("CreatedVersions")
+
+  @@map("users")
+}
+
+model File {
+  id           String        @id @default(uuid())
+  originalName String        @map("original_name")
+  storageKey   String        @unique @map("storage_key")
+  mimeType     String        @map("mime_type")
+  fileSize     BigInt        @map("file_size")
+  checksum     String        @map("checksum") // SHA-256 integrity hash
+  uploadedBy   String        @map("uploaded_by")
+  uploader     User          @relation("UploadedFiles", fields: [uploadedBy], references: [id])
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  versions     FileVersion[] @relation("FileVersions")
+
+  @@map("files")
+}
+
+model FileVersion {
+  id         String   @id @default(uuid())
+  fileId     String   @map("file_id")
+  file       File     @relation("FileVersions", fields: [fileId], references: [id], onDelete: Cascade)
+  version    String   @map("version")
+  storageKey String   @map("storage_key")
+  fileSize   BigInt   @map("file_size")
+  checksum   String   @map("checksum")
+  createdBy  String   @map("created_by")
+  creator    User     @relation("CreatedVersions", fields: [createdBy], references: [id])
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("file_versions")
+}

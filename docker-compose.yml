@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:18-alpine
+    container_name: ssot-postgres-db
+    restart: always
+    environment:
+      POSTGRES_DB: ssot_db
+      POSTGRES_USER: ssot_admin
+      POSTGRES_PASSWORD: ssot_secure_pass_123
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+    driver: local
