@@ -11,37 +11,12 @@ export class FileService {
     originalName: string,
     mimeType: string,
     buffer: Buffer,
-    userId: string,
-    version: string
+    userId: string
   ) {
-    if (!version || version.trim() === '') {
-      throw new Error('Version is required and cannot be empty.');
-    }
-
     // Check if a file with the exact same name already exists in the system
     const existingFile = await prisma.file.findFirst({
       where: { originalName },
-      include: {
-        versions: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-        },
-      },
     });
-
-    // Check if this version string is already used for this file (to prevent duplicates)
-    if (existingFile) {
-      const versionExists = await prisma.fileVersion.findFirst({
-        where: {
-          fileId: existingFile.id,
-          version: version.trim(),
-        },
-      });
-
-      if (versionExists) {
-        throw new Error(`Version '${version}' already exists for file '${originalName}'.`);
-      }
-    }
 
     const storageKey = `${crypto.randomUUID()}-${originalName.replace(/\s+/g, '_')}`;
     const fileSize = BigInt(buffer.length);
@@ -51,60 +26,35 @@ export class FileService {
     await storageService.saveFile(buffer, storageKey);
 
     if (existingFile) {
-      // If file exists, treat this as uploading a new version of the existing file
-      return prisma.$transaction(async (tx) => {
-        const updatedFile = await tx.file.update({
-          where: { id: existingFile.id },
-          data: {
-            storageKey, // Point main storageKey to the latest version key
-            mimeType,
-            fileSize,
-            checksum,
-            // Keep original uploader (uploadedBy) unchanged, but updatedAt is updated automatically
-          },
-        });
+      // If file exists, delete the old physical file first to avoid leaking storage space
+      try {
+        await storageService.deleteFile(existingFile.storageKey);
+      } catch (err) {
+        console.error(`Failed to delete old storage file for ${existingFile.originalName}:`, err);
+      }
 
-        // Register new version with the custom user version string
-        await tx.fileVersion.create({
-          data: {
-            fileId: existingFile.id,
-            version: version.trim(),
-            storageKey,
-            fileSize,
-            checksum,
-            createdBy: userId,
-          },
-        });
-
-        return updatedFile;
+      // Update existing database record
+      return prisma.file.update({
+        where: { id: existingFile.id },
+        data: {
+          storageKey,
+          mimeType,
+          fileSize,
+          checksum,
+          uploadedBy: userId,
+        },
       });
     } else {
-      // If file does not exist, register a brand new file with the user-defined version
-      return prisma.$transaction(async (tx) => {
-        const file = await tx.file.create({
-          data: {
-            originalName,
-            storageKey,
-            mimeType,
-            fileSize,
-            checksum,
-            uploadedBy: userId,
-          },
-        });
-
-        // Create initial version record using the custom version string
-        await tx.fileVersion.create({
-          data: {
-            fileId: file.id,
-            version: version.trim(),
-            storageKey,
-            fileSize,
-            checksum,
-            createdBy: userId,
-          },
-        });
-
-        return file;
+      // If file does not exist, register a brand new file
+      return prisma.file.create({
+        data: {
+          originalName,
+          storageKey,
+          mimeType,
+          fileSize,
+          checksum,
+          uploadedBy: userId,
+        },
       });
     }
   }
@@ -115,14 +65,6 @@ export class FileService {
       include: {
         uploader: {
           select: { id: true, name: true, email: true },
-        },
-        versions: {
-          orderBy: { createdAt: 'desc' },
-          include: {
-            creator: {
-              select: { id: true, name: true, email: true },
-            },
-          },
         },
       },
     });
@@ -139,7 +81,7 @@ export class FileService {
     });
   }
 
-  static async downloadFile(id: string, version?: string) {
+  static async downloadFile(id: string) {
     const file = await prisma.file.findUnique({
       where: { id },
     });
@@ -148,19 +90,7 @@ export class FileService {
       throw new Error('File not found');
     }
 
-    let storageKey = file.storageKey;
-
-    if (version) {
-      const fileVersion = await prisma.fileVersion.findFirst({
-        where: { fileId: id, version: version.trim() },
-      });
-      if (!fileVersion) {
-        throw new Error(`Version '${version}' of file not found`);
-      }
-      storageKey = fileVersion.storageKey;
-    }
-
-    const buffer = await storageService.getFile(storageKey);
+    const buffer = await storageService.getFile(file.storageKey);
     return {
       buffer,
       originalName: file.originalName,
@@ -171,23 +101,16 @@ export class FileService {
   static async deleteFile(id: string) {
     const file = await prisma.file.findUnique({
       where: { id },
-      include: { versions: true },
     });
 
     if (!file) {
       throw new Error('File not found');
     }
 
-    // Delete all files from storage first
-    for (const version of file.versions) {
-      await storageService.deleteFile(version.storageKey);
-    }
-    // Delete main file key if different
-    if (!file.versions.some(v => v.storageKey === file.storageKey)) {
-      await storageService.deleteFile(file.storageKey);
-    }
+    // Delete the single file from physical storage
+    await storageService.deleteFile(file.storageKey);
 
-    // Delete DB records (Cascade will delete file_versions automatically)
+    // Delete the database record
     return prisma.file.delete({
       where: { id },
     });

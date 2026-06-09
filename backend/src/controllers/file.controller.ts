@@ -13,13 +13,7 @@ const formatFileResponse = (file: any) => {
     return res;
   };
 
-  const formatted = serialize(file);
-  
-  if (formatted.versions && Array.isArray(formatted.versions)) {
-    formatted.versions = formatted.versions.map((v: any) => serialize(v));
-  }
-  
-  return formatted;
+  return serialize(file);
 };
 
 export class FileController {
@@ -33,17 +27,11 @@ export class FileController {
         return sendError(res, 'Unauthorized', 401);
       }
 
-      const { version } = req.body;
-      if (!version) {
-        return sendError(res, 'Version metadata is required.', 400);
-      }
-
       const file = await FileService.uploadFile(
         req.file.originalname,
         req.file.mimetype,
         req.file.buffer,
-        req.user.id,
-        version
+        req.user.id
       );
 
       return sendSuccess(res, formatFileResponse(file), 'File uploaded and registered in SSOT successfully', 201);
@@ -81,9 +69,8 @@ export class FileController {
   static async downloadFile(req: Request, res: Response, next: NextFunction) {
     try {
       const { id } = req.params;
-      const versionQuery = req.query.v ? (req.query.v as string) : undefined;
 
-      const fileData = await FileService.downloadFile(id, versionQuery);
+      const fileData = await FileService.downloadFile(id);
 
       res.setHeader('Content-Type', fileData.mimeType);
       res.setHeader(
@@ -100,8 +87,6 @@ export class FileController {
       next(error);
     }
   }
-
-
 
   static async deleteFile(req: Request, res: Response, next: NextFunction) {
     try {
