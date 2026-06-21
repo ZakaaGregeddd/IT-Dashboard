@@ -1,0 +1,508 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Utilisasi CPU Server - Centralized IT Reporting</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#d3e4fe",
+                        "on-primary-fixed": "#001a42",
+                        "on-surface": "#0b1c30",
+                        "on-background": "#0b1c30",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-low": "#eff4ff",
+                        "inverse-surface": "#213145",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-tint": "#445e92",
+                        "on-secondary-container": "#684000",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-secondary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "tertiary-fixed": "#ffdbc9",
+                        "surface-container-high": "#dce9ff",
+                        "on-primary-fixed-variant": "#2b4679",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#0f2e60",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#6e3813",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#fea619",
+                        "on-error": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#855300",
+                        "tertiary-container": "#512200",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "outline": "#747780",
+                        "primary": "#001941",
+                        "surface-container": "#e5eeff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c4c6d1",
+                        "on-primary-container": "#7d97cf",
+                        "tertiary": "#311200",
+                        "surface-dim": "#cbdbf5",
+                        "surface": "#f8f9ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-container": "#ce865b",
+                        "on-surface-variant": "#44474f",
+                        "on-tertiary-fixed": "#321200",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#aec6ff",
+                        "inverse-primary": "#aec6ff",
+                        "background": "#f8f9ff",
+                        "surface-variant": "#d3e4fe",
+                        "amber-500": "#f59e0b" /* Ensure amber is available for chart */
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "lg": "24px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "base": "4px",
+                        "sidebar-width": "260px",
+                        "container-max": "1440px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Custom scrollbar for data tables */
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Hide number input spinners */
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar Component -->
+<nav class="fixed left-0 top-0 h-full w-[260px] bg-primary text-on-primary flex flex-col shadow-sm z-20">
+<!-- Brand Header -->
+<div class="px-lg py-xl border-b border-surface-tint/20">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-[32px] text-secondary-container" data-weight="fill">domain</span>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary"></h1><h1 class="font-title-sm text-title-sm font-bold text-white" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; font-family: Inter, sans-serif; --tw-text-opacity: 1; letter-spacing: normal; background-color: rgb(15, 46, 96); outline: none !important; box-shadow: none !important;">Sistem Pelaporan Bulanan Terpusat</h1>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col h-full overflow-y-auto py-md gap-xs">
+<!-- IT Planning & Security (Closed) -->
+<div class="flex flex-col">
+<button class="flex items-center justify-between py-sm px-md text-on-primary/80 hover:bg-primary-container/20 hover:text-on-primary transition-colors cursor-pointer w-full text-left">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined">security</span>
+<span class="font-body-md text-body-md font-medium">IT Planning &amp; Security</span>
+</div>
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</button>
+<div class="flex flex-col mt-xs bg-[#091a38] py-xs"><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Realisasi Program Kerja TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Realisasi RKAP TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">SDM IT (Outsource &amp; Pegawai)</a></div></div>
+<!-- App Dev & Services (Closed) -->
+<div class="flex flex-col">
+<button class="flex items-center justify-between py-sm px-md text-on-primary/80 hover:bg-primary-container/20 hover:text-on-primary transition-colors cursor-pointer w-full text-left">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined">developer_mode</span>
+<span class="font-body-md text-body-md font-medium">App Dev &amp; Services</span>
+</div>
+<span class="material-symbols-outlined text-[20px]">expand_more</span>
+</button>
+<div class="flex flex-col mt-xs bg-[#091a38] py-xs"><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Ketersediaan Report Aplikasi SCMC</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Tingkat Ketersediaan Sistem</a></div></div>
+<!-- IT Operation (Open & Active Section) -->
+<div class="flex flex-col">
+<button class="flex items-center justify-between py-sm px-md text-on-primary/90 bg-primary-container/10 transition-colors w-full text-left border-l-4 border-transparent">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined">settings_suggest</span>
+<span class="font-body-md text-body-md font-medium">IT Operation</span>
+</div>
+<span class="material-symbols-outlined text-[20px] transform rotate-180">expand_more</span>
+</button>
+<!-- Submenu -->
+<div class="flex flex-col mt-xs bg-[#091a38] py-xs"><a class="flex items-center py-[10px] pl-[48px] pr-md text-secondary-container font-bold border-l-4 border-secondary-container bg-primary-container/20 text-sm transition-colors" href="#">Utilisasi CPU Server</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi Memory Server</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi Storage Server</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi CPU Aplikasi Ellipse dan CISEA</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi CPU Database aplikasi Ellipse dan CISEA</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi Memory database Ellipse dan CISEA</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Utilisasi Storage database Ellipse dan CISEA</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Rata-rata Utilisasi Bandwidth Jaringan</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Ketersediaan Sistem Backup Ellipse, Email, Data Recovery (DR) Ellipse, Jaringan (WAN) dan CISEA</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Tingkat Ketersediaan Sistem Keamanan TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Penyelesaian Pekerjaan PC Support</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Penyelesaian Permintaan Layanan Aplikasi TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Penyelesaian Permintaan Layanan TI di Operasional TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Realisasi Restore Ellipse dan Email sesuai kebutuhan</a></div>
+</div>
+</div>
+<!-- User Profile Minimal -->
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 flex flex-col ml-[260px] h-full overflow-hidden bg-surface">
+<!-- TopNavBar Component -->
+<header class="h-16 flex justify-between items-center px-lg border-b border-outline-variant bg-surface flex-shrink-0 z-10">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
+<span class="hover:text-primary cursor-pointer transition-colors">IT Operation</span>
+<span class="material-symbols-outlined text-[16px] mx-2">chevron_right</span>
+<span class="font-bold text-primary">Utilisasi CPU Server</span>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-md">
+<div class="relative">
+<span class="absolute inset-y-0 left-0 flex items-center pl-3">
+</span>
+</div>
+<button class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm hover:bg-primary-container/80 transition-colors shadow-sm">A</button>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<main class="flex-1 overflow-y-auto p-lg custom-scrollbar">
+<div class="max-w-[1440px] mx-auto space-y-lg pb-xl">
+<!-- Page Header -->
+<div>
+<h2 class="font-display-lg text-display-lg text-on-surface">Utilisasi CPU Server</h2>
+<div class="flex gap-sm items-center mt-2 text-on-surface-variant">
+<div class="flex gap-2">
+
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+<option selected="" value="Januari">Januari</option>
+<option value="Februari">Februari</option>
+<option value="Maret">Maret</option>
+<option value="April">April</option>
+<option value="Mei">Mei</option>
+<option value="Juni">Juni</option>
+<option value="Juli">Juli</option>
+<option value="Agustus">Agustus</option>
+<option value="September">September</option>
+<option value="Oktober">Oktober</option>
+<option value="November">November</option>
+<option value="Desember">Desember</option>
+</select>
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+<option selected="" value="2023">2023</option>
+<option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
+<option value="2027">2027</option>
+<option value="2028">2028</option>
+<option value="2029">2029</option>
+<option value="2030">2030</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Action Bar -->
+<!-- Data Table Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+<h3 class="font-title-sm text-title-sm text-on-surface">Data Utilisasi CPU</h3>
+<button class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-DEFAULT text-body-sm font-medium hover:bg-primary-fixed-variant transition-colors shadow-sm"><span class="material-symbols-outlined text-[18px]">add</span>Tambah Baris Baru</button>
+</div>
+<div class="overflow-x-auto custom-scrollbar">
+<table class="w-full text-left border-collapse" id="dataTable">
+<thead>
+<tr class="bg-[#f1f5f9] border-b border-outline-variant"><th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant w-16 text-center">No</th><th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant">Nama Server</th><th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">CPU Cores</th><th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">Utilisasi (GHz)</th><th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">Utilisasi (%)</th></tr>
+</thead>
+<tbody class="font-data-mono text-data-mono divide-y divide-outline-variant/50">
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">1</td><td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi1</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="128"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="9"></td><td class="px-md py-[12px] text-right utilisasi-percent">7%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">2</td><td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi2</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="128"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="28"></td><td class="px-md py-[12px] text-right utilisasi-percent">22%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">3</td><td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi3</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="128"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="13"></td><td class="px-md py-[12px] text-right utilisasi-percent">10%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">4</td><td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi4</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="128"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="13"></td><td class="px-md py-[12px] text-right utilisasi-percent">10%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">5</td><td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp1</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="147"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="54"></td><td class="px-md py-[12px] text-right utilisasi-percent">37%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">6</td><td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp2</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="147"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" placeholder="82" type="number" value="82"></td><td class="px-md py-[12px] text-right utilisasi-percent">56%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">7</td><td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp3</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="147"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="31"></td><td class="px-md py-[12px] text-right utilisasi-percent">21%</td></tr>
+<tr class="hover:bg-[#f8fafc] transition-colors data-row"><td class="px-md py-[12px] text-center text-on-surface-variant">8</td><td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp4</td><td class="px-md py-[12px] text-right"><input class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="147"></td><td class="px-md py-[12px] text-right"><input class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right" type="number" value="41"></td><td class="px-md py-[12px] text-right utilisasi-percent">28%</td></tr>
+</tbody>
+<tfoot>
+<tr class="bg-secondary-fixed border-t-2 border-outline-variant font-bold text-on-secondary-fixed"><td class="px-md py-sm text-right" colspan="2">Total / Average</td><td class="px-md py-sm text-right" id="total-memory">1,100</td><td class="px-md py-sm text-right" id="total-utilisasi">271</td><td class="px-md py-sm text-right" id="avg-utilisasi">25%</td></tr>
+</tfoot>
+</table>
+</div><div class="p-lg border-t border-outline-variant bg-surface-container-lowest flex justify-end gap-md">
+<button class="px-6 py-2 rounded border border-outline text-on-surface font-label-caps text-label-caps hover:bg-surface-container-low transition-colors">Batal</button>
+<button class="flex items-center gap-sm bg-primary text-on-primary px-6 py-2 rounded font-label-caps text-label-caps hover:bg-primary-fixed-variant transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                            Konfirmasi &amp; Simpan
+                        </button>
+</div>
+</div>
+<!-- Visualization Card -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+<h3 class="font-title-sm text-title-sm text-on-surface">Visualisasi - CPU Cores vs Utilisasi</h3>
+</div>
+<div class="p-lg">
+<div class="w-full overflow-hidden relative" style="height: 300px;">
+<canvas height="450" id="memoryChart" style="display: block; box-sizing: border-box; height: 300px; width: 922.7px;" width="1384"></canvas>
+</div>
+</div>
+</div><div class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
+<div>
+<h3 class="font-title-sm text-title-sm text-on-surface">Performa Year to Date (YTD)</h3>
+<p class="text-body-sm text-on-surface-variant">Tren Rata-rata Utilisasi CPU Server (%) 2021 - 2024</p>
+</div>
+<div class="flex gap-sm items-center">
+<div class="flex items-center gap-xs">
+<span class="text-label-caps text-on-surface-variant">Dari Tahun</span>
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+<option selected="" value="2021">2021</option>
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024">2024</option>
+</select>
+</div>
+<div class="flex items-center gap-xs">
+<span class="text-label-caps text-on-surface-variant">Sampai Tahun</span>
+<select class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option selected="" value="2024">2024</option>
+</select>
+</div>
+</div>
+</div>
+<div class="p-lg">
+<div class="w-full overflow-hidden relative" style="height: 300px;"><canvas id="ytdLineChart" class="mb-md" style="height: 284px; width: 922.7px; display: block; box-sizing: border-box;" width="1384" height="426"></canvas>
+<div class="flex items-end justify-between h-full gap-md pt-md">
+<div class="flex-1 flex flex-col items-center gap-sm">
+<div class="w-full bg-primary-container/10 rounded-t relative" style="height: 60%">
+<div class="absolute bottom-0 w-full bg-[#f59e0b] rounded-t" style="height: 18%;"></div>
+</div>
+<span class="text-data-mono text-xs">2021</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm">
+<div class="w-full bg-primary-container/10 rounded-t relative" style="height: 75%">
+<div class="absolute bottom-0 w-full bg-[#f59e0b] rounded-t" style="height: 22%;"></div>
+</div>
+<span class="text-data-mono text-xs">2022</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm">
+<div class="w-full bg-primary-container/10 rounded-t relative" style="height: 85%">
+<div class="absolute bottom-0 w-full bg-[#f59e0b] rounded-t" style="height: 25%;"></div>
+</div>
+<span class="text-data-mono text-xs">2023</span>
+</div>
+<div class="flex-1 flex flex-col items-center gap-sm">
+<div class="w-full bg-primary-container/10 rounded-t relative" style="height: 90%">
+<div class="absolute bottom-0 w-full bg-[#f59e0b] rounded-t" style="height: 28%;"></div>
+</div>
+<span class="text-data-mono text-xs">2024</span>
+</div>
+</div>
+<div class="absolute top-0 right-0 flex gap-md">
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 rounded-full bg-primary-container/20"></div>
+<span class="text-xs text-on-surface-variant">Target</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
+<span class="text-xs text-on-surface-variant">Rata-rata Utilisasi (%)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('memoryChart').getContext('2d');
+        let memoryChart;
+
+        function updateData() {
+            const rows = document.querySelectorAll('#dataTable .data-row');
+            const labels = [];
+            const memoryData = [];
+            const utilisasiData = [];
+            let totalMemory = 0;
+            let totalUtilisasi = 0;
+
+            rows.forEach(row => {
+                const serverName = row.querySelector('.server-name').textContent;
+                const memoryVal = parseFloat(row.querySelector('.memory-input').value) || 0;
+                const utilisasiVal = parseFloat(row.querySelector('.utilisasi-input').value) || 0;
+                
+                labels.push(serverName);
+                memoryData.push(memoryVal);
+                utilisasiData.push(utilisasiVal);
+                
+                totalMemory += memoryVal;
+                totalUtilisasi += utilisasiVal;
+                
+                let percent = 0;
+                if(memoryVal > 0) {
+                    percent = Math.round((utilisasiVal / memoryVal) * 100);
+                }
+                row.querySelector('.utilisasi-percent').textContent = percent + '%';
+            });
+
+            // Update Totals
+            document.getElementById('total-memory').textContent = totalMemory.toLocaleString();
+            document.getElementById('total-utilisasi').textContent = totalUtilisasi.toLocaleString();
+            let avgPercent = 0;
+            if(totalMemory > 0) {
+                avgPercent = Math.round((totalUtilisasi / totalMemory) * 100);
+            }
+            document.getElementById('avg-utilisasi').textContent = avgPercent + '%';
+
+            // Update Chart
+            if(memoryChart) {
+                memoryChart.data.labels = labels;
+                memoryChart.data.datasets[0].data = memoryData;
+                memoryChart.data.datasets[1].data = utilisasiData;
+                memoryChart.update();
+            } else {
+                memoryChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'CPU Cores',
+                                data: memoryData,
+                                backgroundColor: '#0f2e60',
+                                barPercentage: 0.6,
+                                categoryPercentage: 0.8
+                            },
+                            {
+                                label: 'Utilisasi (GHz)',
+                                data: utilisasiData,
+                                backgroundColor: '#f59e0b',
+                                barPercentage: 0.6,
+                                categoryPercentage: 0.8
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top',
+                                align: 'end',
+                                labels: {
+                                    usePointStyle: true,
+                                    boxWidth: 8
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Add event listeners to inputs
+        const inputs = document.querySelectorAll('#dataTable input[type="number"]');
+        inputs.forEach(input => {
+            input.addEventListener('input', updateData);
+            input.addEventListener('change', updateData);
+        });
+
+        // Initial render
+        updateData();
+    });
+</script>
+
+
+<script>
+    (function() {
+        const ctx = document.getElementById('ytdLineChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['2021', '2022', '2023', '2024'],
+                datasets: [
+                    {
+                        label: 'Target Tahunan',
+                        data: [15, 20, 25, 30],
+                        borderColor: '#0f2e60',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    },
+                    {
+                        label: 'Realisasi Kumulatif',
+                        data: [18, 22, 25, 28],
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.3,
+                        pointRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { display: false },
+                        ticks: { display: false }
+                    },
+                    x: {
+                        display: false
+                    }
+                }
+            }
+        });
+    })();
+</script>
+
+</body></html>
