@@ -1,21 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChevronDown, Database, LayoutDashboard, Monitor, ShieldCheck } from 'lucide-react';
 import { cn } from '@/components/ui/Card';
+import { navigateTo } from '@/utils/navigation';
 
 interface SidebarMenuItemProps {
   label: string;
   icon: React.ReactNode;
   active?: boolean;
+  onClick?: () => void;
   children?: React.ReactNode;
 }
 
-const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, children }) => {
+const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, onClick, children }) => {
   const [isOpen, setIsOpen] = useState(false);
   const hasChildren = !!children;
 
   if (!hasChildren) {
     return (
       <a 
+        onClick={(e) => {
+          if (onClick) {
+            e.preventDefault();
+            onClick();
+          }
+        }}
         className={cn(
           "flex items-center gap-2.5 px-4 py-2 transition-colors",
           active 
@@ -122,6 +130,22 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('navigate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('navigate', handleLocationChange);
+    };
+  }, []);
+
   return (
     <aside className={cn(
       "bg-primary-900 text-white flex flex-col flex-shrink-0 relative z-20 transition-all duration-300 ease-in-out overflow-hidden",
@@ -148,11 +172,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
           <SidebarMenuItem 
             label="Dashboard" 
             icon={<LayoutDashboard className="w-full h-full" />} 
-            active 
+            active={currentPath === '/' || currentPath === '/dashboard'} 
+            onClick={() => navigateTo('/')}
           />
           <SidebarMenuItem 
             label="Data Overall" 
             icon={<Database className="w-full h-full" />} 
+            active={currentPath === '/data-overall'}
+            onClick={() => navigateTo('/data-overall')}
           />
 
           <SidebarMenuItem label="IT Planning & Security" icon={<ShieldCheck className="w-full h-full" />}>

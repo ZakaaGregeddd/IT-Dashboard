@@ -3,11 +3,12 @@ import { Card, CardTitle } from '@/components/ui/Card';
 import { BaseDoughnutChart } from '@/components/charts/BaseDoughnutChart';
 
 interface RkapDonutChartProps {
+  title: string;
   percentage: number;
   onClick?: () => void;
 }
 
-export const RkapDonutChart: React.FC<RkapDonutChartProps> = ({ percentage, onClick }) => {
+export const RkapDonutChart: React.FC<RkapDonutChartProps> = ({ title, percentage, onClick }) => {
   const data = {
     labels: ['Realisasi', 'Remaining'],
     datasets: [{
@@ -23,7 +24,7 @@ export const RkapDonutChart: React.FC<RkapDonutChartProps> = ({ percentage, onCl
       onClick={onClick}
       className={onClick ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" : ""}
     >
-      <CardTitle>Realisasi RKAP TI</CardTitle>
+      <CardTitle>{title}</CardTitle>
       <div className="relative flex-1 min-h-0 w-full flex items-center justify-center" style={{ maxHeight: '125px' }}>
         <BaseDoughnutChart data={data} />
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">

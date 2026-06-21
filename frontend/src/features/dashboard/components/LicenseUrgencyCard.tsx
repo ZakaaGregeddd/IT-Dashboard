@@ -5,13 +5,12 @@ import { Pie } from 'react-chartjs-2';
 
 ChartJS.register(ArcElement, Tooltip, Legend, PieController);
 
-export interface LicenseData {
-  nama_aplikasi: string;
-  expiry_date: string; // Format: YYYY-MM-DD
-}
-
 interface LicenseUrgencyCardProps {
-  licenses: LicenseData[];
+  data: {
+    under2: number;
+    between2and4: number;
+    over4: number;
+  };
   onClick?: () => void;
 }
 
@@ -68,38 +67,11 @@ const innerLabelsPlugin = {
   }
 };
 
-export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ licenses, onClick }) => {
-  // Helper to calculate difference in months
-  const calculateMonthsRemaining = (expiryDateStr: string): number => {
-    const expiry = new Date(expiryDateStr);
-    const today = new Date();
-    const diffTime = expiry.getTime() - today.getTime();
-    if (diffTime <= 0) return 0;
-    
-    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-    return diffDays / 30;
-  };
-
-  // Aggregate license data
-  const aggregated = licenses.reduce(
-    (acc, item) => {
-      const months = calculateMonthsRemaining(item.expiry_date);
-      if (months <= 2) {
-        acc.under2++;
-      } else if (months > 2 && months <= 4) {
-        acc.between2and4++;
-      } else {
-        acc.over4++;
-      }
-      return acc;
-    },
-    { under2: 0, between2and4: 0, over4: 0 }
-  );
-
+export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ data, onClick }) => {
   const chartData = {
     labels: ['<= 2 Bulan', '2 - 4 Bulan', 'Lisensi Aktif (> 4 bulan)'],
     datasets: [{
-      data: [aggregated.under2, aggregated.between2and4, aggregated.over4],
+      data: [data.under2, data.between2and4, data.over4],
       backgroundColor: ['#ef4444', '#f59e0b', '#0f2e60'], // Red, Yellow, Dark Blue
       borderWidth: 1,
       borderColor: '#ffffff'

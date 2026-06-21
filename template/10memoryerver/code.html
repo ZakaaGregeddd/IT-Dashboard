@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="id" style="">
+<html lang="en" style="">
 
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Utilisasi CPU Aplikasi Ellipse dan CISEA - Sistem Pelaporan Bulanan Terpusat</title>
+    <title>Utilisasi Memory Server - Centralized IT Reporting</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
     <link
@@ -64,7 +64,7 @@
                         "inverse-primary": "#aec6ff",
                         "background": "#f8f9ff",
                         "surface-variant": "#d3e4fe",
-                        "amber-500": "#f59e0b"
+                        "amber-500": "#f59e0b" /* Ensure amber is available for chart */
                     },
                     "borderRadius": {
                         "DEFAULT": "0.125rem",
@@ -209,7 +209,7 @@
                 <div class="flex flex-col mt-xs bg-[#091a38] py-xs"><a
                         class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
                         href="#">Utilisasi CPU Server</a><a
-                        class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
+                        class="flex items-center py-[10px] pl-[48px] pr-md text-secondary-container font-bold border-l-4 border-secondary-container bg-primary-container/20 text-sm transition-colors"
                         href="#">Utilisasi Memory Server</a><a
                         class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
                         href="#">Utilisasi Storage Server</a><a
@@ -217,7 +217,7 @@
                         href="#">Utilisasi CPU Aplikasi Ellipse dan CISEA</a><a
                         class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
                         href="#">Utilisasi CPU Database aplikasi Ellipse dan CISEA</a><a
-                        class="flex items-center py-[10px] pl-[48px] pr-md text-secondary-container font-bold border-l-4 border-secondary-container bg-primary-container/20 text-sm transition-colors"
+                        class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
                         href="#">Utilisasi Memory database Ellipse dan CISEA</a><a
                         class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors"
                         href="#">Utilisasi Storage database Ellipse dan CISEA</a><a
@@ -249,7 +249,7 @@
             <div class="flex items-center text-on-surface-variant font-body-sm text-body-sm">
                 <span class="hover:text-primary cursor-pointer transition-colors">IT Operation</span>
                 <span class="material-symbols-outlined text-[16px] mx-2">chevron_right</span>
-                <span class="font-bold text-primary">Utilisasi Memory Database Ellipse dan CISEA</span>
+                <span class="font-bold text-primary">Utilisasi Memory Server</span>
             </div>
             <!-- Trailing Actions -->
             <div class="flex items-center gap-md">
@@ -257,10 +257,8 @@
                     <span class="absolute inset-y-0 left-0 flex items-center pl-3">
                     </span>
                 </div>
-                <div
-                    class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-title-sm ml-sm">
-                    A
-                </div>
+                <button
+                    class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold text-sm hover:bg-primary-container/80 transition-colors shadow-sm">A</button>
             </div>
         </header>
         <!-- Scrollable Canvas -->
@@ -268,68 +266,59 @@
             <div class="max-w-[1440px] mx-auto space-y-lg pb-xl">
                 <!-- Page Header -->
                 <div>
-                    <h2 class="font-display-lg text-display-lg text-on-surface">Utilisasi Memory Database Ellipse dan
-                        CISEA</h2>
-                    <div class="flex flex-wrap items-end gap-md mt-md">
-                        <div class="flex flex-col gap-xs">
+                    <h2 class="font-display-lg text-display-lg text-on-surface">Utilisasi Memory Server</h2>
+                    <div class="flex gap-sm items-center mt-2 text-on-surface-variant">
+                        <div class="flex gap-2">
 
-                            <div class="relative">
-
-                                <span
-                                    class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-xs">
-                            <label class="text-label-caps text-on-surface-variant">Bulan</label>
-                            <div class="relative">
-                                <select
-                                    class="appearance-none bg-surface border border-outline-variant rounded px-md py-2 pr-10 text-body-sm focus:border-primary focus:outline-none cursor-pointer w-40">
-                                    <option>Januari</option>
-                                    <option>Februari</option>
-                                    <option>Maret</option>
-                                    <option>April</option>
-                                    <option>Mei</option>
-                                    <option>Juni</option>
-                                    <option>Juli</option>
-                                    <option>Agustus</option>
-                                    <option>September</option>
-                                    <option selected="">Oktober</option>
-                                    <option>November</option>
-                                    <option>Desember</option>
-                                </select>
-                                <span
-                                    class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
-                            </div>
-                        </div>
-                        <div class="flex flex-col gap-xs">
-                            <label class="text-label-caps text-on-surface-variant">Tahun</label>
-                            <div class="relative">
-                                <select
-                                    class="appearance-none bg-surface border border-outline-variant rounded px-md py-2 pr-10 text-body-sm focus:border-primary focus:outline-none cursor-pointer w-32">
-                                    <option>2022</option>
-                                    <option>2023</option>
-                                    <option selected="">2024</option>
-                                </select>
-                                <span
-                                    class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
-                            </div>
+                            <select
+                                class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+                                <option selected="" value="Januari">Januari</option>
+                                <option value="Februari">Februari</option>
+                                <option value="Maret">Maret</option>
+                                <option value="April">April</option>
+                                <option value="Mei">Mei</option>
+                                <option value="Juni">Juni</option>
+                                <option value="Juli">Juli</option>
+                                <option value="Agustus">Agustus</option>
+                                <option value="September">September</option>
+                                <option value="Oktober">Oktober</option>
+                                <option value="November">November</option>
+                                <option value="Desember">Desember</option>
+                            </select>
+                            <select
+                                class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary">
+                                <option selected="" value="2023">2023</option>
+                                <option value="2024">2024</option>
+                                <option value="2025">2025</option>
+                                <option value="2026">2026</option>
+                                <option value="2027">2027</option>
+                                <option value="2028">2028</option>
+                                <option value="2029">2029</option>
+                                <option value="2030">2030</option>
+                            </select>
                         </div>
                     </div>
                 </div>
+                <!-- Action Bar -->
                 <!-- Data Table Card -->
                 <div
                     class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
                     <div
                         class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                        <h3 class="font-title-sm text-title-sm text-on-surface">Data Utilisasi Memory Database</h3>
-
+                        <h3 class="font-title-sm text-title-sm text-on-surface">Data Utilisasi Memori</h3>
+                        <button
+                            class="flex items-center gap-2 px-4 py-2 bg-primary text-on-primary rounded-DEFAULT text-body-sm font-medium hover:bg-primary-fixed-variant transition-colors shadow-sm"><span
+                                class="material-symbols-outlined text-[18px]">add</span>Tambah Baris Baru</button>
                     </div>
                     <div class="overflow-x-auto custom-scrollbar">
                         <table class="w-full text-left border-collapse" id="dataTable">
                             <thead>
                                 <tr class="bg-[#f1f5f9] border-b border-outline-variant">
-                                    <th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant">
-                                        Memory Database</th>
+                                    <th
+                                        class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant w-16 text-center">
+                                        No</th>
+                                    <th class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant">Nama
+                                        Server</th>
                                     <th
                                         class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">
                                         Memory (GB)</th>
@@ -338,40 +327,108 @@
                                         Utilisasi (GB)</th>
                                     <th
                                         class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">
-                                        Free (%)</th>
-                                    <th
-                                        class="px-md py-sm font-label-caps text-label-caps text-on-surface-variant text-right w-32">
                                         Utilisasi (%)</th>
                                 </tr>
                             </thead>
                             <tbody class="font-data-mono text-data-mono divide-y divide-outline-variant/50">
                                 <tr class="hover:bg-[#f8fafc] transition-colors data-row">
-                                    <td class="px-md py-[12px] text-primary font-medium system-name">CISEA</td>
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">1</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi1</td>
                                     <td class="px-md py-[12px] text-right"><input
-                                            class="cpu-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
-                                            step="1" type="number" value="64"></td>
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
                                     <td class="px-md py-[12px] text-right"><input
                                             class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
-                                            step="1" type="number" value="27"></td>
-                                    <td class="px-md py-[12px] text-right free-percent text-on-surface-variant">57.8%
-                                    </td>
-                                    <td class="px-md py-[12px] text-right utilisasi-percent text-primary font-bold">
-                                        42.2%</td>
+                                            type="number" value="389"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">38%</td>
                                 </tr>
                                 <tr class="hover:bg-[#f8fafc] transition-colors data-row">
-                                    <td class="px-md py-[12px] text-primary font-medium system-name">Ellipse</td>
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">2</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi2</td>
                                     <td class="px-md py-[12px] text-right"><input
-                                            class="cpu-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
-                                            step="1" type="number" value="512"></td>
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
                                     <td class="px-md py-[12px] text-right"><input
                                             class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
-                                            step="1" type="number" value="225"></td>
-                                    <td class="px-md py-[12px] text-right free-percent text-on-surface-variant">56.1%
-                                    </td>
-                                    <td class="px-md py-[12px] text-right utilisasi-percent text-primary font-bold">
-                                        43.9%</td>
+                                            type="number" value="461"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">45%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">3</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi3</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="389"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">38%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">4</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">steppl-esxi4</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="471"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">46%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">5</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp1</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="655"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">64%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">6</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp2</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="430"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">42%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">7</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp3</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="573"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">56%</td>
+                                </tr>
+                                <tr class="hover:bg-[#f8fafc] transition-colors data-row">
+                                    <td class="px-md py-[12px] text-center text-on-surface-variant">8</td>
+                                    <td class="px-md py-[12px] text-primary font-medium server-name">tjevmerp4</td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="memory-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="1024"></td>
+                                    <td class="px-md py-[12px] text-right"><input
+                                            class="utilisasi-input w-full bg-transparent border-b border-transparent focus:border-primary focus:outline-none text-right"
+                                            type="number" value="399"></td>
+                                    <td class="px-md py-[12px] text-right utilisasi-percent">39%</td>
                                 </tr>
                             </tbody>
+                            <tfoot>
+                                <tr
+                                    class="bg-secondary-fixed border-t-2 border-outline-variant font-bold text-on-secondary-fixed">
+                                    <td class="px-md py-sm text-right" colspan="2">Total / Average</td>
+                                    <td class="px-md py-sm text-right" id="total-memory">8,192</td>
+                                    <td class="px-md py-sm text-right" id="total-utilisasi">3,767</td>
+                                    <td class="px-md py-sm text-right" id="avg-utilisasi">46%</td>
+                                </tr>
+                            </tfoot>
                         </table>
                     </div>
                     <div
@@ -390,70 +447,99 @@
                     class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
                     <div
                         class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
-                        <h3 class="font-title-sm text-title-sm text-on-surface">Visualisasi Utilisasi Memory Database
-                        </h3>
+                        <h3 class="font-title-sm text-title-sm text-on-surface">Visualisasi - Memory Capacity vs
+                            Utilisasi</h3>
                     </div>
                     <div class="p-lg">
                         <div class="w-full overflow-hidden relative" style="height: 300px;">
-                            <canvas height="450" id="cpuChart"
+                            <canvas height="450" id="memoryChart"
                                 style="display: block; box-sizing: border-box; height: 300px; width: 922.7px;"
                                 width="1384"></canvas>
                         </div>
                     </div>
                 </div>
                 <div
-                    class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+                    class="bg-surface-container-lowest border border-outline-variant rounded-lg shadow-[0_1px_3px_rgba(0,0,0,0.05)] overflow-hidden">
                     <div
-                        class="px-lg py-md border-b border-outline-variant flex flex-wrap justify-between items-center bg-surface-container-low/50 gap-md">
+                        class="px-lg py-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low/50">
                         <div>
                             <h3 class="font-title-sm text-title-sm text-on-surface">Performa Year to Date (YTD)</h3>
-                            <p class="text-body-sm text-on-surface-variant">Tren Rata-rata Utilisasi Memory Database (%)
-                                2021 - 2024</p>
+                            <p class="text-body-sm text-on-surface-variant mt-xs">Tren Rata-rata Utilisasi Memory Server
+                                (%) 2021 - 2024</p>
                         </div>
-                        <div class="flex items-center gap-md">
-                            <div class="flex flex-col gap-xs">
-                                <label class="text-label-caps text-on-surface-variant">Dari Tahun</label>
-                                <div class="relative">
-                                    <select
-                                        class="appearance-none bg-surface border border-outline-variant rounded px-md py-2 pr-10 text-body-sm focus:border-primary focus:outline-none cursor-pointer w-32">
-                                        <option selected="">2021</option>
-                                        <option>2022</option>
-                                        <option>2023</option>
-                                        <option>2024</option>
-                                    </select>
-                                    <span
-                                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
-                                </div>
+                        <div class="flex gap-sm items-center">
+                            <div class="flex items-center gap-2">
+                                <span class="text-label-caps font-label-caps text-on-surface-variant">Dari Tahun</span>
+                                <select
+                                    class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary min-w-[100px]">
+                                    <option selected="" value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2024">2024</option>
+                                </select>
                             </div>
-                            <div class="flex flex-col gap-xs">
-                                <label class="text-label-caps text-on-surface-variant">Sampai Tahun</label>
-                                <div class="relative">
-                                    <select
-                                        class="appearance-none bg-surface border border-outline-variant rounded px-md py-2 pr-10 text-body-sm focus:border-primary focus:outline-none cursor-pointer w-32">
-                                        <option>2021</option>
-                                        <option>2022</option>
-                                        <option>2023</option>
-                                        <option selected="">2024</option>
-                                    </select>
-                                    <span
-                                        class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
-                                </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-label-caps font-label-caps text-on-surface-variant">Sampai
+                                    Tahun</span>
+                                <select
+                                    class="bg-surface-container-lowest border border-outline-variant rounded px-2 py-1 font-body-sm text-on-surface focus:outline-none focus:border-primary min-w-[100px]">
+                                    <option value="2021">2021</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2023">2023</option>
+                                    <option selected="" value="2024">2024</option>
+                                </select>
                             </div>
                         </div>
                     </div>
                     <div class="p-lg">
-                        <div class="w-full h-[300px] relative">
-                            <canvas id="ytdChart" width="1384" height="450"
-                                style="display: block; box-sizing: border-box; height: 300px; width: 922.7px;"></canvas>
-                        </div>
-                        <div class="flex justify-center gap-xl mt-md">
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-[#0f2e60]"></div>
-                                <span class="text-body-sm text-on-surface-variant">CISEA</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <div class="w-3 h-3 rounded-full bg-[#f59e0b]"></div>
-                                <span class="text-body-sm text-on-surface-variant">Ellipse</span>
+                        <div class="w-full h-[300px]">
+                            <div class="recharts-responsive-container" style="width: 100%; height: 100%;"><svg
+                                    viewBox="0 0 800 300" class="recharts-surface">
+                                    <defs>
+                                        <clipPath id="recharts1-clip">
+                                            <rect x="50" y="5" width="730" height="260"></rect>
+                                        </clipPath>
+                                    </defs>
+                                    <g class="recharts-cartesian-grid">
+                                        <line stroke="#ccc" stroke-dasharray="3 3" x1="50" y1="5" x2="780" y2="5">
+                                        </line>
+                                        <line stroke="#ccc" stroke-dasharray="3 3" x1="50" y1="70" x2="780" y2="70">
+                                        </line>
+                                        <line stroke="#ccc" stroke-dasharray="3 3" x1="50" y1="135" x2="780" y2="135">
+                                        </line>
+                                        <line stroke="#ccc" stroke-dasharray="3 3" x1="50" y1="200" x2="780" y2="200">
+                                        </line>
+                                        <line stroke="#ccc" stroke-dasharray="3 3" x1="50" y1="265" x2="780" y2="265">
+                                        </line>
+                                    </g>
+                                    <g class="recharts-x-axis"><text x="50" y="285" text-anchor="middle"
+                                            class="text-label-caps fill-on-surface-variant">2021</text><text x="293"
+                                            y="285" text-anchor="middle"
+                                            class="text-label-caps fill-on-surface-variant">2022</text><text x="536"
+                                            y="285" text-anchor="middle"
+                                            class="text-label-caps fill-on-surface-variant">2023</text><text x="780"
+                                            y="285" text-anchor="middle"
+                                            class="text-label-caps fill-on-surface-variant">2024</text></g>
+                                    <g class="recharts-y-axis"><text x="40" y="265" text-anchor="end"
+                                            class="text-label-caps fill-on-surface-variant">0</text><text x="40" y="135"
+                                            text-anchor="end"
+                                            class="text-label-caps fill-on-surface-variant">50</text><text x="40" y="5"
+                                            text-anchor="end" class="text-label-caps fill-on-surface-variant">100</text>
+                                    </g>
+                                    <path stroke="#0f2e60" stroke-width="3" fill="none"
+                                        d="M50,155.8 L293,148 L536,140.2 L780,145.4" class="recharts-line-curve"></path>
+                                    <g class="recharts-line-dots">
+                                        <circle cx="50" cy="155.8" r="4" fill="#0f2e60"></circle>
+                                        <circle cx="293" cy="148" r="4" fill="#0f2e60"></circle>
+                                        <circle cx="536" cy="140.2" r="4" fill="#0f2e60"></circle>
+                                        <circle cx="780" cy="145.4" r="4" fill="#0f2e60"></circle>
+                                    </g>
+                                </svg></div>
+                            <div class="flex justify-center gap-md mt-2">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-3 h-3 bg-[#0f2e60] rounded-full"></div><span
+                                        class="text-label-caps text-on-surface-variant">Rata-rata Utilisasi (%)</span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -463,57 +549,66 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const ctx = document.getElementById('cpuChart').getContext('2d');
-            let cpuChart;
+            const ctx = document.getElementById('memoryChart').getContext('2d');
+            let memoryChart;
 
             function updateData() {
                 const rows = document.querySelectorAll('#dataTable .data-row');
                 const labels = [];
-                const freeData = [];
+                const memoryData = [];
                 const utilisasiData = [];
+                let totalMemory = 0;
+                let totalUtilisasi = 0;
 
                 rows.forEach(row => {
-                    const systemName = row.querySelector('.system-name').textContent;
-                    const cpuVal = parseFloat(row.querySelector('.cpu-input').value) || 0;
+                    const serverName = row.querySelector('.server-name').textContent;
+                    const memoryVal = parseFloat(row.querySelector('.memory-input').value) || 0;
                     const utilisasiVal = parseFloat(row.querySelector('.utilisasi-input').value) || 0;
 
-                    labels.push(systemName);
+                    labels.push(serverName);
+                    memoryData.push(memoryVal);
+                    utilisasiData.push(utilisasiVal);
 
-                    let utilPercent = 0;
-                    let freePercent = 0;
-                    if (cpuVal > 0) {
-                        utilPercent = (utilisasiVal / cpuVal) * 100;
-                        freePercent = 100 - utilPercent;
+                    totalMemory += memoryVal;
+                    totalUtilisasi += utilisasiVal;
+
+                    let percent = 0;
+                    if (memoryVal > 0) {
+                        percent = Math.round((utilisasiVal / memoryVal) * 100);
                     }
-
-                    utilisasiData.push(utilPercent);
-                    freeData.push(freePercent);
-
-                    row.querySelector('.utilisasi-percent').textContent = utilPercent.toFixed(1) + '%';
-                    row.querySelector('.free-percent').textContent = freePercent.toFixed(1) + '%';
+                    row.querySelector('.utilisasi-percent').textContent = percent + '%';
                 });
 
+                // Update Totals
+                document.getElementById('total-memory').textContent = totalMemory.toLocaleString();
+                document.getElementById('total-utilisasi').textContent = totalUtilisasi.toLocaleString();
+                let avgPercent = 0;
+                if (totalMemory > 0) {
+                    avgPercent = Math.round((totalUtilisasi / totalMemory) * 100);
+                }
+                document.getElementById('avg-utilisasi').textContent = avgPercent + '%';
+
                 // Update Chart
-                if (cpuChart) {
-                    cpuChart.data.labels = labels;
-                    cpuChart.data.datasets[0].data = freeData;
-                    cpuChart.data.datasets[1].data = utilisasiData;
-                    cpuChart.update();
+                if (memoryChart) {
+                    memoryChart.data.labels = labels;
+                    memoryChart.data.datasets[0].data = memoryData;
+                    memoryChart.data.datasets[1].data = utilisasiData;
+                    memoryChart.update();
                 } else {
-                    cpuChart = new Chart(ctx, {
+                    memoryChart = new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
                             datasets: [
                                 {
-                                    label: 'Free (%)',
-                                    data: freeData,
+                                    label: 'Memory (GB)',
+                                    data: memoryData,
                                     backgroundColor: '#001941',
                                     barPercentage: 0.6,
                                     categoryPercentage: 0.8
                                 },
                                 {
-                                    label: 'Utilisasi (%)',
+                                    label: 'Utilisasi (GB)',
                                     data: utilisasiData,
                                     backgroundColor: '#f59e0b',
                                     barPercentage: 0.6,
@@ -522,22 +617,17 @@
                             ]
                         },
                         options: {
-                            indexAxis: 'y',
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
-                                x: {
-                                    stacked: true,
-                                    beginAtZero: true,
-                                    max: 100
-                                },
                                 y: {
-                                    stacked: true
+                                    beginAtZero: true
                                 }
                             },
                             plugins: {
                                 legend: {
-                                    position: 'bottom',
+                                    position: 'top',
+                                    align: 'end',
                                     labels: {
                                         usePointStyle: true,
                                         boxWidth: 8
@@ -560,65 +650,11 @@
             updateData();
         });
     </script>
-    <script>
-        (function () {
-            const ctx = document.getElementById('ytdChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['2021', '2022', '2023', '2024'],
-                    datasets: [
-                        {
-                            label: 'CISEA',
-                            data: [38.5, 41.2, 40.8, 42.2],
-                            borderColor: '#0f2e60',
-                            backgroundColor: '#0f2e60',
-                            tension: 0.3,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        },
-                        {
-                            label: 'Ellipse',
-                            data: [45.1, 44.8, 43.5, 43.9],
-                            borderColor: '#f59e0b',
-                            backgroundColor: '#f59e0b',
-                            tension: 0.3,
-                            pointRadius: 4,
-                            pointHoverRadius: 6
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: false,
-                            min: 30,
-                            max: 60,
-                            ticks: {
-                                callback: function (value) { return value + '%'; }
-                            }
-                        }
-                    },
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            mode: 'index',
-                            intersect: false,
-                            callbacks: {
-                                label: function (context) {
-                                    return context.dataset.label + ': ' + context.parsed.y + '%';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        })();
-    </script>
+
+
+
+
+
 
 </body>
 
