@@ -61,11 +61,33 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
   );
 };
 
-export const SidebarSubItem: React.FC<{ label: string }> = ({ label }) => (
-  <a className="pl-9 pr-4 py-1.5 text-[9px] text-slate-300 hover:text-white transition-colors leading-snug ml-6" href="#">
-    {label}
-  </a>
-);
+const convertToSlug = (text: string): string => {
+  return '/' + text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '') // Remove non-alphanumeric characters
+    .trim()
+    .replace(/\s+/g, '-');   // Replace spaces with dash
+};
+
+export const SidebarSubItem: React.FC<{ label: string; currentPath: string }> = ({ label, currentPath }) => {
+  const slug = convertToSlug(label);
+  const isActive = currentPath === slug;
+  return (
+    <a 
+      onClick={(e) => {
+        e.preventDefault();
+        navigateTo(slug);
+      }}
+      className={cn(
+        "pl-9 pr-4 py-1.5 text-[9px] transition-colors leading-snug ml-6 cursor-pointer block",
+        isActive ? "text-amber-500 font-semibold" : "text-slate-300 hover:text-white"
+      )}
+      href={slug}
+    >
+      {label}
+    </a>
+  );
+};
 
 const appDevItems = [
   "Ketersediaan report aplikasi SCMC",
@@ -183,21 +205,21 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
           />
 
           <SidebarMenuItem label="IT Planning & Security" icon={<ShieldCheck className="w-full h-full" />}>
-            <SidebarSubItem label="Realisasi Program Kerja TI" />
-            <SidebarSubItem label="Realisasi RKAP TI" />
-            <SidebarSubItem label="SDM IT (Outsource & Pegawai)" />
-            <SidebarSubItem label="Lisensi" />
+            <SidebarSubItem label="Realisasi Program Kerja TI" currentPath={currentPath} />
+            <SidebarSubItem label="Realisasi RKAP TI" currentPath={currentPath} />
+            <SidebarSubItem label="SDM IT (Outsource & Pegawai)" currentPath={currentPath} />
+            <SidebarSubItem label="Lisensi" currentPath={currentPath} />
           </SidebarMenuItem>
-
+ 
           <SidebarMenuItem label="App Dev & Services / EIS" icon={<Monitor className="w-full h-full" />}>
             {appDevItems.map((item, idx) => (
-              <SidebarSubItem key={idx} label={formatDropdownText(item)} />
+              <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
             ))}
           </SidebarMenuItem>
-
+ 
           <SidebarMenuItem label="IT Operation" icon={<Database className="w-full h-full" />}>
             {itOperationItems.map((item, idx) => (
-              <SidebarSubItem key={idx} label={formatDropdownText(item)} />
+              <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
             ))}
           </SidebarMenuItem>
         </nav>

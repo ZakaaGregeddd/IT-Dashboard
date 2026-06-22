@@ -1,0 +1,700 @@
+<!DOCTYPE html><html lang="id" style="width: 1280px; height: 4176px; overflow: hidden; position: relative;"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Dashboard - Sistem Pelaporan Bulanan Terpusat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed": "#321200",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "inverse-surface": "#213145",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#747780",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "primary": "#001941",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-container": "#fea619",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-container": "#512200",
+                        "outline-variant": "#c4c6d1",
+                        "on-primary-fixed-variant": "#2b4679",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#ce865b",
+                        "tertiary": "#311200",
+                        "inverse-primary": "#aec6ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#445e92",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "tertiary-fixed": "#ffdbc9",
+                        "secondary": "#855300",
+                        "primary-container": "#0f2e60",
+                        "on-primary-container": "#7d97cf",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#aec6ff",
+                        "on-tertiary-fixed-variant": "#6e3813",
+                        "on-surface-variant": "#44474f",
+                        "on-secondary-container": "#684000",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-fixed": "#001a42",
+                        "on-surface": "#0b1c30",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface": "#f8f9ff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="bg-primary-container w-[260px] flex-shrink-0 flex flex-col z-40 hidden md:flex">
+<!-- Header -->
+<div class="p-6 flex items-start gap-3">
+<div class="mt-1 flex gap-1 flex-wrap w-[24px]">
+<div class="w-2.5 h-2.5 bg-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 bg-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 border border-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 border border-yellow-500 rounded-sm"></div>
+</div>
+<div>
+<div class="font-bold text-white text-sm leading-tight">Sistem Pelaporan<br>Bulanan Terpusat</div>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 py-md"><!-- Active State -->
+<a class="flex items-center gap-3 text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm" href="#">
+<span class="material-symbols-outlined text-yellow-500 text-lg">dashboard</span>
+<span class="">Dashboard</span>
+</a><a class="flex items-center gap-3 text-primary-fixed-dim font-bold px-6 py-3 transition-colors duration-200 text-sm bg-white/5" href="#"><span class="material-symbols-outlined text-yellow-500 text-lg">analytics</span>
+<span class="">Data Overall</span></a>
+<!-- Dropdown 1: IT Planning & Security (OPEN) -->
+<details class="group mt-2">
+<summary class="flex items-center justify-between text-white px-6 py-3 transition-colors duration-200 text-sm font-bold cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">verified_user</span>
+<span class="">IT Planning &amp; Security</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi Program Kerja TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi RKAP TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">SDM IT (Outsource &amp; Pegawai)</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Lisensi</a></div>
+</details>
+<!-- Dropdown 2: Application Development & Services / EIS -->
+<details class="group mt-2">
+<summary class="flex items-center justify-between text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">code</span>
+<span class="">App Dev &amp; Services / EIS</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Ketersediaan Report Aplikasi SCMC</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Tingkat ketersediaan Ellipse, email, CISEA dan SIMKES</a>
+</div>
+</details>
+<!-- Dropdown 3: IT Operation -->
+<details class="group mt-2" open="">
+<summary class="flex items-center justify-between text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">memory</span>
+<span class="">IT Operation</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi Memory Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi Storage Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Aplikasi Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Database aplikasi Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi memory database Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi storage database Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Rata-rata utilisasi bandwidth jaringan</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Ketersediaan sistem backup Ellipse, email, DR Ellipse, jaringan (WAN) dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Tingkat ketersediaan sistem keamanan TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian pekerjaan PC Support</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian permintaan layanan aplikasi TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian Permintaan Layanan TI di Operasional TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi Restore Ellipse dan Email sesuai kebutuhan</a>
+</div>
+</details></nav>
+<!-- Footer -->
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto w-full bg-[#f8f9fa] relative">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full h-16 bg-white/80 backdrop-blur-md border-b border-outline-variant z-30 px-lg flex justify-between items-center"><div class="flex items-center gap-sm text-outline"><span class="material-symbols-outlined text-[18px]">home</span><span class="mx-1">/</span><span class="font-body-sm text-body-sm font-semibold text-primary">Data Overall</span></div><div class="flex items-center gap-md"><div class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">A</div></div></header>
+<!-- Page Content -->
+<div class="p-lg flex-1 max-w-[1440px] mx-auto w-full flex flex-col gap-lg">
+<!-- Breadcrumbs & Page Header -->
+<div>
+<div class="flex justify-between items-end mb-lg">
+<div>
+<h2 class="font-display-lg text-display-lg text-on-background">Data Overall</h2>
+</div>
+</div>
+</div>
+<!-- Executive Summary Grid -->
+<div class="flex flex-col gap-8">
+<!-- Row 1: IT Planning & Security -->
+<section>
+<h3 class="font-title-sm text-title-sm text-on-background mb-4">IT Planning &amp; Security</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-lg">
+<!-- Card 1: Realisasi Program Kerja TI -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Realisasi Program Kerja TI</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-program-kerja" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 2: Realisasi RKAP TI -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px] items-center text-center">
+<h4 class="font-body-md font-semibold text-on-surface mb-6 self-start">Realisasi RKAP TI</h4>
+<div class="relative w-40 h-40 flex items-center justify-center mb-4">
+<svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+<path class="text-[#f59e0b]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="4"></path>
+<path class="text-[#0f2e60]" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="89, 100" stroke-width="4"></path>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center flex-col">
+<span class="text-3xl font-bold text-[#0f2e60]">89%</span>
+<span class="text-xs text-[#0f2e60]">REALISASI</span>
+</div>
+</div>
+<div class="flex justify-center gap-4 mt-auto">
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-[#f59e0b]"></div><span class="text-xs text-on-surface-variant">Cost Reduction (%)</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 bg-[#0f2e60]"></div><span class="text-xs text-on-surface-variant">Realisasi (%)</span></div>
+</div>
+</div>
+<!-- Card 3: Distribusi SDM IT -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Distribusi SDM IT (Outsource &amp; Pegawai)</h4>
+<div class="flex-1 relative w-full h-full"><div class="flex flex-col items-center justify-center h-full w-full"><div class="relative w-full h-full max-h-[220px]"><img alt="Distribusi SDM IT Chart" class="w-full h-full object-contain mx-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAY0rpaODP2yEtrqOYpUmKnSIQA-uvQKFqlKr91zVc3im5Ujrt1sV1S8pKK5HyPTjFtIvRf2ugXSpvQnAy7WSDzjYdzz31C5LrYouwpER6RKQeCGIBBQEBLqgpf_GmmeuZa81fazDuZRZyEave_TIQtZ7ArbrzqqYNgZRM18eJUpKDY1dZdR7Rw6yyd9AuiLxLbMV80NgjlpKVrOssgbG6ifzDJF55p3bvphxfBcCFI8O9lZy99A7s3vAggJdWxBU6mSHjjrqqPqyjn"></div><div class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4 px-2"><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#0f1a41]"></div><span class="text-xs text-on-surface-variant">Join Dev</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#1c3a6e]"></div><span class="text-xs text-on-surface-variant">Network</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#2b5a9c]"></div><span class="text-xs text-on-surface-variant">Noc</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#3a7aca]"></div><span class="text-xs text-on-surface-variant">Office Boy</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#5a9af8]"></div><span class="text-xs text-on-surface-variant">PC Support</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#8ab8ff]"></div><span class="text-xs text-on-surface-variant">Admin</span></div><div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#bad6ff]"></div><span class="text-xs text-on-surface-variant">Data Scientist</span></div></div></div></div>
+</div><div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]"><h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Urgensi Kadarluarsa Lisensi</h4><div class="flex-1 relative w-full h-full flex flex-col items-center justify-center"><div class="flex-1 relative w-full h-full">
+<canvas height="310" id="chart-urgensi-lisensi" style="display: block; box-sizing: border-box; height: 206.7px; width: 424.7px;" width="637"></canvas>
+</div>
+<div class="flex flex-wrap justify-center gap-x-4 gap-y-2 mt-4">
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#ef4444]"></div><span class="text-xs text-on-surface-variant">&lt;= 2 Bulan</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#f59e0b]"></div><span class="text-xs text-on-surface-variant">&gt; 2 - 4 Bulan&nbsp;</span></div>
+<div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-[#0F2E60]"></div><span class="text-xs text-on-surface-variant">Lisensi Aktif (&gt; 4 Bulan)</span></div>
+</div></div></div>
+</div>
+</section>
+<!-- Row 2: App Dev & Services -->
+<section>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-lg">code</span>
+<h3 class="font-title-sm text-title-sm text-on-background">App Dev &amp; Services</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
+<!-- Card 4: Ketersediaan Report SCMC -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Ketersediaan Report Aplikasi SCMC</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-report-scmc" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 5: Tingkat Ketersediaan Sistem -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Tingkat Ketersediaan Sistem</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-ketersediaan-sistem" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+</div>
+</section>
+<!-- Row 3: IT Operation -->
+<section>
+<div class="flex items-center gap-2 mb-4">
+<div class="w-5 h-5 rounded-full bg-gray-300 flex items-center justify-center"></div>
+<h3 class="font-title-sm text-title-sm text-on-background">IT Operation</h3>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-lg">
+<!-- Card 6: Utilisasi CPU Server -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi - CPU Cores vs Utilisasi</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-cpu-server" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 7: Utilisasi Memory Server -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi - Memory vs Utilisasi</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-memory-server" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 8: Utilisasi Storage Capacity vs Utilization -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[400px] md:col-span-2">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi - Storage Capacity vs Utilization</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="478" id="chart-storage-server" style="display: block; box-sizing: border-box; height: 318.7px; width: 922.7px;" width="1384"></canvas>
+</div>
+</div>
+<!-- Card 9: Utilisasi CPU -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[250px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Utilisasi CPU</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="253" id="chart-utilisasi-cpu" style="display: block; box-sizing: border-box; height: 168.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 10: Utilisasi CPU Database -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[250px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Utilisasi CPU Database</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="253" id="chart-utilisasi-cpu-db" style="display: block; box-sizing: border-box; height: 168.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 11: Utilisasi Memory Database -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[250px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Utilisasi Memory Database</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="253" id="chart-utilisasi-mem-db" style="display: block; box-sizing: border-box; height: 168.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 12: Utilisasi Storage Database -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[250px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Utilisasi Storage Database</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="253" id="chart-utilisasi-storage-db" style="display: block; box-sizing: border-box; height: 168.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 13: Rata-rata Utilisasi Bandwidth -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Utilisasi Bandwidth Jaringan</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-bandwidth" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 14: Ketersediaan Jaringan (WAN) -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Ketersediaan Jaringan (WAN) PTBA</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-wan" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 15: Tingkat Ketersediaan Sistem Keamanan TI -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Tingkat Ketersediaan Sistem Keamanan TI</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-sistem-keamanan" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 16: Penyelesaian Pekerjaan PC Support -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Penyelesaian Pekerjaan PC Support</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-pc-support" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 17: Penyelesaian Permintaan Layanan Aplikasi TI -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Penyelesaian Permintaan Layanan Aplikasi TI</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="358" id="chart-layanan-aplikasi" style="display: block; box-sizing: border-box; height: 238.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 18: Penyelesaian Permintaan Layanan TI di Operasional TI -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[320px]">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Penyelesaian Permintaan Layanan TI di Operasional TI</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="322" id="chart-layanan-operasional" style="display: block; box-sizing: border-box; height: 214.7px; width: 424.7px;" width="637"></canvas>
+</div>
+</div>
+<!-- Card 19: Realisasi Restore Ellipse dan Email -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant flex flex-col p-6 h-[400px] md:col-span-2 mx-auto w-full max-w-4xl">
+<h4 class="font-body-md font-semibold text-on-surface mb-2">Visualisasi Realisasi Restore Ellipse dan Email sesuai kebutuhan</h4>
+<div class="flex-1 relative w-full h-full">
+<canvas height="478" id="chart-restore" style="display: block; box-sizing: border-box; height: 318.7px; width: 846.7px;" width="1270"></canvas>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<script>
+    // Chart Defaults
+    Chart.defaults.font.family = 'Inter';
+    Chart.defaults.color = '#747780';
+    const primaryColor = '#0f2e60';
+    const secondaryColor = '#f59e0b';
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+        }
+    };
+
+    // 1. Program Kerja
+    new Chart(document.getElementById('chart-program-kerja'), {
+        type: 'bar',
+        data: {
+            labels: ['TW III s.d Okt 2024'],
+            datasets: [
+                { label: 'Target', data: [100], backgroundColor: primaryColor, barPercentage: 0.5, categoryPercentage: 0.5 },
+                { label: 'Realisasi', data: [92], backgroundColor: secondaryColor, barPercentage: 0.5, categoryPercentage: 0.5 }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 3. SDM IT
+    new Chart(document.getElementById('chart-sdm-it'), {
+        type: 'bar',
+        data: {
+            labels: ['Join Dev', 'Network', 'Noc', 'Office Boy', 'PC Support', 'Admin', 'Data Scientist', 'Driver'],
+            datasets: [{
+                label: 'Jumlah SDM',
+                data: [29, 11, 9, 2, 11, 4, 1, 3],
+                backgroundColor: primaryColor,
+                barPercentage: 0.6
+            }]
+        },
+        options: { ...commonOptions, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 4. Report SCMC
+    new Chart(document.getElementById('chart-report-scmc'), {
+        type: 'bar',
+        data: {
+            labels: ['JUNI 2024', 'OKTOBER 2024'],
+            datasets: [
+                { label: 'Realisasi Laporan yang Beroperasi Normal', data: [51, 51], backgroundColor: primaryColor },
+                { label: 'Jumlah Laporan Tersedia', data: [51, 51], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 5. Ketersediaan Sistem
+    new Chart(document.getElementById('chart-ketersediaan-sistem'), {
+        type: 'bar',
+        data: {
+            labels: ['Ellipse', 'Email', 'CISEA', 'SIMKES'],
+            datasets: [
+                { label: 'Rencana', data: [100, 100, 100, 100], backgroundColor: primaryColor },
+                { label: 'Realisasi', data: [99.5, 99.9, 98, 100], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 6. CPU Server
+    new Chart(document.getElementById('chart-cpu-server'), {
+        type: 'bar',
+        data: {
+            labels: ['sgspp-esx1', 'sgspp-esx2', 'sgspp-esx3', 'sgspp-esx4', 'tp-esx-01', 'tp-esx-02', 'tp-esx-03', 'tp-esx-04'],
+            datasets: [
+                { label: 'CPU Cores', data: [140, 140, 140, 140, 140, 140, 140, 140], backgroundColor: primaryColor },
+                { label: 'Utilisasi (GHz)', data: [40, 35, 45, 50, 60, 45, 55, 40], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 7. Memory Server
+    new Chart(document.getElementById('chart-memory-server'), {
+        type: 'bar',
+        data: {
+            labels: ['sgspp-esx1', 'sgspp-esx2', 'sgspp-esx3', 'sgspp-esx4', 'tp-esx-01', 'tp-esx-02', 'tp-esx-03', 'tp-esx-04'],
+            datasets: [
+                { label: 'Memory (GB)', data: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], backgroundColor: primaryColor },
+                { label: 'Utilisasi (GB)', data: [400, 500, 450, 600, 550, 480, 520, 450], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 8. Storage Server
+    new Chart(document.getElementById('chart-storage-server'), {
+        type: 'bar',
+        data: {
+            labels: ['STE-UNITY-DATA-1', 'STE-UNITY-DATA-2', 'STE-UNITY-DATA-3', 'STE-UNITY-DATA-4', 'STE-VPS-U-1', 'STE-VPS-U-2', 'STE-VPS-U-3', 'STE-VPS-U-4', 'STE-VPS-U-5', 'STE-VPS-U-6', 'STE-VPS-U-7', 'STE-VPS-U-8', 'STE-VPS-EXCH1', 'STE-VPS-EXCH2'],
+            datasets: [
+                { label: 'Capacity (TB)', data: [12, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 10, 10], backgroundColor: primaryColor },
+                { label: 'Utilisasi (TB)', data: [10, 8, 6, 7, 6, 6, 7, 5, 6, 6, 7, 6, 8, 8], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // Horizontal Stacked Charts Generator
+    const createStackedBar = (id, labels, data1, data2) => {
+        new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Free (%)', data: data1, backgroundColor: primaryColor },
+                    { label: 'Utilisasi (%)', data: data2, backgroundColor: secondaryColor }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: { x: { stacked: true, max: 100 }, y: { stacked: true } }
+            }
+        });
+    };
+
+    createStackedBar('chart-utilisasi-cpu', ['CISEA', 'Ellipse'], [70, 80], [30, 20]);
+    createStackedBar('chart-utilisasi-cpu-db', ['CISEA', 'Ellipse'], [60, 85], [40, 15]);
+    createStackedBar('chart-utilisasi-mem-db', ['CISEA', 'Ellipse'], [50, 65], [50, 35]);
+    createStackedBar('chart-utilisasi-storage-db', ['CISEA', 'Ellipse'], [80, 90], [20, 10]);
+
+    // 13. Bandwidth
+    new Chart(document.getElementById('chart-bandwidth'), {
+        type: 'bar',
+        data: {
+            labels: ['Unit. Tanjung Enim - Palembang', 'Unit. Tarahan - Tanjung Enim', 'Unit. Kertapati - Tanjung Enim', 'Unit. Kertapati - Palembang', 'Unit. Lampung - Tanjung Enim', 'Unit. Lampung - Palembang'],
+            datasets: [
+                { label: 'Bandwidth (Mbps)', data: [35, 18, 5, 2, 8, 2], backgroundColor: primaryColor },
+                { label: 'Rata-rata Utilisasi (Mbps)', data: [5, 2, 1, 0.5, 1, 0.2], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { x: { stacked: true }, y: { stacked: true } } }
+    });
+
+    // 14. WAN
+    new Chart(document.getElementById('chart-wan'), {
+        type: 'bar',
+        data: {
+            labels: ['Unit. Tanjung Enim - Palembang', 'Unit. Tarahan - Tanjung Enim', 'Unit. Kertapati - Tanjung Enim', 'Unit. Kertapati - Palembang', 'Unit. Lampung - Tanjung Enim', 'Unit. Lampung - Palembang'],
+            datasets: [{ label: 'Ketersediaan (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: primaryColor, barPercentage: 0.5 }]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 15. Keamanan
+    new Chart(document.getElementById('chart-sistem-keamanan'), {
+        type: 'bar',
+        data: {
+            labels: ['Sistem 1', 'Sistem 2', 'Sistem 3', 'Sistem 4', 'Sistem 5'],
+            datasets: [
+                { label: 'Rencana', data: [100, 100, 100, 100, 100], backgroundColor: primaryColor },
+                { label: 'Realisasi', data: [100, 100, 100, 100, 100], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 16. PC Support
+    new Chart(document.getElementById('chart-pc-support'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [10, 15, 20, 80, 50, 40, 60, 40, 45, 50, 900, 100], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [9, 14, 19, 75, 48, 38, 55, 38, 42, 48, 850, 95], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 17. Layanan Aplikasi
+    new Chart(document.getElementById('chart-layanan-aplikasi'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [10, 20, 40, 80, 120, 250, 180, 120, 110, 80, 70, 50], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [9, 18, 38, 75, 115, 240, 175, 118, 105, 78, 65, 48], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 18. Layanan Operasional
+    new Chart(document.getElementById('chart-layanan-operasional'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [40, 50, 80, 180, 220, 210, 180, 140, 120, 120, 120, 80], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [38, 48, 75, 175, 215, 205, 175, 138, 118, 118, 115, 78], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 19. Restore
+    new Chart(document.getElementById('chart-restore'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+</script>
+<script>
+(function() {
+    const ctx = document.getElementById('sdmChart').getContext('2d');
+    const colors = ['#0f2e60', '#1c4587', '#2b5ea8', '#3c78c9', '#5392e6', '#71aef2', '#92cbfb', '#b5e3ff'];
+    const labels = ['Join Dev', 'Network', 'Noc', 'Office Boy', 'PC Support', 'Admin', 'Data Scientist', 'Driver'];
+    const data = [29, 11, 9, 2, 11, 2, 4, 3];
+
+    const sdmChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors,
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    backgroundColor: '#213145',
+                    padding: 12
+                }
+            }
+        }
+    });
+
+    const legendContainer = document.getElementById('sdmLegend');
+    labels.forEach((label, index) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center gap-2';
+        item.innerHTML = `<div class="w-3 h-3 rounded-full" style="background-color: ${colors[index]}"></div><span class="text-xs text-on-surface-variant">${label}</span>`;
+        legendContainer.appendChild(item);
+    });
+})();
+</script>
+<script>
+    new Chart(document.getElementById('chart-exp-rate-lisensi-new'), {
+        type: 'bar',
+        data: {
+            labels: ['Insider', 'Whatsapp', 'Docu', 'SSL', 'Web'],
+            datasets: [{
+                data: [15, 25, 20, 75, 85],
+                backgroundColor: ['#ef4444', '#3b82f6', '#3b82f6', '#22c55e', '#22c55e'],
+                barPercentage: 0.6,
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 100,
+                    ticks: { callback: value => value + '%' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+</script>
+<script>
+  new Chart(document.getElementById('chart-urgensi-lisensi'), {
+    type: 'pie',
+    plugins: [ChartDataLabels],
+    data: {
+      labels: ['<= 2 Bulan', '> 2 - 4 Bulan', 'Lisensi Aktif (> 4 Bulan)'],
+      datasets: [{
+        data: [5, 3, 12],
+        backgroundColor: ['#ef4444', '#f59e0b', '#0F2E60'],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        datalabels: {
+          color: '#ffffff',
+          font: { weight: 'bold', size: 14 }
+        }
+      }
+    }
+  });
+</script>
+
+
+</body></html>

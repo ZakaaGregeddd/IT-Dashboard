@@ -1,6 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
-import { DashboardPage, OverallPage } from '@/pages';
+import { TemplateLoader } from '@/components/TemplateLoader';
+
+const templatePaths: Record<string, string> = {
+  '/': '1dashboard',
+  '/dashboard': '1dashboard',
+  '/data-overall': '2dataoverall',
+  '/realisasi-program-kerja-ti': '3realisasi',
+  '/realisasi-rkap-ti': '4rkap',
+  '/sdm-it-outsource-pegawai': '5sdm',
+  '/lisensi': '6lisensi',
+  '/ketersediaan-report-aplikasi-scmc': '7scmc',
+  '/tingkat-ketersediaan-sistem': '8sistem',
+  '/utilisasi-cpu-server': '9cpuserver',
+  '/utilisasi-memory-server': '10memoryerver',
+  '/utilisasi-storage-server': '11storageserver',
+  '/utilisasi-cpu-aplikasi-ellipse-dan-cisea': '12cpuapp',
+  '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea': '13cpudb',
+  '/utilisasi-memory-database-ellipse-dan-cisea': '14memorydb',
+  '/utilisasi-storage-database-ellipse-dan-cisea': '15storagedb',
+  '/rata-rata-utilisasi-bandwidth-jaringan': '16jaringan',
+  '/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea': '17wan',
+  '/tingkat-ketersediaan-sistem-keamanan-ti': '18keamanan',
+  '/penyelesaian-pekerjaan-pc-support': '19pcsupport',
+  '/penyelesaian-permintaan-layanan-aplikasi-ti': '20layananapp',
+  '/penyelesaian-permintaan-layanan-ti-di-operasional-ti': '21operasiTI',
+  '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan': '22restore'
+};
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -20,12 +46,9 @@ const App: React.FC = () => {
   }, []);
 
   const renderPage = () => {
-    switch (currentPath) {
-      case '/data-overall':
-        return <OverallPage />;
-      default:
-        return <DashboardPage />;
-    }
+    // Find the mapped folder name for the current path or fallback to dashboard
+    const folderName = templatePaths[currentPath] || '1dashboard';
+    return <TemplateLoader folderName={folderName} />;
   };
 
   return (
