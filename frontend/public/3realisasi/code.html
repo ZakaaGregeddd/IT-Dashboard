@@ -200,15 +200,13 @@
 <h2 class="font-display-lg text-display-lg text-on-background">Realisasi Program Kerja TI</h2>
 <div class="flex flex-wrap items-center gap-md mt-4">
 <div class="flex flex-col gap-1">
-</div>
-<div class="flex flex-col gap-1">
 <label class="font-label-caps text-label-caps text-on-surface-variant">Triwulan</label>
-<select class="bg-surface border border-outline-variant rounded px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[140px]"><option class="">TW I</option><option class="">TW II</option><option class="" selected="">TW III</option></select>
+<select id="triwulan-select" class="bg-surface border border-outline-variant rounded px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[140px]"><option value="TW I">TW I</option><option value="TW II">TW II</option><option value="TW III" selected="">TW III</option></select>
 </div>
 <div class="flex flex-col gap-1">
 <label class="font-label-caps text-label-caps text-on-surface-variant">Tahun</label>
-<select class="bg-surface border border-outline-variant rounded px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[100px]">
-<option selected="">2024</option><option>2023</option><option>2022</option>
+<select id="tahun-select" class="bg-surface border border-outline-variant rounded px-3 py-2 font-body-sm text-body-sm focus:border-primary focus:ring-1 focus:ring-primary outline-none min-w-[100px]">
+<option value="2024" selected="">2024</option><option value="2023">2023</option><option value="2022">2022</option>
 </select>
 </div>
 </div>
@@ -221,18 +219,15 @@
 <div class="xl:col-span-8 bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col overflow-hidden bg-surface-container-lowest h-full">
 <div class="overflow-x-auto">
 <table class="w-full text-left border-collapse" id="data-table">
-<thead><tr class="border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant bg-surface-container-lowest"><th class="p-4 font-semibold w-12 text-center" rowspan="2">No</th><th class="p-4 font-semibold text-center text-primary border-l border-outline-variant" colspan="2">TW III s.d Oktober 2024</th><th class="p-4 font-semibold text-center w-24" rowspan="2">Aksi</th></tr><tr class="border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant bg-surface-container-lowest"><th class="p-4 font-semibold text-right w-32 border-l border-outline-variant">Target s.d TW IV (%)</th><th class="p-4 font-semibold text-right w-32 border-l border-outline-variant">Realisasi s.d Okt 2024 (%)</th></tr></thead>
+<thead><tr class="border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant bg-surface-container-lowest"><th class="p-4 font-semibold w-12 text-center" rowspan="2">No</th><th class="p-4 font-semibold text-center text-primary border-l border-outline-variant" colspan="2" id="header-title-1">TW III s.d Oktober 2024</th><th class="p-4 font-semibold text-center w-24" rowspan="2">Aksi</th></tr><tr class="border-b border-outline-variant font-label-caps text-label-caps text-on-surface-variant bg-surface-container-lowest"><th class="p-4 font-semibold text-right w-32 border-l border-outline-variant" id="header-target-title">Target s.d TW III (%)</th><th class="p-4 font-semibold text-right w-32 border-l border-outline-variant" id="header-realisasi-title">Realisasi s.d Okt 2024 (%)</th></tr></thead>
 <tbody class="font-body-sm text-body-sm text-on-surface divide-y divide-outline-variant/50">
-<tr class="hover:bg-surface-container-lowest transition-colors group"><td class="p-4 text-center text-on-surface-variant bg-surface-container-lowest">1</td><td class="p-4 border-l bg-surface-container-lowest"><input class="target-input w-full px-3 py-2 rounded bg-transparent border border-transparent hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface transition-all outline-none text-right font-data-mono" type="number" value="100"/></td><td class="p-4 border-l bg-surface-container-lowest"><input class="realisasi-input w-full px-3 py-2 rounded bg-transparent border border-transparent hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface transition-all outline-none text-right font-data-mono" placeholder="90" type="number" value="100"/></td><td class="p-4 text-center bg-surface-container-lowest"><div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div></td></tr>
-<tr class="hover:bg-surface-container-lowest transition-colors group"><td class="p-4 text-center bg-surface-container-lowest"><div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined text-[20px]">edit</span></button><button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined text-[20px]">delete</span></button></div></td></tr>
-<tr class="hover:bg-surface-container-lowest transition-colors group">
-</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors group"><td class="p-4 text-center text-on-surface-variant bg-surface-container-lowest">1</td><td class="p-4 border-l bg-surface-container-lowest"><input id="target-input" class="target-input w-full px-3 py-2 rounded bg-transparent border border-transparent hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface transition-all outline-none text-right font-data-mono" type="number" value="100"/></td><td class="p-4 border-l bg-surface-container-lowest"><input id="realisasi-input" class="realisasi-input w-full px-3 py-2 rounded bg-transparent border border-transparent hover:border-outline-variant focus:border-primary focus:ring-1 focus:ring-primary focus:bg-surface transition-all outline-none text-right font-data-mono" placeholder="90" type="number" value="100"/></td><td class="p-4 text-center bg-surface-container-lowest"><div class="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"><button id="btn-clear" class="text-on-surface-variant hover:text-error transition-colors" title="Kosongkan Input"><span class="material-symbols-outlined text-[20px]">delete</span></button></div></td></tr>
 </tbody>
 </table>
 </div>
 <div class="p-lg border-t border-outline-variant bg-surface-container-lowest flex justify-end gap-md">
-<button class="px-6 py-2 rounded border border-outline text-on-surface font-label-caps text-label-caps hover:bg-surface-container-low transition-colors">Batal</button>
-<button class="flex items-center gap-sm bg-primary text-on-primary px-6 py-2 rounded font-label-caps text-label-caps hover:bg-primary/90 transition-colors shadow-sm">
+<button id="btn-cancel" class="px-6 py-2 rounded border border-outline text-on-surface font-label-caps text-label-caps hover:bg-surface-container-low transition-colors">Batal</button>
+<button id="btn-save" class="flex items-center gap-sm bg-primary text-on-primary px-6 py-2 rounded font-label-caps text-label-caps hover:bg-primary/90 transition-colors shadow-sm">
 <span class="material-symbols-outlined text-[18px]">save</span>
                             Konfirmasi &amp; Simpan
                         </button>
@@ -244,7 +239,7 @@
 <div class="bg-surface rounded-xl shadow-sm border border-outline-variant flex flex-col h-full overflow-hidden">
 <div class="p-lg border-b border-outline-variant bg-surface">
 <h3 class="font-title-sm text-title-sm text-on-background">Rekapitulasi Realisasi</h3>
-<p class="text-body-sm text-on-surface-variant mt-1">TW III s.d Oktober 2024</p>
+<p id="rekap-subtitle" class="text-body-sm text-on-surface-variant mt-1">TW III s.d Oktober 2024</p>
 </div>
 <div class="p-lg flex-1 flex flex-col justify-center items-center relative min-h-[300px] justify-between">
 <!-- Visualizing the chart from image_5 -->
@@ -269,7 +264,7 @@
 </div>
 </div>
 </div>
-<div class="text-center mt-4 font-body-sm text-body-sm text-on-surface-variant">
+<div id="rekap-bottom-text" class="text-center mt-4 font-body-sm text-body-sm text-on-surface-variant">
                                     TW III s.d Oktober 2024
                                 </div>
 </div>
@@ -370,33 +365,38 @@
 </div></div>
 </main>
 <script>
+    const API_URL = 'http://localhost:5000/api/program-kerja';
+    let currentDetailId = null;
+    let originalData = { target: 100, realisasi: 100 };
+
+    const triwulanSelect = document.getElementById('triwulan-select');
+    const tahunSelect = document.getElementById('tahun-select');
+    const targetInput = document.getElementById('target-input');
+    const realisasiInput = document.getElementById('realisasi-input');
+
+    const headerTitle1 = document.getElementById('header-title-1');
+    const headerTargetTitle = document.getElementById('header-target-title');
+    const headerRealisasiTitle = document.getElementById('header-realisasi-title');
+    const rekapSubtitle = document.getElementById('rekap-subtitle');
+    const rekapBottomText = document.getElementById('rekap-bottom-text');
+
+    const btnSave = document.getElementById('btn-save');
+    const btnCancel = document.getElementById('btn-cancel');
+    const btnClear = document.getElementById('btn-clear');
+
+    const twMapping = {
+        'TW I': { name: 'Maret', number: 3 },
+        'TW II': { name: 'Juni', number: 6 },
+        'TW III': { name: 'Oktober', number: 10 },
+        'TW IV': { name: 'Desember', number: 12 }
+    };
+
     function updateChart() {
-        const targetInputs = document.querySelectorAll('.target-input');
-        const realisasiInputs = document.querySelectorAll('.realisasi-input');
-        
-        let targetSum = 0;
-        let realisasiSum = 0;
-        let targetCount = 0;
-        let realisasiCount = 0;
+        const targetVal = parseFloat(targetInput.value);
+        const realisasiVal = parseFloat(realisasiInput.value);
 
-        targetInputs.forEach(input => {
-            const val = parseFloat(input.value);
-            if (!isNaN(val)) {
-                targetSum += val;
-                targetCount++;
-            }
-        });
-
-        realisasiInputs.forEach(input => {
-            const val = parseFloat(input.value);
-            if (!isNaN(val)) {
-                realisasiSum += val;
-                realisasiCount++;
-            }
-        });
-
-        const targetAvg = targetCount > 0 ? (targetSum / targetCount) : 0;
-        const realisasiAvg = realisasiCount > 0 ? (realisasiSum / realisasiCount) : 0;
+        const targetAvg = !isNaN(targetVal) ? targetVal : 0;
+        const realisasiAvg = !isNaN(realisasiVal) ? realisasiVal : 0;
 
         const targetBar = document.getElementById('target-bar');
         const targetLabel = document.getElementById('target-label');
@@ -410,17 +410,127 @@
         }
 
         if (realisasiBar && realisasiLabel) {
-             const height = Math.min(Math.max(realisasiAvg, 0), 100);
+            const height = Math.min(Math.max(realisasiAvg, 0), 100);
             realisasiBar.style.height = `${height}%`;
             realisasiLabel.textContent = `${realisasiAvg.toFixed(1).replace(/\.0$/, '')}%`;
         }
     }
 
-    document.querySelectorAll('.target-input, .realisasi-input').forEach(input => {
-        input.addEventListener('input', updateChart);
+    async function fetchData() {
+        const tw = triwulanSelect.value;
+        const year = parseInt(tahunSelect.value, 10);
+        const mapping = twMapping[tw] || twMapping['TW III'];
+        const month = mapping.number;
+        const monthName = mapping.name;
+
+        // Update UI Text
+        const titleText = `${tw} s.d ${monthName} ${year}`;
+        if (headerTitle1) headerTitle1.textContent = titleText;
+        if (headerTargetTitle) headerTargetTitle.textContent = `Target s.d ${tw} (%)`;
+        if (headerRealisasiTitle) headerRealisasiTitle.textContent = `Realisasi s.d ${monthName} ${year} (%)`;
+        if (rekapSubtitle) rekapSubtitle.textContent = titleText;
+        if (rekapBottomText) rekapBottomText.textContent = titleText;
+
+        try {
+            const response = await fetch(`${API_URL}?bulan=${month}&tahun=${year}`);
+            const result = await response.json();
+            
+            if (result.success && result.data && result.data.detail_program_kerja_ti && result.data.detail_program_kerja_ti.length > 0) {
+                const detail = result.data.detail_program_kerja_ti[0];
+                currentDetailId = detail.id;
+                targetInput.value = detail.target_persen;
+                realisasiInput.value = detail.realisasi_persen;
+                originalData = { target: detail.target_persen, realisasi: detail.realisasi_persen };
+            } else {
+                currentDetailId = null;
+                targetInput.value = '';
+                realisasiInput.value = '';
+                originalData = { target: '', realisasi: '' };
+            }
+            updateChart();
+        } catch (err) {
+            console.error('Error fetching data:', err);
+        }
+    }
+
+    async function saveData() {
+        const tw = triwulanSelect.value;
+        const year = parseInt(tahunSelect.value, 10);
+        const mapping = twMapping[tw] || twMapping['TW III'];
+        const month = mapping.number;
+
+        const targetVal = targetInput.value === '' ? null : parseFloat(targetInput.value);
+        const realisasiVal = realisasiInput.value === '' ? null : parseFloat(realisasiInput.value);
+
+        if (targetVal === null || realisasiVal === null || isNaN(targetVal) || isNaN(realisasiVal)) {
+            alert('Mohon masukkan nilai target dan realisasi dengan benar.');
+            return;
+        }
+
+        const payload = {
+            bulan: month,
+            tahun: year,
+            details: [
+                {
+                    urutan: 1,
+                    nama_program: 'Program Kerja TI',
+                    target_persen: targetVal,
+                    realisasi_persen: realisasiVal
+                }
+            ]
+        };
+
+        if (currentDetailId) {
+            payload.details[0].id = currentDetailId;
+        }
+
+        try {
+            btnSave.disabled = true;
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            const result = await response.json();
+            if (result.success) {
+                alert('Data berhasil disimpan ke database!');
+                fetchData();
+            } else {
+                alert('Gagal menyimpan data: ' + result.message);
+            }
+        } catch (err) {
+            console.error('Error saving data:', err);
+            alert('Terjadi kesalahan koneksi saat menyimpan data.');
+        } finally {
+            btnSave.disabled = false;
+        }
+    }
+
+    // Attach Event Listeners
+    triwulanSelect.addEventListener('change', fetchData);
+    tahunSelect.addEventListener('change', fetchData);
+    targetInput.addEventListener('input', updateChart);
+    realisasiInput.addEventListener('input', updateChart);
+
+    btnSave.addEventListener('click', saveData);
+
+    btnCancel.addEventListener('click', () => {
+        targetInput.value = originalData.target;
+        realisasiInput.value = originalData.realisasi;
+        updateChart();
     });
 
-    // Initial update
-    updateChart();
+    if (btnClear) {
+        btnClear.addEventListener('click', () => {
+            targetInput.value = '';
+            realisasiInput.value = '';
+            updateChart();
+        });
+    }
+
+    // Initial load
+    fetchData();
 </script>
 </body></html>

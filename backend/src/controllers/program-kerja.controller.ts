@@ -11,7 +11,8 @@ export class ProgramKerjaController {
       const { bulan, tahun } = req.query;
 
       if (!bulan || !tahun) {
-        return sendError(res, 'Parameter bulan dan tahun wajib disertakan', 400);
+        const data = await ProgramKerjaService.getAllProgramKerja();
+        return sendSuccess(res, data, 'Berhasil mengambil semua data program kerja', 200);
       }
 
       const bulanNum = parseInt(bulan as string, 10);

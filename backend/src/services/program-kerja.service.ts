@@ -32,6 +32,26 @@ export class ProgramKerjaService {
   }
 
   /**
+   * Fetch all master and details of Program Kerja TI
+   */
+  static async getAllProgramKerja() {
+    const masters = await prisma.laporan_infrastruktur_master.findMany({
+      where: {
+        tipe_infrastruktur: 'PROGRAM_KERJA_TI',
+      },
+      include: {
+        detail_program_kerja_ti: {
+          orderBy: {
+            urutan: 'asc',
+          },
+        },
+      },
+    });
+
+    return masters;
+  }
+
+  /**
    * Save (Upsert Master and Sync Details) Program Kerja TI
    */
   static async saveProgramKerja(

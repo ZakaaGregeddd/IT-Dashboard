@@ -92,24 +92,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
   );
 };
 
-// Initial mock data map for years 2022-2024
-const initialDataMap: Record<string, DataPoint> = {
-  // 2024
-  '2024-TW I': { target: 100, realisasi: 90 },
-  '2024-TW II': { target: 100, realisasi: 95 },
-  '2024-TW III': { target: 100, realisasi: 100 },
-  '2024-TW IV': { target: 100, realisasi: 92 },
-  // 2023
-  '2023-TW I': { target: 100, realisasi: 85 },
-  '2023-TW II': { target: 100, realisasi: 88 },
-  '2023-TW III': { target: 100, realisasi: 90 },
-  '2023-TW IV': { target: 100, realisasi: 95 },
-  // 2022
-  '2022-TW I': { target: 100, realisasi: 80 },
-  '2022-TW II': { target: 100, realisasi: 85 },
-  '2022-TW III': { target: 100, realisasi: 88 },
-  '2022-TW IV': { target: 100, realisasi: 90 },
-};
+// Initial data map starts empty
+const initialDataMap: Record<string, DataPoint> = {};
 
 // Triwulan mapping rules
 const twMap: Record<string, string> = {
@@ -129,12 +113,13 @@ export const RealisasiProgramKerjaPage: React.FC = () => {
   const [dataMap, setDataMap] = useState<Record<string, DataPoint>>(initialDataMap);
 
   // Year to Date filters range
-  const [startYear, setStartYear] = useState<string>('2020');
-  const [endYear, setEndYear] = useState<string>('2024');
+  const [startYear, setStartYear] = useState<string>('2022');
+  const [endYear, setEndYear] = useState<string>('2026');
 
   // Form input state
   const [targetInput, setTargetInput] = useState<string>('');
   const [realisasiInput, setRealisasiInput] = useState<string>('');
+  const [currentId, setCurrentId] = useState<string | null>(null);
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -144,16 +129,70 @@ export const RealisasiProgramKerjaPage: React.FC = () => {
   const dataKey = `${tahun}-${triwulan}`;
   const activeData = dataMap[dataKey];
 
-  // Sync inputs with active data
+  // Fetch all historical data on mount to populate chart/YTD performance
   useEffect(() => {
-    if (activeData) {
-      setTargetInput(activeData.target.toString());
-      setRealisasiInput(activeData.realisasi.toString());
-    } else {
-      setTargetInput('');
-      setRealisasiInput('');
-    }
-  }, [tahun, triwulan, activeData]);
+    const fetchHistoricalData = async () => {
+      const reverseMonthMap: Record<number, string> = {
+        3: 'TW I',
+        6: 'TW II',
+        10: 'TW III',
+        12: 'TW IV'
+      };
+
+      try {
+        const response = await fetch('http://localhost:5000/api/program-kerja');
+        const result = await response.json();
+        
+        const loadedData: Record<string, DataPoint> = {};
+        if (result.success && Array.isArray(result.data)) {
+          result.data.forEach((master: any) => {
+            const twName = reverseMonthMap[master.bulan];
+            if (twName && master.detail_program_kerja_ti && master.detail_program_kerja_ti.length > 0) {
+              const detail = master.detail_program_kerja_ti[0];
+              loadedData[`${master.tahun}-${twName}`] = {
+                target: parseFloat(detail.target_persen),
+                realisasi: parseFloat(detail.realisasi_persen)
+              };
+            }
+          });
+          setDataMap(prev => ({ ...prev, ...loadedData }));
+        }
+      } catch (error) {
+        console.error('Failed to fetch historical YTD data:', error);
+      }
+    };
+    fetchHistoricalData();
+  }, []);
+
+  // Fetch and sync data from backend on filter changes
+  useEffect(() => {
+    const fetchData = async () => {
+      const monthNum = triwulan === 'TW I' ? 3 : triwulan === 'TW II' ? 6 : triwulan === 'TW III' ? 10 : 12;
+      try {
+        const response = await fetch(`http://localhost:5000/api/program-kerja?bulan=${monthNum}&tahun=${tahun}`);
+        const result = await response.json();
+        if (result.success && result.data && result.data.detail_program_kerja_ti && result.data.detail_program_kerja_ti.length > 0) {
+          const detail = result.data.detail_program_kerja_ti[0];
+          setCurrentId(detail.id);
+          setTargetInput(detail.target_persen.toString());
+          setRealisasiInput(detail.realisasi_persen.toString());
+          
+          // Update dataMap so chart/YTD works
+          setDataMap((prev) => ({
+            ...prev,
+            [dataKey]: { target: parseFloat(detail.target_persen), realisasi: parseFloat(detail.realisasi_persen) }
+          }));
+        } else {
+          setCurrentId(null);
+          setTargetInput('');
+          setRealisasiInput('');
+        }
+      } catch (error) {
+        console.error('Failed to fetch from backend:', error);
+      }
+    };
+    fetchData();
+  }, [tahun, triwulan, dataKey]);
 
   // Handle custom save modal trigger
   const handleSaveClick = (e: React.FormEvent) => {
@@ -169,40 +208,68 @@ export const RealisasiProgramKerjaPage: React.FC = () => {
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
 
-    const updatedData = {
-      target: parseFloat(targetInput),
-      realisasi: parseFloat(realisasiInput),
+    const targetVal = parseFloat(targetInput);
+    const realisasiVal = parseFloat(realisasiInput);
+    const monthNum = triwulan === 'TW I' ? 3 : triwulan === 'TW II' ? 6 : triwulan === 'TW III' ? 10 : 12;
+
+    const payload: any = {
+      bulan: monthNum,
+      tahun: parseInt(tahun, 10),
+      details: [
+        {
+          urutan: 1,
+          nama_program: 'Program Kerja TI',
+          target_persen: targetVal,
+          realisasi_persen: realisasiVal
+        }
+      ]
     };
 
-    // Update state locally
-    setDataMap((prev) => ({
-      ...prev,
-      [dataKey]: updatedData,
-    }));
+    if (currentId) {
+      payload.details[0].id = currentId;
+    }
 
-    // Toast UI notification
-    setShowToast(true);
-    setTimeout(() => {
-      setShowToast(false);
-    }, 3000);
-
-    // Backend integration skeleton
     try {
-      console.log('Sending data payload to backend API...', {
-        tahun,
-        triwulan,
-        ...updatedData
+      const response = await fetch('http://localhost:5000/api/program-kerja', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
+      const result = await response.json();
+      if (result.success) {
+        // Update state locally
+        const updatedData = {
+          target: targetVal,
+          realisasi: realisasiVal,
+        };
+        setDataMap((prev) => ({
+          ...prev,
+          [dataKey]: updatedData,
+        }));
+        
+        // Update current ID if newly created
+        if (result.data && result.data.detail_program_kerja_ti && result.data.detail_program_kerja_ti.length > 0) {
+          setCurrentId(result.data.detail_program_kerja_ti[0].id);
+        }
+
+        // Toast UI notification
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 3000);
+      } else {
+        alert('Gagal menyimpan data: ' + result.message);
+      }
     } catch (error) {
       console.error('Failed to sync with backend:', error);
+      alert('Terjadi kesalahan koneksi saat menyimpan data.');
     }
   };
 
   // YTD cumulative average calculation: averages triwulans up to selected Triwulan, or all 4 if past
   const getYearCumulativeAvg = (yr: string) => {
-    if (yr === '2020') return 10;
-    if (yr === '2021') return 30;
-
     let sum = 0;
     let count = 0;
     triwulans.forEach(tw => {
