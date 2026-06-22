@@ -1,42 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-generator client {
-  provider = "prisma-client-js"
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_cpu_aplikasi {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("CPU") @db.VarChar(50)
+  urutan                       Int
+  nama_sistem                  String                        @db.VarChar(150)
+  cpu_ghz                      Decimal?                      @db.Decimal(14, 4)
+  utilisasi_ghz                Decimal?                      @db.Decimal(14, 4)
+  free_persen                  Decimal?                      @db.Decimal(5, 2)
+  utilisasi_persen             Decimal?                      @db.Decimal(5, 2)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_cpu_app")
 }
 
-enum Role {
-  ADMIN
-  USER
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_cpu_db_aplikasi {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("CPU_DATABASE") @db.VarChar(50)
+  urutan                       Int
+  nama_sistem                  String                        @db.VarChar(150)
+  cpu_ghz                      Decimal?                      @db.Decimal(14, 4)
+  utilisasi_ghz                Decimal?                      @db.Decimal(14, 4)
+  free_persen                  Decimal?                      @db.Decimal(5, 2)
+  utilisasi_persen             Decimal?                      @db.Decimal(5, 2)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_cpu_db")
 }
 
-model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String   @map("password_hash")
-  name         String
-  role         Role     @default(USER)
-  isActive     Boolean  @default(true) @map("is_active")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-  files        File[]   @relation("UploadedFiles")
-
-  @@map("users")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_ketersediaan_backup {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("KETERSEDIAAN_BACKUP") @db.VarChar(50)
+  urutan                       Int
+  lokasi                       String                        @db.VarChar(255)
+  ketersediaan_persen          Decimal?                      @db.Decimal(5, 2)
+  created_at                   DateTime?                     @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime?                     @default(now()) @db.Timestamptz(6)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_backup")
 }
 
-model File {
-  id           String   @id @default(uuid())
-  originalName String   @map("original_name")
-  storageKey   String   @unique @map("storage_key")
-  mimeType     String   @map("mime_type")
-  fileSize     BigInt   @map("file_size")
-  checksum     String   @map("checksum") // SHA-256 integrity hash
-  uploadedBy   String   @map("uploaded_by")
-  uploader     User     @relation("UploadedFiles", fields: [uploadedBy], references: [id])
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_ketersediaan_keamanan {
+  id                          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_ketersediaan_id     String                       @db.Uuid
+  kategori_ketersediaan       String?                      @default("KEAMANAN_TI") @db.VarChar(50)
+  urutan                      Int
+  nama_sistem                 String                       @db.VarChar(255)
+  rencana_persen              Decimal?                     @db.Decimal(5, 2)
+  realisasi_persen            Decimal?                     @db.Decimal(5, 2)
+  laporan_ketersediaan_master laporan_ketersediaan_master? @relation(fields: [laporan_ketersediaan_id, kategori_ketersediaan], references: [id, kategori_ketersediaan], onDelete: Cascade, onUpdate: NoAction, map: "fk_ketersediaan_keamanan")
+}
 
-  @@map("files")
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_ketersediaan_scmc {
+  id                          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_ketersediaan_id     String                       @db.Uuid
+  kategori_ketersediaan       String?                      @default("REPORT_SCMC") @db.VarChar(50)
+  urutan                      Int
+  keterangan                  String                       @db.VarChar(255)
+  jumlah                      Int                          @default(0)
+  laporan_ketersediaan_master laporan_ketersediaan_master? @relation(fields: [laporan_ketersediaan_id, kategori_ketersediaan], references: [id, kategori_ketersediaan], onDelete: Cascade, onUpdate: NoAction, map: "fk_ketersediaan_scmc")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_ketersediaan_sistem {
+  id                          String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_ketersediaan_id     String                       @db.Uuid
+  kategori_ketersediaan       String?                      @default("SISTEM_APLIKASI") @db.VarChar(50)
+  urutan                      Int
+  nama_sistem                 String                       @db.VarChar(255)
+  rencana_persen              Decimal?                     @db.Decimal(5, 2)
+  realisasi_persen            Decimal?                     @db.Decimal(5, 2)
+  laporan_ketersediaan_master laporan_ketersediaan_master? @relation(fields: [laporan_ketersediaan_id, kategori_ketersediaan], references: [id, kategori_ketersediaan], onDelete: Cascade, onUpdate: NoAction, map: "fk_ketersediaan_sistem")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_layanan_aplikasi {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_wo_id      String              @db.Uuid
+  kategori_layanan   String?             @default("LAYANAN_APLIKASI") @db.VarChar(50)
+  urutan             Int
+  bulan_teks         String              @db.VarChar(50)
+  wo_masuk           Int?                @default(0)
+  wo_selesai         Int?                @default(0)
+  laporan_work_order laporan_work_order? @relation(fields: [laporan_wo_id, kategori_layanan], references: [id, kategori_layanan], onDelete: Cascade, onUpdate: NoAction, map: "fk_detail_layanan_app")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_layanan_operasional {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_wo_id      String              @db.Uuid
+  kategori_layanan   String?             @default("OPERASIONAL_TI") @db.VarChar(50)
+  urutan             Int
+  bulan_teks         String              @db.VarChar(50)
+  wo_masuk           Int?                @default(0)
+  wo_selesai         Int?                @default(0)
+  laporan_work_order laporan_work_order? @relation(fields: [laporan_wo_id, kategori_layanan], references: [id, kategori_layanan], onDelete: Cascade, onUpdate: NoAction, map: "fk_detail_operasional")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_lisensi {
+  id                 String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_lisensi_id String          @db.Uuid
+  urutan             Int
+  principle          String          @db.VarChar(150)
+  nama_produk        String          @db.VarChar(255)
+  total_lisensi      Int             @default(0)
+  tanggal_expired    DateTime        @db.Date
+  status             String          @db.VarChar(100)
+  created_at         DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime?       @default(now()) @db.Timestamptz(6)
+  laporan_lisensi    laporan_lisensi @relation(fields: [laporan_lisensi_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_laporan_lisensi")
+
+  @@index([tanggal_expired], map: "idx_detail_lisensi_expired")
+  @@index([laporan_lisensi_id], map: "idx_detail_lisensi_laporan_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_memory_db_aplikasi {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("MEMORY_DATABASE") @db.VarChar(50)
+  urutan                       Int
+  nama_sistem                  String                        @db.VarChar(150)
+  memory_gb                    Decimal?                      @db.Decimal(10, 2)
+  utilisasi_gb                 Decimal?                      @db.Decimal(10, 2)
+  free_persen                  Decimal?                      @db.Decimal(5, 2)
+  utilisasi_persen             Decimal?                      @db.Decimal(5, 2)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_memory_db")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_pc_support {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_wo_id      String              @db.Uuid
+  kategori_layanan   String?             @default("PC_SUPPORT") @db.VarChar(50)
+  urutan             Int
+  bulan_teks         String              @db.VarChar(50)
+  wo_masuk           Int?                @default(0)
+  wo_selesai         Int?                @default(0)
+  laporan_work_order laporan_work_order? @relation(fields: [laporan_wo_id, kategori_layanan], references: [id, kategori_layanan], onDelete: Cascade, onUpdate: NoAction, map: "fk_detail_pc_support")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_program_kerja_ti {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("PROGRAM_KERJA_TI") @db.VarChar(50)
+  urutan                       Int
+  nama_program                 String                        @db.VarChar(255)
+  target_persen                Decimal?                      @db.Decimal(6, 2)
+  realisasi_persen             Decimal?                      @db.Decimal(6, 2)
+  created_at                   DateTime?                     @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime?                     @default(now()) @db.Timestamptz(6)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_program_kerja")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_realisasi_restore {
+  id                 String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_wo_id      String              @db.Uuid
+  kategori_layanan   String?             @default("RESTORE_ELLIPSE") @db.VarChar(50)
+  urutan             Int
+  bulan_teks         String              @db.VarChar(50)
+  wo_masuk           Int?                @default(0)
+  wo_selesai         Int?                @default(0)
+  laporan_work_order laporan_work_order? @relation(fields: [laporan_wo_id, kategori_layanan], references: [id, kategori_layanan], onDelete: Cascade, onUpdate: NoAction, map: "fk_detail_restore")
+}
+
+model detail_rkap_ti {
+  id              String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_rkap_id String          @db.Uuid
+  urutan          Int
+  nama_metrik     String          @db.VarChar(150)
+  nilai_nominal   Decimal         @default(0) @db.Decimal(20, 2)
+  created_at      DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime?       @default(now()) @db.Timestamptz(6)
+  laporan_rkap_ti laporan_rkap_ti @relation(fields: [laporan_rkap_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_laporan_rkap")
+
+  @@index([laporan_rkap_id], map: "idx_detail_rkap_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_sdm_it {
+  id             String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_sdm_id String         @db.Uuid
+  urutan         Int
+  role_divisi    String         @db.VarChar(150)
+  jumlah         Int            @default(0)
+  created_at     DateTime?      @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime?      @default(now()) @db.Timestamptz(6)
+  laporan_sdm_it laporan_sdm_it @relation(fields: [laporan_sdm_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_laporan_sdm")
+
+  @@index([laporan_sdm_id], map: "idx_detail_sdm_laporan_id")
+  @@index([role_divisi], map: "idx_detail_sdm_role")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_storage_db_aplikasi {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("STORAGE_DATABASE") @db.VarChar(50)
+  urutan                       Int
+  nama_sistem                  String                        @db.VarChar(150)
+  storage_tb                   Decimal?                      @db.Decimal(10, 2)
+  utilisasi_tb                 Decimal?                      @db.Decimal(10, 2)
+  free_persen                  Decimal?                      @db.Decimal(5, 2)
+  utilisasi_persen             Decimal?                      @db.Decimal(5, 2)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_storage_db")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_utilisasi_bandwidth {
+  id                          String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_bandwidth_id        String                      @db.Uuid
+  urutan                      Int
+  lokasi                      String                      @db.VarChar(255)
+  bandwidth_mbps              Decimal                     @default(0) @db.Decimal(10, 2)
+  utilisasi_mbps              Decimal                     @default(0) @db.Decimal(10, 2)
+  sisa_persen                 Decimal                     @default(0) @db.Decimal(5, 2)
+  utilisasi_persen            Decimal                     @default(0) @db.Decimal(5, 2)
+  created_at                  DateTime?                   @default(now()) @db.Timestamptz(6)
+  updated_at                  DateTime?                   @default(now()) @db.Timestamptz(6)
+  laporan_utilisasi_bandwidth laporan_utilisasi_bandwidth @relation(fields: [laporan_bandwidth_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_laporan_bandwidth")
+
+  @@index([laporan_bandwidth_id], map: "idx_detail_bandwidth_laporan_id")
+  @@index([lokasi], map: "idx_detail_bandwidth_lokasi")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_utilisasi_cpu {
+  id                              String                           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_utilisasi_id            String                           @db.Uuid
+  tipe_utilisasi                  String?                          @default("SERVER_CPU") @db.VarChar(50)
+  urutan                          Int
+  nama_server                     String                           @db.VarChar(150)
+  cpu_cores                       Int?
+  utilisasi_ghz                   Decimal?                         @db.Decimal(10, 2)
+  utilisasi_persen                Decimal?                         @db.Decimal(5, 2)
+  laporan_utilisasi_server_master laporan_utilisasi_server_master? @relation(fields: [laporan_utilisasi_id, tipe_utilisasi], references: [id, tipe_utilisasi], onDelete: Cascade, onUpdate: NoAction, map: "fk_server_cpu")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_utilisasi_memory {
+  id                              String                           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_utilisasi_id            String                           @db.Uuid
+  tipe_utilisasi                  String?                          @default("SERVER_MEMORY") @db.VarChar(50)
+  urutan                          Int
+  nama_server                     String                           @db.VarChar(150)
+  memory_gb                       Decimal?                         @db.Decimal(10, 2)
+  utilisasi_gb                    Decimal?                         @db.Decimal(10, 2)
+  utilisasi_persen                Decimal?                         @db.Decimal(5, 2)
+  laporan_utilisasi_server_master laporan_utilisasi_server_master? @relation(fields: [laporan_utilisasi_id, tipe_utilisasi], references: [id, tipe_utilisasi], onDelete: Cascade, onUpdate: NoAction, map: "fk_server_memory")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_utilisasi_storage {
+  id                              String                           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_utilisasi_id            String                           @db.Uuid
+  tipe_utilisasi                  String?                          @default("SERVER_STORAGE") @db.VarChar(50)
+  urutan                          Int
+  nama_storage                    String                           @db.VarChar(150)
+  capacity_tb                     Decimal?                         @db.Decimal(10, 2)
+  utilisasi_tb                    Decimal?                         @db.Decimal(10, 2)
+  free_tb                         Decimal?                         @db.Decimal(10, 2)
+  utilisasi_persen                Decimal?                         @db.Decimal(5, 2)
+  laporan_utilisasi_server_master laporan_utilisasi_server_master? @relation(fields: [laporan_utilisasi_id, tipe_utilisasi], references: [id, tipe_utilisasi], onDelete: Cascade, onUpdate: NoAction, map: "fk_server_storage")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_infrastruktur_master {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipe_infrastruktur         String                       @db.VarChar(50)
+  bulan                      Int
+  tahun                      Int
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  detail_cpu_aplikasi        detail_cpu_aplikasi[]
+  detail_cpu_db_aplikasi     detail_cpu_db_aplikasi[]
+  detail_ketersediaan_backup detail_ketersediaan_backup[]
+  detail_memory_db_aplikasi  detail_memory_db_aplikasi[]
+  detail_program_kerja_ti    detail_program_kerja_ti[]
+  detail_storage_db_aplikasi detail_storage_db_aplikasi[]
+
+  @@unique([id, tipe_infrastruktur], map: "uq_infra_global_id_tipe")
+  @@unique([bulan, tahun, tipe_infrastruktur], map: "uq_periode_infra_global")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_ketersediaan_master {
+  id                           String                         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kategori_ketersediaan        String                         @db.VarChar(50)
+  bulan                        Int
+  tahun                        Int
+  rata_rata_rencana_persen     Decimal?                       @default(0) @db.Decimal(5, 2)
+  rata_rata_realisasi_persen   Decimal?                       @default(0) @db.Decimal(5, 2)
+  created_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
+  updated_at                   DateTime?                      @default(now()) @db.Timestamptz(6)
+  detail_ketersediaan_keamanan detail_ketersediaan_keamanan[]
+  detail_ketersediaan_scmc     detail_ketersediaan_scmc[]
+  detail_ketersediaan_sistem   detail_ketersediaan_sistem[]
+
+  @@unique([id, kategori_ketersediaan], map: "uq_ketersediaan_id_kategori")
+  @@unique([bulan, tahun, kategori_ketersediaan], map: "uq_ketersediaan_periode")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_lisensi {
+  id                        String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bulan                     Int
+  tahun                     Int
+  total_keseluruhan_lisensi Int?             @default(0)
+  created_at                DateTime?        @default(now()) @db.Timestamptz(6)
+  updated_at                DateTime?        @default(now()) @db.Timestamptz(6)
+  detail_lisensi            detail_lisensi[]
+
+  @@index([tahun, bulan], map: "idx_lisensi_periode")
+  @@index([tahun], map: "idx_lisensi_tahun")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_rkap_ti {
+  id                             String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bulan                          Int
+  tahun                          Int
+  kalkulasi_cost_reduction_rp    Decimal?         @default(0) @db.Decimal(20, 2)
+  kalkulasi_persentase_realisasi Decimal?         @default(0) @db.Decimal(5, 2)
+  created_at                     DateTime?        @default(now()) @db.Timestamptz(6)
+  updated_at                     DateTime?        @default(now()) @db.Timestamptz(6)
+  detail_rkap_ti                 detail_rkap_ti[]
+
+  @@index([tahun, bulan], map: "idx_rkap_periode")
+  @@index([tahun], map: "idx_rkap_tahun")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_sdm_it {
+  id                    String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bulan                 Int
+  tahun                 Int
+  total_keseluruhan_sdm Int?            @default(0)
+  created_at            DateTime?       @default(now()) @db.Timestamptz(6)
+  updated_at            DateTime?       @default(now()) @db.Timestamptz(6)
+  detail_sdm_it         detail_sdm_it[]
+
+  @@index([tahun, bulan], map: "idx_sdm_periode")
+  @@index([tahun], map: "idx_sdm_tahun")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_utilisasi_bandwidth {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  bulan                      Int
+  tahun                      Int
+  total_bandwidth_mbps       Decimal?                     @default(0) @db.Decimal(12, 2)
+  total_utilisasi_mbps       Decimal?                     @default(0) @db.Decimal(12, 2)
+  rata_rata_utilisasi_persen Decimal?                     @default(0) @db.Decimal(5, 2)
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  detail_utilisasi_bandwidth detail_utilisasi_bandwidth[]
+
+  @@unique([bulan, tahun], map: "unique_periode_bandwidth")
+  @@index([tahun], map: "idx_bandwidth_tahun")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_utilisasi_server_master {
+  id                         String                     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tipe_utilisasi             String                     @db.VarChar(50)
+  bulan                      Int
+  tahun                      Int
+  rata_rata_utilisasi_persen Decimal?                   @db.Decimal(5, 2)
+  total_kapasitas            Decimal?                   @db.Decimal(12, 2)
+  total_utilisasi            Decimal?                   @db.Decimal(12, 2)
+  total_free                 Decimal?                   @db.Decimal(12, 2)
+  total_cpu_cores            Int?
+  total_utilisasi_ghz        Decimal?                   @db.Decimal(10, 2)
+  target_utilisasi_persen    Decimal?                   @db.Decimal(5, 2)
+  created_at                 DateTime?                  @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                  @default(now()) @db.Timestamptz(6)
+  detail_utilisasi_cpu       detail_utilisasi_cpu[]
+  detail_utilisasi_memory    detail_utilisasi_memory[]
+  detail_utilisasi_storage   detail_utilisasi_storage[]
+
+  @@unique([bulan, tahun, tipe_utilisasi], map: "uq_periode_server_master")
+  @@unique([id, tipe_utilisasi], map: "uq_server_master_id_tipe")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model laporan_work_order {
+  id                         String                       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  kategori_layanan           String                       @db.VarChar(50)
+  tahun                      Int
+  total_wo_masuk             Int?                         @default(0)
+  total_wo_selesai           Int?                         @default(0)
+  created_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime?                    @default(now()) @db.Timestamptz(6)
+  detail_layanan_aplikasi    detail_layanan_aplikasi[]
+  detail_layanan_operasional detail_layanan_operasional[]
+  detail_pc_support          detail_pc_support[]
+  detail_realisasi_restore   detail_realisasi_restore[]
+
+  @@unique([tahun, kategori_layanan], map: "unique_tahun_kategori")
+  @@unique([id, kategori_layanan], map: "uq_wo_id_kategori")
 }
