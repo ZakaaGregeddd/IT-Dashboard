@@ -1,0 +1,89 @@
+import React, { useState, useEffect } from 'react';
+import { Home, Menu } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
+import { navigateTo } from '@/utils/navigation';
+
+interface HeaderProps {
+  isSidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
+}
+
+const breadcrumbMapping: Record<string, string> = {
+  '/': 'Dashboard Utama',
+  '/dashboard': 'Dashboard Utama',
+  '/data-overall': 'Data Overall',
+  '/realisasi-program-kerja-ti': 'IT Planning & Security / Realisasi Program Kerja TI',
+  '/realisasi-rkap-ti': 'IT Planning & Security / Realisasi RKAP TI',
+  '/lisensi': 'IT Planning & Security / Lisensi',
+  '/ketersediaan-report-aplikasi-scmc': 'App Dev & Services / Ketersediaan Report SCMC',
+  '/tingkat-ketersediaan-sistem': 'App Dev & Services / Tingkat Ketersediaan Sistem',
+  '/rata-rata-utilisasi-bandwidth-jaringan': 'IT Operation / Rata-rata Utilisasi Bandwidth Jaringan',
+  '/penyelesaian-pekerjaan-pc-support': 'IT Operation / Penyelesaian Pekerjaan PC Support',
+  '/penyelesaian-permintaan-layanan-aplikasi-ti': 'IT Operation / Penyelesaian Permintaan Layanan Aplikasi TI',
+  '/penyelesaian-permintaan-layanan-ti-di-operasional-ti': 'IT Operation / Penyelesaian Permintaan Layanan TI di Operasional TI',
+  '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan': 'IT Operation / Realisasi Restore Ellipse dan Email'
+};
+
+export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSidebar }) => {
+  const [currentPath, setCurrentPath] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      setCurrentPath(window.location.pathname);
+    };
+
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('navigate', handleLocationChange);
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('navigate', handleLocationChange);
+    };
+  }, []);
+
+  const getBreadcrumbs = () => {
+    const fullText = breadcrumbMapping[currentPath] || 'Dashboard Utama';
+    return fullText.split(' / ').map((segment, index, array) => (
+      <React.Fragment key={index}>
+        {index > 0 && <span className="text-slate-300">/</span>}
+        <span className={index === array.length - 1 ? "font-medium text-slate-700" : "text-slate-400"}>
+          {segment}
+        </span>
+      </React.Fragment>
+    ));
+  };
+
+  return (
+    <header className="flex-none h-11 flex items-center justify-between px-6 border-b border-slate-200 bg-white z-20">
+      <div className="flex items-center gap-4 text-sm">
+        <button 
+          onClick={onToggleSidebar}
+          className="p-1 hover:bg-slate-100 rounded-md text-slate-500 transition-colors flex items-center justify-center"
+          aria-label={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+          title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
+        >
+          <Menu className="w-4 h-4" />
+        </button>
+        <div className="flex items-center gap-2">
+          <a 
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('/');
+            }}
+            className="text-slate-400 hover:text-slate-600 flex items-center cursor-pointer" 
+            href="/"
+          >
+            <Home className="w-4 h-4" />
+          </a>
+          <span className="text-slate-300">/</span>
+          {getBreadcrumbs()}
+        </div>
+      </div>
+      
+      {/* User Avatar */}
+      <div className="flex items-center">
+        <Avatar fallback="A" />
+      </div>
+    </header>
+  );
+};

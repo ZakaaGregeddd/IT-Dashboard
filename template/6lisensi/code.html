@@ -1,0 +1,886 @@
+<!DOCTYPE html><html lang="id" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Dashboard - Sistem Pelaporan Bulanan Terpusat</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed": "#321200",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "inverse-surface": "#213145",
+                        "surface-dim": "#cbdbf5",
+                        "outline": "#747780",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "primary": "#001941",
+                        "surface-bright": "#f8f9ff",
+                        "secondary-container": "#fea619",
+                        "secondary-fixed": "#ffddb8",
+                        "tertiary-container": "#512200",
+                        "outline-variant": "#c4c6d1",
+                        "on-primary-fixed-variant": "#2b4679",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#ce865b",
+                        "tertiary": "#311200",
+                        "inverse-primary": "#aec6ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "on-error-container": "#93000a",
+                        "surface-tint": "#445e92",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "tertiary-fixed": "#ffdbc9",
+                        "secondary": "#855300",
+                        "primary-container": "#0f2e60",
+                        "on-primary-container": "#7d97cf",
+                        "surface-variant": "#d3e4fe",
+                        "primary-fixed-dim": "#aec6ff",
+                        "on-tertiary-fixed-variant": "#6e3813",
+                        "on-surface-variant": "#44474f",
+                        "on-secondary-container": "#684000",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary-fixed": "#001a42",
+                        "on-surface": "#0b1c30",
+                        "surface-container-low": "#eff4ff",
+                        "on-secondary-fixed": "#2a1700",
+                        "surface": "#f8f9ff",
+                        "error": "#ba1a1a"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sidebar-width": "260px",
+                        "md": "16px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "sm": "8px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "label-caps": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "data-mono": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-background text-on-background flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="bg-primary-container w-[260px] flex-shrink-0 flex flex-col z-40 hidden md:flex">
+<!-- Header -->
+<div class="p-6 flex items-start gap-3">
+<div class="mt-1 flex gap-1 flex-wrap w-[24px]">
+<div class="w-2.5 h-2.5 bg-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 bg-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 border border-yellow-500 rounded-sm"></div>
+<div class="w-2.5 h-2.5 border border-yellow-500 rounded-sm"></div>
+</div>
+<div>
+<div class="font-bold text-white text-sm leading-tight">Sistem Pelaporan<br>Bulanan Terpusat</div>
+</div>
+</div>
+<!-- Navigation -->
+<nav class="flex-1 py-md"><!-- Active State -->
+<a class="flex items-center gap-3 text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm" href="#">
+<span class="material-symbols-outlined text-yellow-500 text-lg">dashboard</span>
+<span class="">Dashboard</span>
+</a><a class="flex items-center gap-3 text-primary-fixed-dim font-bold px-6 py-3 transition-colors duration-200 text-sm" href="#"><span class="material-symbols-outlined text-yellow-500 text-lg">analytics</span>
+<span class="">Data Overall</span></a>
+<!-- Dropdown 1: IT Planning & Security (OPEN) -->
+<details class="group mt-2" open="">
+<summary class="flex items-center justify-between text-white px-6 py-3 transition-colors duration-200 text-sm font-bold cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">verified_user</span>
+<span class="">IT Planning &amp; Security</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi Program Kerja TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi RKAP TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">SDM IT (Outsource &amp; Pegawai)</a>
+<a class="pl-14 pr-6 py-2 text-primary-fixed-dim font-bold bg-white/5 text-sm" href="#">Lisensi</a></div>
+</details>
+<!-- Dropdown 2: Application Development & Services / EIS -->
+<details class="group mt-2" open="">
+<summary class="flex items-center justify-between text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">code</span>
+<span class="">App Dev &amp; Services / EIS</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Ketersediaan Report Aplikasi SCMC</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Tingkat ketersediaan Ellipse, email, CISEA dan SIMKES</a>
+</div>
+</details>
+<!-- Dropdown 3: IT Operation -->
+<details class="group mt-2" open="">
+<summary class="flex items-center justify-between text-white/80 hover:text-white hover:bg-white/5 px-6 py-3 transition-colors duration-200 text-sm cursor-pointer list-none [&amp;::-webkit-details-marker]:hidden">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-lg">memory</span>
+<span class="">IT Operation</span>
+</div>
+<span class="material-symbols-outlined text-sm transition-transform group-open:rotate-180">expand_more</span>
+</summary>
+<div class="flex flex-col py-1">
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi Memory Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi Storage Server</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Aplikasi Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi CPU Database aplikasi Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi memory database Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Utilisasi storage database Ellipse dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Rata-rata utilisasi bandwidth jaringan</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Ketersediaan sistem backup Ellipse, email, DR Ellipse, jaringan (WAN) dan CISEA</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Tingkat ketersediaan sistem keamanan TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian pekerjaan PC Support</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian permintaan layanan aplikasi TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Penyelesaian Permintaan Layanan TI di Operasional TI</a>
+<a class="pl-14 pr-6 py-2 text-white/60 hover:text-white text-sm" href="#">Realisasi Restore Ellipse dan Email sesuai kebutuhan</a>
+</div>
+</details></nav>
+<!-- Footer -->
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 h-full overflow-y-auto w-full bg-background relative">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-30 px-lg flex justify-between items-center"><div class="flex items-center gap-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] cursor-pointer hover:text-primary">home</span>
+<span class="text-outline">/</span>
+<span class="font-body-sm text-on-surface-variant">IT Planning &amp; Security</span>
+<span class="text-outline">/</span>
+<span class="font-body-sm font-bold text-primary">Lisensi</span>
+</div>
+<div class="flex items-center">
+<div class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm shadow-sm">A</div>
+</div></header>
+<!-- Page Content -->
+<div class="p-lg flex-1 max-w-[1440px] mx-auto w-full flex flex-col gap-lg">
+<!-- Page Header & Filters -->
+<div class="flex flex-col gap-4">
+<h2 class="font-display-lg text-display-lg text-on-background">Lisensi</h2>
+<div class="flex flex-wrap gap-3">
+<div class="relative">
+</div>
+<div class="relative">
+<button class="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-sm text-sm font-medium">
+          Oktober <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+<div class="relative">
+<button class="flex items-center gap-2 px-4 py-2 bg-white border border-outline-variant rounded-sm text-sm font-medium">
+          2024 <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Ringkasan Lisensi -->
+<div class="flex flex-col gap-4">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Urgent Card -->
+<div class="bg-error-container rounded-xl p-5 flex flex-col gap-1 border border-error/20">
+<div class="text-on-error-container font-bold text-sm uppercase tracking-wider">Urgent (&lt;= 2 Bulan)</div>
+<div class="text-4xl font-bold text-on-error-container mt-2">5</div>
+<button class="text-sm font-bold text-on-error-container mt-4 text-left self-start hover:underline flex items-center gap-1" onclick="toggleDetails('urgent')">More <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<!-- Peringatan Card -->
+<div class="bg-secondary-fixed rounded-xl p-5 flex flex-col gap-1 border border-secondary/20">
+<div class="text-on-secondary-container font-bold text-sm uppercase tracking-wider">Peringatan (&gt; 2 - 4 Bulan)</div>
+<div class="text-4xl font-bold text-on-secondary-container mt-2">3</div>
+<button class="text-sm font-bold text-on-secondary-container mt-4 text-left self-start hover:underline flex items-center gap-1" onclick="toggleDetails('peringatan')">More <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+<!-- Aman Card -->
+<div class="bg-[#0F2E60] rounded-xl p-5 flex flex-col gap-1 border border-[#0F2E60]">
+<div class="text-white font-bold text-sm uppercase tracking-wider">Aman (&gt; 4 Bulan)</div>
+<div class="text-4xl font-bold text-white mt-2">12</div>
+<button class="text-sm font-bold text-white/80 mt-4 text-left self-start hover:text-white hover:underline flex items-center gap-1" onclick="toggleDetails('aman')">More <span class="material-symbols-outlined text-sm">arrow_forward</span></button>
+</div>
+</div>
+<!-- Expanded Area -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden transition-all duration-300" id="ringkasan-details">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">list_alt</span>
+<h4 class="font-title-sm text-title-sm text-on-background" id="ringkasan-details-title">Detail Lisensi: Urgent (&lt;= 2 Bulan)</h4>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface p-1 rounded-full hover:bg-surface-variant transition-colors flex items-center justify-center" onclick="toggleDetails('close')"><span class="material-symbols-outlined text-sm">close</span></button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant bg-surface-container-lowest">
+<th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-16">No</th>
+<th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Principle</th>
+<th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Produk</th>
+<th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Exp Date</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant" id="ringkasan-details-body">
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">1</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor urgent 1</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk urgent 1</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">2</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor urgent 2</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk urgent 2</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">3</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor urgent 3</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk urgent 3</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">4</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor urgent 4</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk urgent 4</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">5</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor urgent 5</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk urgent 5</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      </tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Data Entry Card -->
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+<div class="p-6 border-b border-outline-variant flex justify-between items-center">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">table_chart</span>
+<h3 class="font-title-sm text-title-sm text-on-background">Data Entri Lisensi</h3>
+</div>
+<button class="bg-primary text-white px-4 py-2 rounded-sm text-sm font-bold flex items-center gap-2 hover:bg-primary/90 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+        Tambah Baris Baru
+      </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead><tr class="bg-surface-container-low border-b border-outline-variant"><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-16">No</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Principle</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Nama Produk</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Total Lisensi</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Satuan</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Exp Date</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider w-[240px]">Status</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider">Keterangan</th><th class="px-6 py-3 text-xs font-bold text-on-surface-variant uppercase tracking-wider text-center">Aksi</th></tr></thead>
+<tbody class="divide-y divide-outline-variant"><tr class="hover:bg-surface-container-lowest transition-colors"><td class="px-6 py-4 text-sm text-on-surface">1</td><td class="px-6 py-4 text-sm font-medium text-on-surface">Check Point</td><td class="px-6 py-4 text-sm text-on-surface">Insider Firewall (Tanjung Enim)</td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" type="text" value="2"></td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" placeholder="Unit" type="text"></td><td class="px-6 py-4 text-center"><input class="w-[140px] px-2 py-1 border border-outline-variant rounded-sm text-center text-sm bg-transparent" type="date" value="2026-06-30"></td><td class="px-6 py-4 text-sm text-on-surface"><select class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[220px]"><option selected="" value="Proses Renewal">Lisensi aktif, Proses Renewal</option><option value="Autodebet">Lisensi aktif, Autodebet</option><option value="Aktif">Lisensi aktif</option></select></td><td class="px-6 py-4"><textarea class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[200px]" placeholder="Catatan..." rows="1"></textarea></td><td class="px-6 py-4 text-center"><button class="text-error hover:bg-error/10 p-1 rounded-full"><span class="material-symbols-outlined text-lg">delete</span></button></td></tr><tr class="hover:bg-surface-container-lowest transition-colors"><td class="px-6 py-4 text-sm text-on-surface">2</td><td class="px-6 py-4 text-sm font-medium text-on-surface">Qontak</td><td class="px-6 py-4 text-sm text-on-surface">Whatsapp for Business</td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" type="text" value="2"></td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" placeholder="Unit" type="text"></td><td class="px-6 py-4 text-center"><input class="w-[140px] px-2 py-1 border border-outline-variant rounded-sm text-center text-sm bg-transparent" type="date" value="2026-05-21"></td><td class="px-6 py-4 text-sm text-on-surface"><select class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[220px]"><option value="Proses Renewal">Lisensi aktif, Proses Renewal</option><option selected="" value="Autodebet">Lisensi aktif, Autodebet</option><option value="Aktif">Lisensi aktif</option></select></td><td class="px-6 py-4"><textarea class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[200px]" placeholder="Catatan..." rows="1"></textarea></td><td class="px-6 py-4 text-center"><button class="text-error hover:bg-error/10 p-1 rounded-full"><span class="material-symbols-outlined text-lg">delete</span></button></td></tr><tr class="hover:bg-surface-container-lowest transition-colors"><td class="px-6 py-4 text-sm text-on-surface">3</td><td class="px-6 py-4 text-sm font-medium text-on-surface">Only Office</td><td class="px-6 py-4 text-sm text-on-surface">Docu Tools CISEA</td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" type="text" value="1"></td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" placeholder="Unit" type="text"></td><td class="px-6 py-4 text-center"><input class="w-[140px] px-2 py-1 border border-outline-variant rounded-sm text-center text-sm bg-transparent" type="date" value="2026-05-31"></td><td class="px-6 py-4 text-sm text-on-surface"><select class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[220px]"><option value="Proses Renewal">Lisensi aktif, Proses Renewal</option><option selected="" value="Autodebet">Lisensi aktif, Autodebet</option><option value="Aktif">Lisensi aktif</option></select></td><td class="px-6 py-4"><textarea class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[200px]" placeholder="Catatan..." rows="1"></textarea></td><td class="px-6 py-4 text-center"><button class="text-error hover:bg-error/10 p-1 rounded-full"><span class="material-symbols-outlined text-lg">delete</span></button></td></tr><tr class="hover:bg-surface-container-lowest transition-colors"><td class="px-6 py-4 text-sm text-on-surface">4</td><td class="px-6 py-4 text-sm font-medium text-on-surface">Digicert</td><td class="px-6 py-4 text-sm text-on-surface">SSL Certificate CISEA</td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" type="text" value="1"></td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" placeholder="Unit" type="text"></td><td class="px-6 py-4 text-center"><input class="w-[140px] px-2 py-1 border border-outline-variant rounded-sm text-center text-sm bg-transparent" type="date" value="2026-08-09"></td><td class="px-6 py-4 text-sm text-on-surface"><select class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[220px]"><option value="Proses Renewal">Lisensi aktif, Proses Renewal</option><option value="Autodebet">Lisensi aktif, Autodebet</option><option selected="" value="Aktif">Lisensi aktif</option></select></td><td class="px-6 py-4"><textarea class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[200px]" placeholder="Catatan..." rows="1"></textarea></td><td class="px-6 py-4 text-center"><button class="text-error hover:bg-error/10 p-1 rounded-full"><span class="material-symbols-outlined text-lg">delete</span></button></td></tr><tr class="hover:bg-surface-container-lowest transition-colors"><td class="px-6 py-4 text-sm text-on-surface">5</td><td class="px-6 py-4 text-sm font-medium text-on-surface">Imperva</td><td class="px-6 py-4 text-sm text-on-surface">Web Application Firewall</td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" type="text" value="1"></td><td class="px-6 py-4 text-center"><input class="w-24 px-2 py-1 border border-outline-variant rounded-sm text-center text-sm" placeholder="Unit" type="text"></td><td class="px-6 py-4 text-center"><input class="w-[140px] px-2 py-1 border border-outline-variant rounded-sm text-center text-sm bg-transparent" type="date" value="2026-08-20"></td><td class="px-6 py-4 text-sm text-on-surface"><select class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[220px]"><option value="Proses Renewal">Lisensi aktif, Proses Renewal</option><option value="Autodebet">Lisensi aktif, Autodebet</option><option selected="" value="Aktif">Lisensi aktif</option></select></td><td class="px-6 py-4"><textarea class="w-full px-2 py-1 border border-outline-variant rounded-sm text-sm bg-transparent min-w-[200px]" placeholder="Catatan..." rows="1"></textarea></td><td class="px-6 py-4 text-center"><button class="text-error hover:bg-error/10 p-1 rounded-full"><span class="material-symbols-outlined text-lg">delete</span></button></td></tr></tbody>
+</table>
+</div>
+</div><div class="flex justify-end gap-3 mt-4">
+<button class="px-6 py-2 border border-outline-variant rounded-sm text-sm font-bold text-on-surface hover:bg-surface-container-low transition-colors">Batal</button>
+<button class="px-6 py-2 bg-primary text-white rounded-sm text-sm font-bold hover:bg-primary/90 transition-colors">Konfirmasi &amp; Simpan</button>
+</div><div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden mt-lg">
+
+
+</div>
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden mt-lg">
+<div class="p-6 border-b border-outline-variant flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">trending_up</span>
+<div>
+<h3 class="font-title-sm text-title-sm text-on-background">Performa Year to Date (YTD)</h3>
+<p class="text-sm text-on-surface-variant">Tren Jumlah Lisensi Tahun 2021 - 2024</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="flex flex-col gap-1">
+<label class="text-xs font-bold text-on-surface-variant uppercase">Dari Tahun</label>
+<select class="px-3 py-1.5 border border-outline-variant rounded-sm text-sm bg-white min-w-[120px]">
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024">2024</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-xs font-bold text-on-surface-variant uppercase">Sampai Tahun</label>
+<select class="px-3 py-1.5 border border-outline-variant rounded-sm text-sm bg-white min-w-[120px]">
+<option value="2021">2021</option>
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option selected="" value="2024">2024</option>
+</select>
+</div>
+</div>
+</div>
+<div class="p-6"><div class="h-[350px] w-full">
+<div class="w-full h-full" id="recharts-ytd-line-container">
+<svg class="w-full h-full" viewBox="0 0 800 350">
+<!-- Grid Lines -->
+<g class="text-outline-variant" stroke="currentColor" stroke-dasharray="3 3">
+<line x1="50" x2="750" y1="50" y2="50"></line>
+<line x1="50" x2="750" y1="125" y2="125"></line>
+<line x1="50" x2="750" y1="200" y2="200"></line>
+<line x1="50" x2="750" y1="275" y2="275"></line>
+<line stroke-dasharray="0" x1="50" x2="750" y1="300" y2="300"></line>
+</g>
+<!-- Axes Labels -->
+<g class="text-[10px] fill-on-surface-variant font-medium">
+<text text-anchor="end" x="40" y="305">0</text>
+<text text-anchor="end" x="40" y="205">50</text>
+<text text-anchor="end" x="40" y="105">100</text>
+<text text-anchor="middle" x="100" y="325">2021</text>
+<text text-anchor="middle" x="300" y="325">2022</text>
+<text text-anchor="middle" x="500" y="325">2023</text>
+<text text-anchor="middle" x="700" y="325">2024</text>
+</g>
+<!-- Line Path -->
+<path d="M 100 232.5 L 300 222 L 500 198 L 700 187.5" fill="none" stroke="#0f2e60" stroke-width="3"></path>
+<!-- Data Points -->
+<g fill="#0f2e60">
+<circle cx="100" cy="232.5" r="5"></circle>
+<circle cx="300" cy="222" r="5"></circle>
+<circle cx="500" cy="198" r="5"></circle>
+<circle cx="700" cy="187.5" r="5"></circle>
+</g>
+<!-- Tooltip Placeholder (Simulated) -->
+<g class="opacity-0 hover:opacity-100 transition-opacity">
+<rect fill="white" filter="drop-shadow(0 1px 2px rgb(0 0 0 / 0.1))" height="40" rx="4" width="100" x="650" y="140"></rect>
+<text class="text-[12px] font-bold fill-on-surface" text-anchor="middle" x="700" y="158">2024: 75</text>
+<text class="text-[10px] fill-on-surface-variant" text-anchor="middle" x="700" y="172">Jumlah Lisensi</text>
+</g>
+</svg>
+</div>
+</div></div>
+</div>
+<!-- Chart Card -->
+<!-- Bottom Actions -->
+<script>
+    new Chart(document.getElementById('chart-ketersediaan-sistem-new'), {
+        type: 'bar',
+        data: {
+            labels: ['Ellipse', 'Email', 'CISEA', 'SIMKES'],
+            datasets: [
+                { label: 'Rencana', data: [100, 100, 100, 100], backgroundColor: '#0f2e60', barPercentage: 0.4, categoryPercentage: 0.6 },
+                { label: 'Realisasi', data: [100, 100, 100, 100], backgroundColor: '#f59e0b', barPercentage: 0.4, categoryPercentage: 0.6 }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, max: 100, ticks: { callback: value => value + '%' } },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+  </script>
+</div>
+</main>
+<script>
+    // Chart Defaults
+    Chart.defaults.font.family = 'Inter';
+    Chart.defaults.color = '#747780';
+    const primaryColor = '#0f2e60';
+    const secondaryColor = '#f59e0b';
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8 } }
+        }
+    };
+
+    // 1. Program Kerja
+    new Chart(document.getElementById('chart-program-kerja'), {
+        type: 'bar',
+        data: {
+            labels: ['TW III s.d Okt 2024'],
+            datasets: [
+                { label: 'Target', data: [100], backgroundColor: primaryColor, barPercentage: 0.5, categoryPercentage: 0.5 },
+                { label: 'Realisasi', data: [92], backgroundColor: secondaryColor, barPercentage: 0.5, categoryPercentage: 0.5 }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 3. SDM IT
+    new Chart(document.getElementById('chart-sdm-it'), {
+        type: 'bar',
+        data: {
+            labels: ['Join Dev', 'Network', 'Noc', 'Office Boy', 'PC Support', 'Admin', 'Data Scientist', 'Driver'],
+            datasets: [{
+                label: 'Jumlah SDM',
+                data: [29, 11, 9, 2, 11, 4, 1, 3],
+                backgroundColor: primaryColor,
+                barPercentage: 0.6
+            }]
+        },
+        options: { ...commonOptions, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 4. Report SCMC
+    new Chart(document.getElementById('chart-report-scmc'), {
+        type: 'bar',
+        data: {
+            labels: ['JUNI 2024', 'OKTOBER 2024'],
+            datasets: [
+                { label: 'Realisasi Laporan yang Beroperasi Normal', data: [51, 51], backgroundColor: primaryColor },
+                { label: 'Jumlah Laporan Tersedia', data: [51, 51], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true } } }
+    });
+
+    // 5. Ketersediaan Sistem
+    new Chart(document.getElementById('chart-ketersediaan-sistem'), {
+        type: 'bar',
+        data: {
+            labels: ['Ellipse', 'Email', 'CISEA', 'SIMKES'],
+            datasets: [
+                { label: 'Rencana', data: [100, 100, 100, 100], backgroundColor: primaryColor },
+                { label: 'Realisasi', data: [99.5, 99.9, 98, 100], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 6. CPU Server
+    new Chart(document.getElementById('chart-cpu-server'), {
+        type: 'bar',
+        data: {
+            labels: ['sgspp-esx1', 'sgspp-esx2', 'sgspp-esx3', 'sgspp-esx4', 'tp-esx-01', 'tp-esx-02', 'tp-esx-03', 'tp-esx-04'],
+            datasets: [
+                { label: 'CPU Cores', data: [140, 140, 140, 140, 140, 140, 140, 140], backgroundColor: primaryColor },
+                { label: 'Utilisasi (GHz)', data: [40, 35, 45, 50, 60, 45, 55, 40], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 7. Memory Server
+    new Chart(document.getElementById('chart-memory-server'), {
+        type: 'bar',
+        data: {
+            labels: ['sgspp-esx1', 'sgspp-esx2', 'sgspp-esx3', 'sgspp-esx4', 'tp-esx-01', 'tp-esx-02', 'tp-esx-03', 'tp-esx-04'],
+            datasets: [
+                { label: 'Memory (GB)', data: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], backgroundColor: primaryColor },
+                { label: 'Utilisasi (GB)', data: [400, 500, 450, 600, 550, 480, 520, 450], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 8. Storage Server
+    new Chart(document.getElementById('chart-storage-server'), {
+        type: 'bar',
+        data: {
+            labels: ['STE-UNITY-DATA-1', 'STE-UNITY-DATA-2', 'STE-UNITY-DATA-3', 'STE-UNITY-DATA-4', 'STE-VPS-U-1', 'STE-VPS-U-2', 'STE-VPS-U-3', 'STE-VPS-U-4', 'STE-VPS-U-5', 'STE-VPS-U-6', 'STE-VPS-U-7', 'STE-VPS-U-8', 'STE-VPS-EXCH1', 'STE-VPS-EXCH2'],
+            datasets: [
+                { label: 'Capacity (TB)', data: [12, 10, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 10, 10], backgroundColor: primaryColor },
+                { label: 'Utilisasi (TB)', data: [10, 8, 6, 7, 6, 6, 7, 5, 6, 6, 7, 6, 8, 8], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // Horizontal Stacked Charts Generator
+    const createStackedBar = (id, labels, data1, data2) => {
+        new Chart(document.getElementById(id), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    { label: 'Free (%)', data: data1, backgroundColor: primaryColor },
+                    { label: 'Utilisasi (%)', data: data2, backgroundColor: secondaryColor }
+                ]
+            },
+            options: {
+                ...commonOptions,
+                indexAxis: 'y',
+                scales: { x: { stacked: true, max: 100 }, y: { stacked: true } }
+            }
+        });
+    };
+
+    createStackedBar('chart-utilisasi-cpu', ['CISEA', 'Ellipse'], [70, 80], [30, 20]);
+    createStackedBar('chart-utilisasi-cpu-db', ['CISEA', 'Ellipse'], [60, 85], [40, 15]);
+    createStackedBar('chart-utilisasi-mem-db', ['CISEA', 'Ellipse'], [50, 65], [50, 35]);
+    createStackedBar('chart-utilisasi-storage-db', ['CISEA', 'Ellipse'], [80, 90], [20, 10]);
+
+    // 13. Bandwidth
+    new Chart(document.getElementById('chart-bandwidth'), {
+        type: 'bar',
+        data: {
+            labels: ['Unit. Tanjung Enim - Palembang', 'Unit. Tarahan - Tanjung Enim', 'Unit. Kertapati - Tanjung Enim', 'Unit. Kertapati - Palembang', 'Unit. Lampung - Tanjung Enim', 'Unit. Lampung - Palembang'],
+            datasets: [
+                { label: 'Bandwidth (Mbps)', data: [35, 18, 5, 2, 8, 2], backgroundColor: primaryColor },
+                { label: 'Rata-rata Utilisasi (Mbps)', data: [5, 2, 1, 0.5, 1, 0.2], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { x: { stacked: true }, y: { stacked: true } } }
+    });
+
+    // 14. WAN
+    new Chart(document.getElementById('chart-wan'), {
+        type: 'bar',
+        data: {
+            labels: ['Unit. Tanjung Enim - Palembang', 'Unit. Tarahan - Tanjung Enim', 'Unit. Kertapati - Tanjung Enim', 'Unit. Kertapati - Palembang', 'Unit. Lampung - Tanjung Enim', 'Unit. Lampung - Palembang'],
+            datasets: [{ label: 'Ketersediaan (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: primaryColor, barPercentage: 0.5 }]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 15. Keamanan
+    new Chart(document.getElementById('chart-sistem-keamanan'), {
+        type: 'bar',
+        data: {
+            labels: ['Sistem 1', 'Sistem 2', 'Sistem 3', 'Sistem 4', 'Sistem 5'],
+            datasets: [
+                { label: 'Rencana', data: [100, 100, 100, 100, 100], backgroundColor: primaryColor },
+                { label: 'Realisasi', data: [100, 100, 100, 100, 100], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions, scales: { y: { beginAtZero: true, max: 100 } } }
+    });
+
+    // 16. PC Support
+    new Chart(document.getElementById('chart-pc-support'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [10, 15, 20, 80, 50, 40, 60, 40, 45, 50, 900, 100], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [9, 14, 19, 75, 48, 38, 55, 38, 42, 48, 850, 95], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 17. Layanan Aplikasi
+    new Chart(document.getElementById('chart-layanan-aplikasi'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [10, 20, 40, 80, 120, 250, 180, 120, 110, 80, 70, 50], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [9, 18, 38, 75, 115, 240, 175, 118, 105, 78, 65, 48], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 18. Layanan Operasional
+    new Chart(document.getElementById('chart-layanan-operasional'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [40, 50, 80, 180, 220, 210, 180, 140, 120, 120, 120, 80], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [38, 48, 75, 175, 215, 205, 175, 138, 118, 118, 115, 78], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // 19. Restore
+    new Chart(document.getElementById('chart-restore'), {
+        type: 'bar',
+        data: {
+            labels: ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'],
+            datasets: [
+                { label: 'WO Masuk', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3], backgroundColor: primaryColor },
+                { label: 'WO Selesai', data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3], backgroundColor: secondaryColor }
+            ]
+        },
+        options: { ...commonOptions }
+    });
+
+    // Performa YTD Line Chart
+    new Chart(document.getElementById('chart-performa-ytd'), {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'],
+            datasets: [
+                {
+                    label: 'Target Tahunan',
+                    data: [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50],
+                    borderColor: '#0f2e60',
+                    borderDash: [5, 5],
+                    fill: false,
+                    pointRadius: 0
+                },
+                {
+                    label: 'Realisasi Kumulatif',
+                    data: [5, 12, 18, 25, 30, 35, 42, 45, 48, 52, 55, 60],
+                    borderColor: '#f59e0b',
+                    backgroundColor: '#f59e0b',
+                    fill: false,
+                    pointStyle: 'circle',
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }
+            ]
+        },
+        options: {
+            ...commonOptions,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                tooltip: {
+                    enabled: true
+                },
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true,
+                        boxWidth: 8
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+</script>
+<script>
+  (function() {
+    const ctx = document.getElementById('chart-exp-rate-lisensi').getContext('2d');
+    let chart;
+
+    function calculateExpRate(dateStr) {
+      const expDate = new Date(dateStr);
+      const today = new Date();
+      const totalDuration = 365 * 24 * 60 * 60 * 1000; // Assume 1 year for visualization scale
+      const diff = expDate - today;
+      const rate = Math.max(0, Math.min(100, (diff / totalDuration) * 100));
+      return Math.round(rate);
+    }
+
+    function getStatusColor(status) {
+      if (status.includes('Renewal')) return '#ef4444';
+      if (status.includes('Autodebet')) return '#3b82f6';
+      return '#22c55e';
+    }
+
+    function updateChart() {
+      const rows = document.querySelectorAll('tbody tr');
+      const labels = [];
+      const data = [];
+      const colors = [];
+      const customLabels = [];
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const threeMonthsFromNow = new Date(today);
+      threeMonthsFromNow.setMonth(today.getMonth() + 3);
+
+      rows.forEach(row => {
+        const productName = row.cells[2].textContent.trim();
+        const total = row.cells[3].querySelector('input') ? row.cells[3].querySelector('input').value : row.cells[3].textContent;
+        const expInput = row.cells[4].querySelector('input');
+        if (!expInput) return;
+        const expDateStr = expInput.value;
+        const expDate = new Date(expDateStr);
+        const statusSelect = row.cells[5].querySelector('select');
+        const status = statusSelect ? statusSelect.value : '';
+
+        if (expDate <= threeMonthsFromNow) {
+            labels.push(productName.split(' ')[0]); // Short label like 'Office' or 'Imperva'
+            data.push(calculateExpRate(expDateStr));
+            colors.push(getStatusColor(status));
+            customLabels.push({
+                name: productName,
+                total: total,
+                exp: expDateStr
+            });
+        }
+      });
+
+      if (chart) {
+        chart.data.labels = labels;
+        chart.data.datasets[0].data = data;
+        chart.data.datasets[0].backgroundColor = colors;
+        chart.data.customLabels = customLabels;
+        chart.update();
+      } else {
+        const multiLineLabelsPlugin = {
+          id: 'multiLineLabels',
+          afterDatasetsDraw(chart) {
+            const { ctx, data } = chart;
+            ctx.save();
+            ctx.font = '11px Inter, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            
+            const meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !data.customLabels) {
+                ctx.restore();
+                return;
+            }
+
+            meta.data.forEach((bar, index) => {
+              const custom = data.customLabels[index];
+              if (!custom) return;
+              
+              let name = custom.name;
+              if (name.length > 25) {
+                  name = name.substring(0, 22) + '...';
+              }
+              
+              const lines = [
+                name,
+                `Lisensi: ${custom.total}`,
+                `Exp: ${custom.exp}`
+              ];
+              
+              const x = bar.x;
+              let yPos = bar.y - 6;
+              
+              ctx.fillStyle = '#44474f';
+              
+              lines.reverse().forEach((line, i) => {
+                ctx.fillText(line, x, yPos - (i * 14));
+              });
+            });
+            ctx.restore();
+          }
+        };
+
+        chart = new Chart(ctx, {
+          type: 'bar',
+          plugins: [multiLineLabelsPlugin],
+          data: {
+            labels: labels,
+            customLabels: customLabels,
+            datasets: [{
+              data: data,
+              backgroundColor: colors,
+              barPercentage: 0.5,
+              maxBarThickness: 100,
+              borderRadius: 4
+            }]
+          },
+          options: {
+            layout: {
+                padding: {
+                    top: 60
+                }
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, max: 100, ticks: { callback: v => v + '%' } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+      }
+    }
+
+    // Initial render
+    updateChart();
+
+    // Add event listeners for interactivity
+    document.querySelector('table').addEventListener('change', (e) => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        updateChart();
+      }
+    });
+  })();
+</script>
+<script>
+  // Ringkasan Lisensi Interaction Logic
+  const titles = {
+    urgent: 'Detail Lisensi: Urgent (<= 2 Bulan)',
+    peringatan: 'Detail Lisensi: Peringatan (> 2 - 4 Bulan)',
+    aman: 'Detail Lisensi: Aman (> 4 Bulan)'
+  };
+
+  let currentView = null;
+
+  function toggleDetails(view) {
+    const container = document.getElementById('ringkasan-details');
+    const tbody = document.getElementById('ringkasan-details-body');
+    const title = document.getElementById('ringkasan-details-title');
+
+    if (view === 'close' || currentView === view) {
+      container.classList.add('hidden');
+      currentView = null;
+      return;
+    }
+
+    currentView = view;
+    title.textContent = titles[view];
+    
+    // Generate dummy data based on view
+    let html = '';
+    let count = view === 'urgent' ? 5 : (view === 'peringatan' ? 3 : 12);
+    for(let i=1; i<=count; i++) {
+      html += `
+        <tr class="hover:bg-surface-container-lowest transition-colors">
+          <td class="px-6 py-4 text-sm text-on-surface">${i}</td>
+          <td class="px-6 py-4 text-sm font-medium text-on-surface">Vendor ${view} ${i}</td>
+          <td class="px-6 py-4 text-sm text-on-surface">Produk ${view} ${i}</td>
+          <td class="px-6 py-4 text-sm text-on-surface">202X-XX-XX</td>
+        </tr>
+      `;
+    }
+    tbody.innerHTML = html;
+    container.classList.remove('hidden');
+  }
+</script>
+
+
+</body></html>

@@ -1,0 +1,588 @@
+<!DOCTYPE html><html lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Centralized IT Reporting - SDM IT (Outsource &amp; Pegawai)</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "tertiary-container": "#512200",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "primary-fixed": "#d8e2ff",
+                        "on-tertiary-container": "#ce865b",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "on-primary-fixed-variant": "#2b4679",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#6e3813",
+                        "on-secondary": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "on-secondary-container": "#684000",
+                        "background": "#f8f9ff",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#213145",
+                        "tertiary": "#311200",
+                        "on-error": "#ffffff",
+                        "outline": "#747780",
+                        "tertiary-fixed": "#ffdbc9",
+                        "on-surface-variant": "#44474f",
+                        "on-secondary-fixed": "#2a1700",
+                        "tertiary-fixed-dim": "#ffb68b",
+                        "surface-container-low": "#eff4ff",
+                        "outline-variant": "#c4c6d1",
+                        "primary-fixed-dim": "#aec6ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "surface-container": "#e5eeff",
+                        "on-primary-container": "#7d97cf",
+                        "on-primary": "#ffffff",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-primary": "#aec6ff",
+                        "secondary": "#855300",
+                        "secondary-container": "#fea619",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#cbdbf5",
+                        "surface-tint": "#445e92",
+                        "primary": "#001941",
+                        "surface-container-high": "#dce9ff",
+                        "primary-container": "#0f2e60",
+                        "on-tertiary-fixed": "#321200",
+                        "on-primary-fixed": "#001a42"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "sm": "8px",
+                        "sidebar-width": "260px",
+                        "base": "4px",
+                        "container-max": "1440px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "md": "16px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "data-mono": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "title-sm": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "title-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
+                        "display-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { background-color: #f8fafc; }
+        .table-container { border: 1px solid #e2e8f0; border-radius: 0.25rem; }
+        .table-header { background-color: #f1f5f9; border-bottom: 1px solid #e2e8f0; }
+        .card-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        input[type=number]::-webkit-inner-spin-button, 
+        input[type=number]::-webkit-outer-spin-button { 
+            -webkit-appearance: none; 
+            margin: 0; 
+        }
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-[260px] bg-primary dark:bg-primary shadow-sm flex flex-col overflow-y-auto z-20"><div class="p-lg flex flex-col gap-xs border-b border-white/10"><div class="flex items-center gap-sm"><span class="material-symbols-outlined text-[32px] text-secondary-container" data-weight="fill">domain</span><h1 class="font-headline-md text-headline-md font-bold text-on-primary"></h1><h1 class="font-title-sm text-title-sm font-bold text-white" style="--tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / 0.5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; font-family: Inter, sans-serif; --tw-text-opacity: 1; color: rgb(255, 255, 255); letter-spacing: normal; background-color: rgb(15, 46, 96); outline: none !important; box-shadow: none !important;">Sistem Pelaporan Bulanan Terpusat</h1></div></div><div class="py-md"><a class="flex items-center gap-md py-sm px-md text-on-primary/80 hover:bg-primary-container/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95" href="#"><span class="material-symbols-outlined">grid_view</span><span class="font-title-sm text-title-sm">Dashboard Utama</span></a><div class="mt-md"><button class="flex items-center justify-between py-sm px-md text-on-primary bg-primary-container/20 transition-colors w-full text-left border-l-4 border-secondary-container"><div class="flex items-center gap-md"><span class="material-symbols-outlined">security</span><span class="font-body-md text-body-md font-medium">IT Planning &amp; Security</span></div><span class="material-symbols-outlined text-[20px] transform rotate-180">expand_more</span></button><div class="flex flex-col mt-xs bg-[#091a38] py-xs"><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Realisasi Program Kerja TI</a><a class="flex items-center py-[10px] pl-[52px] pr-md text-on-primary/70 hover:text-on-primary text-sm transition-colors" href="#">Realisasi RKAP TI</a><a class="flex items-center py-[10px] pl-[48px] pr-md text-secondary-container font-bold border-l-4 border-secondary-container bg-primary-container/20 text-sm transition-colors" href="#">SDM IT (Outsource &amp; Pegawai)</a></div></div><div class="mt-sm"><div class="flex items-center gap-md py-sm px-md text-on-primary/80 hover:bg-primary-container/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 justify-between"><div class="flex items-center gap-md"><span class="material-symbols-outlined">developer_mode</span><span class="font-title-sm text-title-sm">App Dev &amp; Services / EIS</span></div><span class="material-symbols-outlined text-sm">expand_more</span></div></div><div class="mt-sm"><div class="flex items-center gap-md py-sm px-md text-on-primary/80 hover:bg-primary-container/20 hover:text-on-primary transition-colors cursor-pointer active:scale-95 justify-between"><div class="flex items-center gap-md"><span class="material-symbols-outlined">settings_suggest</span><span class="font-title-sm text-title-sm">IT Operation</span></div><span class="material-symbols-outlined text-sm">expand_more</span></div></div></div></nav>
+<!-- TopNavBar & Main Content Wrapper -->
+<div class="flex-1 flex flex-col ml-[260px] w-[calc(100%-260px)] h-full">
+<!-- TopNavBar -->
+<header class="sticky top-0 w-full h-16 bg-surface/80 backdrop-blur-md border-b border-outline-variant z-30 px-lg flex justify-between items-center">
+<div class="flex items-center gap-sm text-outline">
+<span class="material-symbols-outlined text-[18px]">home</span>
+<span class="mx-1">/</span>
+<span class="font-body-sm text-body-sm hover:text-primary transition-colors cursor-pointer">IT Planning &amp; Security</span>
+<span class="mx-1">/</span>
+<span class="font-body-sm text-body-sm font-semibold text-primary">SDM IT (Outsource &amp; Pegawai)</span>
+</div>
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-primary-container text-white flex items-center justify-center font-bold text-sm">
+                A
+            </div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto p-lg bg-[#f8fafc]">
+<div class="max-w-container-max mx-auto">
+<!-- Breadcrumbs & Header -->
+<div class="mb-lg">
+<h1 class="font-display-lg text-display-lg text-on-surface mb-xs">SDM IT (Outsource &amp; Pegawai)</h1>
+<div class="flex flex-wrap items-center gap-md mt-4"><div class="flex flex-col gap-1">
+
+<div class="relative">
+
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Bulan</label>
+<div class="relative">
+<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[140px]">
+<option>Januari</option><option>Februari</option><option>Maret</option><option>April</option><option>Mei</option><option selected="">Juni</option><option>Juli</option><option>Agustus</option><option>September</option><option>Oktober</option><option>November</option><option>Desember</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Tahun</label>
+<div class="relative">
+<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[100px]">
+<option selected="">2024</option><option>2023</option><option>2022</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Two Column Layout -->
+<div class="grid gap-lg mb-lg md:grid-cols-12">
+<!-- Left Column: Data Table (8 cols) -->
+<div class="bg-surface-container-lowest rounded-lg card-shadow p-lg md:col-span-8">
+<div class="flex justify-between items-center mb-md">
+<h3 class="font-title-sm text-title-sm text-on-surface">Detail Komposisi SDM</h3>
+
+</div>
+<div class="table-container overflow-x-auto">
+<table class="w-full text-left border-collapse" id="sdmTable">
+<thead class="table-header font-label-caps text-label-caps text-on-surface-variant">
+<tr>
+<th class="py-sm px-md font-semibold w-16 text-center">NO</th>
+<th class="py-sm px-md font-semibold">ROLE/DIVISI</th>
+<th class="py-sm px-md font-semibold text-right">JUMLAH</th>
+<th class="py-sm px-md font-semibold w-24 text-center">AKSI</th>
+</tr>
+</thead>
+<tbody class="font-body-sm text-body-sm text-on-surface" id="sdmTableBody">
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">1</td>
+<td class="py-md px-md font-medium role-label">Join Dev</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" placeholder="30" type="number" value="29">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">2</td>
+<td class="py-md px-md font-medium role-label">Network</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="11">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">3</td>
+<td class="py-md px-md font-medium role-label">Noc</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="9">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">4</td>
+<td class="py-md px-md font-medium role-label">Office Boy</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="2">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">5</td>
+<td class="py-md px-md font-medium role-label">PC Support</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="11">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">6</td>
+<td class="py-md px-md font-medium role-label">Admin</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" placeholder="2" type="number" value="1">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">7</td>
+<td class="py-md px-md font-medium role-label">Data Scientist</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="4">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors sdm-row">
+<td class="py-md px-md text-center text-on-surface-variant">8</td>
+<td class="py-md px-md font-medium role-label">Driver</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono">
+<input class="w-16 text-right bg-transparent border-b border-transparent hover:border-outline focus:border-primary focus:outline-none data-input" min="0" type="number" value="3">
+</td>
+<td class="py-md px-md text-center">
+<button class="text-on-surface-variant hover:text-error transition-colors delete-btn"><span class="material-symbols-outlined text-[20px]">close</span></button>
+</td>
+</tr>
+<tr class="bg-[#f1f5f9] font-semibold border-t-2 border-outline">
+<td class="py-md px-md text-right" colspan="2">TOTAL</td>
+<td class="py-md px-md text-right font-data-mono text-data-mono text-primary" id="totalJumlah">71</td>
+<td class=""></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Column: Bar Chart (4 cols) -->
+<div class="bg-surface-container-lowest rounded-lg card-shadow p-lg flex flex-col md:col-span-4">
+<div class="mb-md">
+<h3 class="font-title-sm text-title-sm text-on-surface">Distribusi SDM IT</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Berdasarkan Role/Divisi</p>
+</div>
+<div class="flex-1 relative w-full flex flex-col items-center h-[450px]">
+<canvas height="1007" id="sdmChart" style="display: block; box-sizing: border-box; height: 671.3px; width: 260px;" width="390"></canvas>
+</div>
+</div>
+</div><div class="flex justify-end gap-md mt-lg mb-lg">
+<button class="px-md py-sm rounded border border-outline font-body-sm text-body-sm font-medium text-on-surface hover:bg-surface-variant transition-colors">Batal</button>
+<button class="px-md py-sm rounded bg-primary text-on-primary font-body-sm text-body-sm font-medium flex items-center gap-xs hover:bg-primary/90 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">save</span>
+                        Konfirmasi &amp; Simpan
+                    </button>
+</div><div class="bg-surface-container-lowest rounded-lg card-shadow p-lg mb-lg">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
+<div>
+<h3 class="font-title-sm text-title-sm text-on-surface">Komposisi SDM per Divisi (Year to Date)</h3>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Dari Tahun</label>
+<div class="relative">
+<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[100px]" id="dariTahun">
+<option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option selected="" value="2024">2024</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sampai Tahun</label>
+<div class="relative">
+<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[100px]" id="sampaiTahun">
+<option value="2021">2021</option><option value="2022">2022</option><option value="2023">2023</option><option selected="" value="2024">2024</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+<div class="h-[350px] w-full">
+<canvas height="525" id="ytdChart" style="display: block; box-sizing: border-box; height: 350px; width: 924px;" width="1386"></canvas>
+</div>
+</div>
+<!-- Action Buttons -->
+</div>
+</main>
+</div>
+<!-- Chart Configuration -->
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('sdmChart').getContext('2d');
+            const primaryColor = '#0f2e60';
+            const colors = ['#0f2e60', '#1c4587', '#2b5ea8', '#3c78c9', '#5392e6', '#71aef2', '#92cbfb', '#b5e3ff'];
+            let sdmChart;
+
+            function extractData() {
+                const labels = [];
+                const data = [];
+                let total = 0;
+                
+                const rows = document.querySelectorAll('.sdm-row');
+                rows.forEach(row => {
+                    const label = row.querySelector('.role-label').innerText.trim();
+                    const valueInput = row.querySelector('.data-input').value;
+                    const value = parseInt(valueInput) || 0;
+                    
+                    labels.push(label);
+                    data.push(value);
+                    total += value;
+                });
+                
+                return { labels, data, total };
+            }
+
+            function initChart() {
+                const { labels, data } = extractData();
+                
+                sdmChart = new Chart(ctx, {
+                    type: 'doughnut',
+                    plugins: [ChartDataLabels],
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Jumlah Pegawai',
+                            data: data,
+                            backgroundColor: colors,
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    font: { family: 'Inter', size: 12 },
+                                    color: '#44474f',
+                                    usePointStyle: true,
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: '#213145',
+                                titleFont: { family: 'Inter', size: 12 },
+                                bodyFont: { family: 'Inter', size: 14, weight: 'bold' },
+                                padding: 12,
+                                displayColors: true
+                            },
+                            datalabels: {
+                                color: '#ffffff',
+                                font: {
+                                    family: 'Inter',
+                                    weight: 'bold',
+                                    size: 14
+                                },
+                                formatter: function(value, context) {
+                                    return value > 0 ? value : '';
+                                }
+                            }
+                        },
+                        animation: {
+                            duration: 500,
+                            easing: 'easeOutQuart'
+                        }
+                    }
+                });
+            }
+
+            function updateData() {
+                const { labels, data, total } = extractData();
+                
+                // Update Chart
+                if(sdmChart) {
+                    sdmChart.data.labels = labels;
+                    sdmChart.data.datasets[0].data = data;
+                    sdmChart.update();
+                }
+                
+                // Update Total
+                document.getElementById('totalJumlah').innerText = total;
+            }
+
+            // Initialize chart
+            initChart();
+
+            // Add event listeners to existing inputs
+            document.getElementById('sdmTableBody').addEventListener('input', function(e) {
+                if(e.target && e.target.classList.contains('data-input')) {
+                    updateData();
+                }
+            });
+
+            // Handle delete row
+            document.getElementById('sdmTableBody').addEventListener('click', function(e) {
+                if(e.target && (e.target.classList.contains('delete-btn') || e.target.closest('.delete-btn'))) {
+                    const row = e.target.closest('tr');
+                    if(row) {
+                        row.remove();
+                        // Re-number rows
+                        const rows = document.querySelectorAll('.sdm-row');
+                        rows.forEach((r, index) => {
+                            r.querySelector('td:first-child').innerText = index + 1;
+                        });
+                        updateData();
+                    }
+                }
+            });
+        });
+    </script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ytdCtx = document.getElementById('ytdChart').getContext('2d');
+        
+        const allYears = ['2021', '2022', '2023', '2024'];
+        // Consistent colors matching the doughnut/pie chart on the same page
+        const divisionData = [
+            { label: 'Join Dev', data: [25, 27, 28, 29], borderColor: '#0f2e60', backgroundColor: '#0f2e60' },
+            { label: 'Network', data: [8, 9, 10, 11], borderColor: '#1c4587', backgroundColor: '#1c4587' },
+            { label: 'Noc', data: [7, 8, 8, 9], borderColor: '#2b5ea8', backgroundColor: '#2b5ea8' },
+            { label: 'Office Boy', data: [2, 2, 2, 2], borderColor: '#3c78c9', backgroundColor: '#3c78c9' },
+            { label: 'PC Support', data: [10, 10, 11, 11], borderColor: '#5392e6', backgroundColor: '#5392e6' },
+            { label: 'Admin', data: [1, 1, 1, 1], borderColor: '#71aef2', backgroundColor: '#71aef2' },
+            { label: 'Data Scientist', data: [2, 3, 4, 4], borderColor: '#92cbfb', backgroundColor: '#92cbfb' },
+            { label: 'Driver', data: [3, 3, 3, 3], borderColor: '#b5e3ff', backgroundColor: '#b5e3ff' }
+        ];
+
+        let ytdChartInstance = new Chart(ytdCtx, {
+            type: 'line',
+            data: {
+                labels: allYears,
+                datasets: divisionData.map(ds => ({
+                    ...ds,
+                    tension: 0.4, // Smooth monotone-like curve
+                    borderWidth: 3,
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    fill: false
+                }))
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            font: { family: 'Inter', size: 12 },
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#213145',
+                        titleFont: { family: 'Inter', weight: 'bold' },
+                        bodyFont: { family: 'Inter' },
+                        padding: 12,
+                        cornerRadius: 4,
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.parsed.y;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f1f5f9'
+                        },
+                        ticks: {
+                            font: { family: 'Inter' },
+                            stepSize: 5
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sumbu Y (0-30)',
+                            font: { family: 'Inter', size: 11 }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: true,
+                            color: '#f1f5f9'
+                        },
+                        ticks: {
+                            font: { family: 'Inter' }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Sumbu X (Tahun)',
+                            font: { family: 'Inter', size: 11 }
+                        }
+                    }
+                }
+            }
+        });
+
+        const dariTahunSelect = document.getElementById('dariTahun');
+        const sampaiTahunSelect = document.getElementById('sampaiTahun');
+
+        function updateYtdChart() {
+            const dari = parseInt(dariTahunSelect.value);
+            const sampai = parseInt(sampaiTahunSelect.value);
+            
+            const filteredLabels = [];
+            const filteredDataSets = divisionData.map(dataset => ({
+                ...dataset,
+                tension: 0.4,
+                borderWidth: 3,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: false,
+                data: []
+            }));
+
+            allYears.forEach((year, index) => {
+                const yearInt = parseInt(year);
+                if (yearInt >= dari && yearInt <= sampai) {
+                    filteredLabels.push(year);
+                    divisionData.forEach((dataset, dsIndex) => {
+                        filteredDataSets[dsIndex].data.push(dataset.data[index]);
+                    });
+                }
+            });
+
+            ytdChartInstance.data.labels = filteredLabels;
+            ytdChartInstance.data.datasets = filteredDataSets;
+            ytdChartInstance.update();
+        }
+
+        dariTahunSelect.addEventListener('change', updateYtdChart);
+        sampaiTahunSelect.addEventListener('change', updateYtdChart);
+        
+        // Initial filter run
+        updateYtdChart();
+    });
+</script>
+
+
+</body></html>
