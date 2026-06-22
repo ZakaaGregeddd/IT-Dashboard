@@ -8,8 +8,8 @@ const defaultOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   scales: {
-    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 9 } } },
-    x: { grid: { display: false }, ticks: { font: { size: 9 } } }
+    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 8 } } },
+    x: { grid: { display: false }, ticks: { font: { size: 8 } } }
   },
   plugins: { legend: { display: false } }
 };
@@ -18,8 +18,8 @@ const stackedBarOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   scales: {
-    x: { stacked: true, grid: { display: false }, ticks: { font: { size: 9 } } },
-    y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 9 } } }
+    x: { stacked: true, grid: { display: false }, ticks: { font: { size: 8 } } },
+    y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 8 } } }
   },
   plugins: {
     legend: {
@@ -32,11 +32,11 @@ const angledLabelsOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   scales: {
-    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 9 } } },
+    y: { beginAtZero: true, grid: { color: '#f1f5f9' }, border: { dash: [4, 4] }, ticks: { font: { size: 8 } } },
     x: { 
       grid: { display: false }, 
       ticks: { 
-        font: { size: 9 },
+        font: { size: 8 },
         maxRotation: 45,
         minRotation: 45
       } 
@@ -68,9 +68,9 @@ interface DashboardOverviewProps {
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ data }) => {
   return (
-    <div className="w-full h-full p-3 flex flex-col gap-3 lg:overflow-hidden overflow-y-auto">
+    <div className="w-full h-full p-2 flex flex-col gap-2 lg:overflow-hidden overflow-y-auto">
       {/* Baris 1: 4 Kartu */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 lg:flex-1 lg:min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2 lg:flex-1 lg:min-h-0">
         <KpiChartCard 
           title="Realisasi Program Kerja TI" 
           options={defaultOptions}
@@ -98,7 +98,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ data }) =>
       </div>
 
       {/* Baris 2: 3 Kartu */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:flex-1 lg:min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:flex-1 lg:min-h-0">
         <KpiChartCard 
           title="Tingkat Ketersediaan Sistem" 
           options={defaultOptions}
@@ -122,7 +122,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ data }) =>
       </div>
 
       {/* Baris 3: 3 Kartu */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 lg:flex-1 lg:min-h-0">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:flex-1 lg:min-h-0">
         <KpiChartCard 
           title="Penyelesaian Permintaan Layanan Aplikasi TI" 
           options={angledLabelsOptions}

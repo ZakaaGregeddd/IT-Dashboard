@@ -28,10 +28,10 @@ export const KpiChartCard: React.FC<KpiChartCardProps> = ({ title, data, options
       className={onClick ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" : ""}
     >
       <CardTitle className="flex-none">{title}</CardTitle>
-      <div className="flex-1 min-h-0 w-full relative" style={{ maxHeight: '125px' }}>
+      <div className="flex-1 min-h-0 w-full relative" style={{ maxHeight: '90px' }}>
         <BaseBarChart data={data} options={options} />
       </div>
-      <div className="flex-none flex flex-wrap justify-center gap-x-3 gap-y-1 mt-1">
+      <div className="flex-none flex flex-wrap justify-center gap-x-3 gap-y-0.5 mt-0.5">
         {legendItems.map((item, idx) => (
           <div key={idx} className="flex items-center gap-1 text-[9px] text-slate-600 font-medium">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />

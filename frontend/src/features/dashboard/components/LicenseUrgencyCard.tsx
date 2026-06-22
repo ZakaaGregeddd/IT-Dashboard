@@ -11,6 +11,9 @@ interface LicenseUrgencyCardProps {
     between2and4: number;
     over4: number;
   };
+  labels?: string[];
+  colors?: string[];
+  legendItems?: { label: string; color: string }[];
   onClick?: () => void;
 }
 
@@ -67,12 +70,22 @@ const innerLabelsPlugin = {
   }
 };
 
-export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ data, onClick }) => {
+export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ 
+  data, 
+  labels = ['<= 2 Bulan', '2 - 4 Bulan', 'Lisensi Aktif (> 4 bulan)'],
+  colors = ['#ef4444', '#f59e0b', '#0f2e60'],
+  legendItems = [
+    { label: '<= 2 Bulan', color: '#ef4444' },
+    { label: '2 - 4 Bulan', color: '#f59e0b' },
+    { label: 'Lisensi Aktif (> 4 bulan)', color: '#0f2e60' }
+  ],
+  onClick 
+}) => {
   const chartData = {
-    labels: ['<= 2 Bulan', '2 - 4 Bulan', 'Lisensi Aktif (> 4 bulan)'],
+    labels,
     datasets: [{
       data: [data.under2, data.between2and4, data.over4],
-      backgroundColor: ['#ef4444', '#f59e0b', '#0f2e60'], // Red, Yellow, Dark Blue
+      backgroundColor: colors,
       borderWidth: 1,
       borderColor: '#ffffff'
     }]
@@ -85,25 +98,23 @@ export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ data, on
     >
       <CardTitle className="flex-none">Visualisasi Urgensi Kadarluarsa Lisensi</CardTitle>
       
-      <div className="flex-1 min-h-0 w-full relative flex justify-center items-center" style={{ maxHeight: '125px' }}>
+      <div className="flex-1 min-h-0 w-full relative flex justify-center items-center" style={{ maxHeight: '90px' }}>
         <Pie data={chartData} options={chartOptions} plugins={[innerLabelsPlugin]} />
       </div>
       
       {/* Custom Bottom Legend */}
-      <div className="flex-none flex flex-col gap-1 items-center mt-2 text-[9px] font-medium text-slate-600">
+      <div className="flex-none flex flex-col gap-0.5 items-center mt-1 text-[8px] font-medium text-slate-600">
         <div className="flex gap-3 justify-center">
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 bg-[#ef4444] rounded-sm" />
-            <span>&lt;= 2 Bulan</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span className="w-2.5 h-2.5 bg-[#f59e0b] rounded-sm" />
-            <span>2 - 4 Bulan</span>
-          </div>
+          {legendItems.slice(0, 2).map((item, idx) => (
+            <div key={idx} className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: item.color }} />
+              <span>{item.label}</span>
+            </div>
+          ))}
         </div>
         <div className="flex items-center gap-1 justify-center">
-          <span className="w-2.5 h-2.5 bg-[#0f2e60] rounded-sm" />
-          <span>Lisensi Aktif (&gt; 4 bulan)</span>
+          <span className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: legendItems[2]?.color || '#0f2e60' }} />
+          <span>{legendItems[2]?.label}</span>
         </div>
       </div>
     </Card>
