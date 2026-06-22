@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, X, Home } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, X } from 'lucide-react';
 import { BaseDoughnutChart } from '@/components/charts/BaseDoughnutChart';
-import { navigateTo } from '@/utils/navigation';
 
 interface DataPoint {
   realisasi: number;
@@ -107,27 +106,8 @@ const parseFormattedNumber = (str: string): number => {
   return parseFloat(str.replace(/,/g, '')) || 0;
 };
 
-// Initial mock data map for RKAP (2022 - 2024)
-const initialRkapDataMap: Record<string, DataPoint> = {
-  // 2024
-  '2024-Januari': { realisasi: 500000000, costReduction: 600000000 },
-  '2024-Februari': { realisasi: 1000000000, costReduction: 1200000000 },
-  '2024-Maret': { realisasi: 1500000000, costReduction: 1800000000 },
-  '2024-April': { realisasi: 2000000000, costReduction: 2400000000 },
-  '2024-Mei': { realisasi: 2500000000, costReduction: 300000000, },
-  '2024-Juni': { realisasi: 3000000000, costReduction: 3600000000 },
-  '2024-Juli': { realisasi: 3500000000, costReduction: 4200000000 },
-  '2024-Agustus': { realisasi: 4000000000, costReduction: 4800000000 },
-  '2024-September': { realisasi: 4800000000, costReduction: 5500000000 },
-  '2024-Oktober': { realisasi: 5400000000, costReduction: 6100000000 },
-  '2024-November': { realisasi: 6000000000, costReduction: 6800000000 },
-  '2024-Desember': { realisasi: 6543134277, costReduction: 7333309366 },
-
-  // 2023
-  '2023-Desember': { realisasi: 6000000000, costReduction: 7272727272 },
-  // 2022
-  '2022-Desember': { realisasi: 5400000000, costReduction: 9000000000 },
-};
+// Initial data map starts empty
+const initialRkapDataMap: Record<string, DataPoint> = {};
 
 const monthsList = [
   'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -137,17 +117,32 @@ const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 const allYearsRange = ['2020', '2021', ...yearsList];
 
 export const RealisasiRkapPage: React.FC = () => {
-  const [bulan, setBulan] = useState<string>('Desember');
-  const [tahun, setTahun] = useState<string>('2024');
+  const getCurrentMonthName = () => {
+    const monthsNameMap = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    return monthsNameMap[new Date().getMonth()];
+  };
+  const getCurrentYear = () => new Date().getFullYear().toString();
+
+  const [bulan, setBulan] = useState<string>(getCurrentMonthName());
+  const [tahun, setTahun] = useState<string>(getCurrentYear());
   const [dataMap, setDataMap] = useState<Record<string, DataPoint>>(initialRkapDataMap);
 
   // YTD Line Chart filters
-  const [startYear, setStartYear] = useState<string>('2020');
-  const [endYear, setEndYear] = useState<string>('2024');
+  const [startYear, setStartYear] = useState<string>('2022');
+  const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // Input states (Controlled Components)
   const [realisasiInput, setRealisasiInput] = useState<string>('');
   const [costReductionInput, setCostReductionInput] = useState<string>('');
+
+  // IDs state
+  const [detailIds, setDetailIds] = useState<{ realisasi: string | null; costReduction: string | null }>({
+    realisasi: null,
+    costReduction: null
+  });
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -157,25 +152,88 @@ export const RealisasiRkapPage: React.FC = () => {
   const dataKey = `${tahun}-${bulan}`;
   const activeData = dataMap[dataKey];
 
-  // Simulating initial fetch (GET)
+  // Fetch all historical data on mount to populate chart/YTD performance
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 300);
-    return () => clearTimeout(timer);
+    const fetchHistoricalData = async () => {
+      const monthsNameMap: Record<number, string> = {
+        1: 'Januari', 2: 'Februari', 3: 'Maret', 4: 'April', 5: 'Mei', 6: 'Juni',
+        7: 'Juli', 8: 'Agustus', 9: 'September', 10: 'Oktober', 11: 'November', 12: 'Desember'
+      };
+
+      try {
+        setIsLoading(true);
+        const response = await fetch('http://localhost:5000/api/rkap');
+        const result = await response.json();
+        
+        const loadedData: Record<string, DataPoint> = {};
+        if (result.success && Array.isArray(result.data)) {
+          result.data.forEach((master: any) => {
+            const mName = monthsNameMap[master.bulan];
+            const details = master.detail_rkap_ti || [];
+            const relDetail = details.find((d: any) => d.urutan === 1);
+            const costDetail = details.find((d: any) => d.urutan === 2);
+            
+            if (mName) {
+              loadedData[`${master.tahun}-${mName}`] = {
+                realisasi: relDetail ? parseFloat(relDetail.nilai_nominal) : 0,
+                costReduction: costDetail ? parseFloat(costDetail.nilai_nominal) : 0
+              };
+            }
+          });
+          setDataMap(loadedData);
+        }
+      } catch (error) {
+        console.error('Failed to fetch historical YTD data:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchHistoricalData();
   }, []);
 
-  // Sync input fields with active data
+  // Fetch active details from backend on filter changes
   useEffect(() => {
-    if (activeData) {
-      setRealisasiInput(formatNumber(activeData.realisasi));
-      setCostReductionInput(formatNumber(activeData.costReduction));
-    } else {
-      setRealisasiInput('');
-      setCostReductionInput('');
-    }
-  }, [tahun, bulan, activeData]);
+    const monthsNumMap: Record<string, number> = {
+      'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6,
+      'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
+    };
+    const monthNum = monthsNumMap[bulan] || 12;
+
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/rkap?bulan=${monthNum}&tahun=${tahun}`);
+        const result = await response.json();
+        if (result.success && result.data && result.data.id) {
+          const details = result.data.detail_rkap_ti || [];
+          const relDetail = details.find((d: any) => d.urutan === 1);
+          const costDetail = details.find((d: any) => d.urutan === 2);
+
+          setDetailIds({
+            realisasi: relDetail ? relDetail.id : null,
+            costReduction: costDetail ? costDetail.id : null
+          });
+
+          const rValue = relDetail ? parseFloat(relDetail.nilai_nominal) : 0;
+          const cValue = costDetail ? parseFloat(costDetail.nilai_nominal) : 0;
+
+          setRealisasiInput(formatNumber(rValue));
+          setCostReductionInput(formatNumber(cValue));
+
+          setDataMap((prev) => ({
+            ...prev,
+            [dataKey]: { realisasi: rValue, costReduction: cValue }
+          }));
+        } else {
+          setDetailIds({ realisasi: null, costReduction: null });
+          setRealisasiInput('');
+          setCostReductionInput('');
+        }
+      } catch (error) {
+        console.error('Failed to fetch RKAP details:', error);
+      }
+    };
+    fetchData();
+  }, [tahun, bulan, dataKey]);
 
   // Compute live values
   const rVal = parseFormattedNumber(realisasiInput);
@@ -196,43 +254,80 @@ export const RealisasiRkapPage: React.FC = () => {
   const handleConfirmSave = async () => {
     setIsModalOpen(false);
 
-    // Simulate API call with delay (async database save simulation)
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
+    const monthsNumMap: Record<string, number> = {
+      'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6,
+      'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
+    };
+    const monthNum = monthsNumMap[bulan] || 12;
 
-      // Save locally
-      setDataMap((prev) => ({
-        ...prev,
-        [dataKey]: {
-          realisasi: rVal,
-          costReduction: cVal,
+    const payload: any = {
+      bulan: monthNum,
+      tahun: parseInt(tahun, 10),
+      kalkulasi_cost_reduction_rp: diffVal,
+      kalkulasi_persentase_realisasi: percentageVal,
+      details: [
+        {
+          urutan: 1,
+          nama_metrik: 'Realisasi',
+          nilai_nominal: rVal
         },
-      }));
+        {
+          urutan: 2,
+          nama_metrik: 'Cost Reduction',
+          nilai_nominal: cVal
+        }
+      ]
+    };
 
-      // Toast
-      setShowToast(true);
-      setTimeout(() => {
-        setShowToast(false);
-      }, 3000);
+    if (detailIds.realisasi) payload.details[0].id = detailIds.realisasi;
+    if (detailIds.costReduction) payload.details[1].id = detailIds.costReduction;
 
-      // POST Backend integration skeleton
-      console.log('Sending RKAP payload to backend API...', {
-        tahun,
-        bulan,
-        realisasi: rVal,
-        costReduction: cVal,
-        percentage: percentageVal
+    try {
+      const response = await fetch('http://localhost:5000/api/rkap', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
       });
+      const result = await response.json();
+      if (result.success) {
+        // Save locally
+        setDataMap((prev) => ({
+          ...prev,
+          [dataKey]: {
+            realisasi: rVal,
+            costReduction: cVal,
+          },
+        }));
+
+        // Toast
+        setShowToast(true);
+        setTimeout(() => {
+          setShowToast(false);
+        }, 3000);
+        
+        // Update IDs
+        if (result.data && result.data.id) {
+          const details = result.data.detail_rkap_ti || [];
+          const relDetail = details.find((d: any) => d.urutan === 1);
+          const costDetail = details.find((d: any) => d.urutan === 2);
+          setDetailIds({
+            realisasi: relDetail ? relDetail.id : null,
+            costReduction: costDetail ? costDetail.id : null
+          });
+        }
+      } else {
+        alert('Gagal menyimpan data: ' + result.message);
+      }
     } catch (err) {
       console.error('Failed to sync RKAP with backend:', err);
+      alert('Koneksi bermasalah saat menyimpan data.');
     }
   };
 
   // YTD cumulative average calculation
   const getYearCumulativeAvg = (yr: string) => {
-    if (yr === '2020') return 10;
-    if (yr === '2021') return 30;
-
     // Averages up to selected month for active year, or all 12 months for past years
     let sumRealisasi = 0;
     let sumCostReduction = 0;
@@ -522,7 +617,7 @@ export const RealisasiRkapPage: React.FC = () => {
                   <line x1="0" y1="150" x2="1000" y2="150" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4,4" />
                   
                   {/* Cost Reduction Tahunan Line (100% Flat) */}
-                  <path d="M 0 40 L 250 40 L 500 40 L 750 40 L 1000 40" fill="none" stroke="#f59e0b" strokeDasharray="6,4" strokeWidth="2"></path>
+                  <path d="M 0 40 L 1000 40" fill="none" stroke="#f59e0b" strokeDasharray="6,4" strokeWidth="2"></path>
                   
                   {/* Realisasi Kumulatif Line */}
                   <path 

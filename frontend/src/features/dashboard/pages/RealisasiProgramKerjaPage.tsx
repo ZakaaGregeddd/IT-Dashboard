@@ -108,13 +108,22 @@ const years = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 const allYearsRange = ['2020', '2021', ...years];
 
 export const RealisasiProgramKerjaPage: React.FC = () => {
-  const [triwulan, setTriwulan] = useState<string>('TW III');
-  const [tahun, setTahun] = useState<string>('2024');
+  const getCurrentTriwulan = () => {
+    const month = new Date().getMonth() + 1;
+    if (month >= 4 && month <= 6) return 'TW II';
+    if (month >= 7 && month <= 10) return 'TW III';
+    if (month >= 11 && month <= 12) return 'TW IV';
+    return 'TW I';
+  };
+  const getCurrentYear = () => new Date().getFullYear().toString();
+
+  const [triwulan, setTriwulan] = useState<string>(getCurrentTriwulan());
+  const [tahun, setTahun] = useState<string>(getCurrentYear());
   const [dataMap, setDataMap] = useState<Record<string, DataPoint>>(initialDataMap);
 
   // Year to Date filters range
   const [startYear, setStartYear] = useState<string>('2022');
-  const [endYear, setEndYear] = useState<string>('2026');
+  const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // Form input state
   const [targetInput, setTargetInput] = useState<string>('');

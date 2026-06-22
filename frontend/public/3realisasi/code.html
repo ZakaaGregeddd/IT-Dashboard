@@ -371,6 +371,35 @@
 
     const triwulanSelect = document.getElementById('triwulan-select');
     const tahunSelect = document.getElementById('tahun-select');
+
+    // Populate selects dynamically with current date as default
+    const currentYearVal = new Date().getFullYear();
+    const currentMonthVal = new Date().getMonth() + 1;
+    const startYearVal = 2022;
+    const endYearVal = Math.max(currentYearVal + 4, 2030);
+
+    tahunSelect.innerHTML = '';
+    for (let y = startYearVal; y <= endYearVal; y++) {
+        const opt = document.createElement('option');
+        opt.value = y.toString();
+        opt.textContent = y.toString();
+        tahunSelect.appendChild(opt);
+    }
+
+    triwulanSelect.innerHTML = `
+        <option value="TW I">TW I</option>
+        <option value="TW II">TW II</option>
+        <option value="TW III">TW III</option>
+        <option value="TW IV">TW IV</option>
+    `;
+
+    let defaultTW = 'TW I';
+    if (currentMonthVal >= 4 && currentMonthVal <= 6) defaultTW = 'TW II';
+    else if (currentMonthVal >= 7 && currentMonthVal <= 10) defaultTW = 'TW III';
+    else if (currentMonthVal >= 11 && currentMonthVal <= 12) defaultTW = 'TW IV';
+
+    triwulanSelect.value = defaultTW;
+    tahunSelect.value = currentYearVal.toString();
     const targetInput = document.getElementById('target-input');
     const realisasiInput = document.getElementById('realisasi-input');
 

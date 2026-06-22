@@ -235,19 +235,19 @@
 <div class="flex flex-col gap-1">
 <label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Bulan</label>
 <div class="relative">
-<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[120px]">
-<option>Januari</option>
-<option>Februari</option>
-<option>Maret</option>
-<option>April</option>
-<option>Mei</option>
-<option>Juni</option>
-<option>Juli</option>
-<option>Agustus</option>
-<option>September</option>
-<option>Oktober</option>
-<option>November</option>
-<option selected="">Desember</option>
+<select id="bulan-select" class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[120px]">
+<option value="1">Januari</option>
+<option value="2">Februari</option>
+<option value="3">Maret</option>
+<option value="4">April</option>
+<option value="5">Mei</option>
+<option value="6">Juni</option>
+<option value="7">Juli</option>
+<option value="8">Agustus</option>
+<option value="9">September</option>
+<option value="10">Oktober</option>
+<option value="11">November</option>
+<option value="12" selected="">Desember</option>
 </select>
 <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
 </div>
@@ -255,11 +255,12 @@
 <div class="flex flex-col gap-1">
 <label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Tahun</label>
 <div class="relative">
-<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[100px]">
-<option>2022</option>
-<option>2023</option>
-<option selected="">2024</option>
-<option>2025</option>
+<select id="tahun-select" class="appearance-none bg-white border border-outline-variant rounded px-3 py-1.5 pr-8 text-sm font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[100px]">
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024" selected="">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
 </select>
 <span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-sm pointer-events-none text-outline">expand_more</span>
 </div>
@@ -283,32 +284,32 @@
 <thead>
 <tr class="bg-[#f1f5f9]">
 <th class="py-3 px-4 text-xs font-semibold text-left text-on-surface-variant uppercase tracking-wider border border-outline-variant">Metric</th>
-<th class="py-3 px-4 text-xs font-semibold text-right text-on-surface-variant uppercase tracking-wider border border-outline-variant">Desember 2024</th>
+<th id="header-periode" class="py-3 px-4 text-xs font-semibold text-right text-on-surface-variant uppercase tracking-wider border border-outline-variant">Desember 2024</th>
 <th class="py-3 px-4 text-xs font-semibold text-center text-on-surface-variant uppercase tracking-wider border border-outline-variant w-24">Aksi</th>
 </tr>
 </thead>
 <tbody class="text-sm">
 <tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors group">
-<td class="py-3 px-4 text-on-surface font-medium border border-outline-variant">Realisasi (%)</td>
-<td class="py-3 px-4 text-on-surface text-right font-data-mono font-mono border border-outline-variant focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary" id="val-realisasi">6,543,134,277</td>
+<td class="py-3 px-4 text-on-surface font-medium border border-outline-variant">Realisasi (Rp)</td>
+<td class="py-3 px-4 text-on-surface text-right font-data-mono font-mono border border-outline-variant focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary" id="val-realisasi" contenteditable="true">6,543,134,277</td>
 <td class="py-3 px-4 text-center border border-outline-variant">
 <button class="text-outline hover:text-primary transition-colors opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-sm">edit</span></button>
 </td>
 </tr>
 <tr class="border-b border-outline-variant hover:bg-[#f8fafc] transition-colors group">
-<td class="py-3 px-4 text-on-surface font-medium border border-outline-variant">Cost Reduction (%)</td>
-<td class="py-3 px-4 text-on-surface text-right font-data-mono font-mono border border-outline-variant focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary" id="val-cost-reduction">7,33,3309,366</td>
+<td class="py-3 px-4 text-on-surface font-medium border border-outline-variant">Cost Reduction (Rp)</td>
+<td class="py-3 px-4 text-on-surface text-right font-data-mono font-mono border border-outline-variant focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary" id="val-cost-reduction" contenteditable="true">7,333,309,366</td>
 <td class="py-3 px-4 text-center border border-outline-variant">
 <button class="text-outline hover:text-primary transition-colors opacity-0 group-hover:opacity-100"><span class="material-symbols-outlined text-sm">edit</span></button>
 </td>
 </tr>
 <tr class="border-b border-outline-variant bg-[#fef3c7]">
-<td class="py-3 px-4 text-error font-medium border border-outline-variant">cost reduction</td>
+<td class="py-3 px-4 text-error font-medium border border-outline-variant">Selisih Cost Reduction (Rp)</td>
 <td class="py-3 px-4 text-error text-right font-data-mono font-mono font-bold border border-outline-variant" id="val-diff-text">790,175,089</td>
 <td class="py-3 px-4 border border-outline-variant"></td>
 </tr>
 <tr class="bg-[#fef3c7]">
-<td class="py-3 px-4 text-on-surface font-bold border border-outline-variant text-right">% realisasi</td>
+<td class="py-3 px-4 text-on-surface font-bold border border-outline-variant text-right">% Realisasi</td>
 <td class="py-3 px-4 text-on-surface text-right font-data-mono font-mono font-bold border border-outline-variant focus:outline-none focus:bg-white focus:ring-2 focus:ring-primary" id="realisasi-input">89.22</td>
 <td class="py-3 px-4 border border-outline-variant"></td>
 </tr>
@@ -316,10 +317,10 @@
 </table>
 </div>
 <div class="p-4 border-t border-outline-variant flex justify-end gap-3">
-<button class="px-6 py-2 border border-outline text-on-surface-variant hover:bg-surface-container-low rounded text-sm font-semibold transition-colors">
+<button id="btn-cancel" class="px-6 py-2 border border-outline text-on-surface-variant hover:bg-surface-container-low rounded text-sm font-semibold transition-colors">
                                 Batal
                             </button>
-<button class="px-6 py-2 bg-primary text-white hover:bg-primary/90 rounded text-sm font-semibold transition-colors flex items-center gap-2">
+<button id="btn-save" class="px-6 py-2 bg-primary text-white hover:bg-primary/90 rounded text-sm font-semibold transition-colors flex items-center gap-2">
 <span class="material-symbols-outlined text-sm">save</span>
                                 Konfirmasi &amp; Simpan
                             </button>
@@ -367,11 +368,12 @@
 <div class="flex items-center gap-2">
 <label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Dari Tahun</label>
 <div class="relative">
-<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1 text-xs font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[80px]">
-<option>2021</option>
-<option>2022</option>
-<option>2023</option>
-<option selected="">2024</option>
+<select id="ytd-dari-select" class="appearance-none bg-white border border-outline-variant rounded px-3 py-1 text-xs font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[80px]">
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024" selected="">2024</option>
+<option value="2025">2025</option>
+<option value="2026">2026</option>
 </select>
 <span class="material-symbols-outlined absolute right-1 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-outline">expand_more</span>
 </div>
@@ -379,11 +381,12 @@
 <div class="flex items-center gap-2">
 <label class="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">Sampai Tahun</label>
 <div class="relative">
-<select class="appearance-none bg-white border border-outline-variant rounded px-3 py-1 text-xs font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[80px]">
-<option>2021</option>
-<option>2022</option>
-<option>2023</option>
-<option selected="">2024</option>
+<select id="ytd-sampai-select" class="appearance-none bg-white border border-outline-variant rounded px-3 py-1 text-xs font-medium text-on-surface focus:outline-none focus:border-primary cursor-pointer min-w-[80px]">
+<option value="2022">2022</option>
+<option value="2023">2023</option>
+<option value="2024">2024</option>
+<option value="2025">2025</option>
+<option value="2026" selected="">2026</option>
 </select>
 <span class="material-symbols-outlined absolute right-1 top-1/2 -translate-y-1/2 text-xs pointer-events-none text-outline">expand_more</span>
 </div>
@@ -392,53 +395,7 @@
 </div>
 <div class="p-6">
 <div class="flex flex-col gap-8">
-<div class="h-64 w-full relative mt-4">
-  <svg class="w-full h-full" viewBox="0 0 800 220" preserveAspectRatio="none"><!-- Grid Lines -->
-    <line x1="0" y1="200" x2="800" y2="200" stroke="#e2e8f0" stroke-width="1"></line>
-    <line x1="0" y1="150" x2="800" y2="150" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
-    <line x1="0" y1="100" x2="800" y2="100" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
-    <line x1="0" y1="50" x2="800" y2="50" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
-
-    <!-- Target Tahunan Line (100% Flat) -->
-    <line x1="0" y1="30" x2="800" y2="30" stroke="#0f2e60" stroke-width="2" stroke-dasharray="4,4"></line>
-    <text x="100" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>
-    <text x="250" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>
-    <text x="400" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>
-    <text x="550" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>
-    <text x="700" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>
-    
-    <!-- Realisasi Aktual Line -->
-    <path d="M 100 180 L 250 150 L 400 100 L 550 60 L 700 45" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></path>
-
-    <!-- Data Points & Labels -->
-    <!-- 2020: 10% -->
-    <circle cx="100" cy="180" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>
-    <text x="100" y="170" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">10%</text>
-
-    <!-- 2021: 30% -->
-    <circle cx="250" cy="150" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>
-    <text x="250" y="140" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">30%</text>
-
-    <!-- 2022: 60% -->
-    <circle cx="400" cy="100" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>
-    <text x="400" y="90" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">60%</text>
-
-    <!-- 2023: 82.5% -->
-    <circle cx="550" cy="60" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>
-    <text x="550" y="50" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">82.5%</text>
-
-    <!-- 2024: 92.5% -->
-    <circle cx="700" cy="45" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>
-    <text x="700" y="35" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">92.5%</text></svg>
-  
-  <!-- X-Axis Labels -->
-  <div class="grid grid-cols-5 mt-2 w-full">
-    <span class="text-xs font-bold text-on-surface-variant text-center">2020</span>
-    <span class="text-xs font-bold text-on-surface-variant text-center">2021</span>
-    <span class="text-xs font-bold text-on-surface-variant text-center">2022</span>
-    <span class="text-xs font-bold text-on-surface-variant text-center">2023</span>
-    <span class="text-xs font-bold text-on-surface-variant text-center">2024 (YTD)</span>
-  </div>
+<div id="ytd-chart-container" class="h-64 w-full relative mt-4">
 </div>
 <div class="flex justify-center gap-8">
 <div class="flex items-center gap-2">
@@ -458,17 +415,72 @@
 </div>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const API_URL = 'http://localhost:5000/api/rkap';
+        let currentMasterId = null;
+        let currentDetailIds = { realisasi: null, costReduction: null };
+        let originalData = { realisasi: 6543134277, costReduction: 7333309366 };
+        let allRKAPData = []; // Store fetched YTD data
+
+        const bulanSelect = document.getElementById('bulan-select');
+        const tahunSelect = document.getElementById('tahun-select');
+        const ytdDariSelect = document.getElementById('ytd-dari-select');
+        const ytdSampaiSelect = document.getElementById('ytd-sampai-select');
+
+        // Populate selects dynamically with current date as default
+        const currentYearVal = new Date().getFullYear();
+        const currentMonthVal = new Date().getMonth() + 1; // 1-12
+
+        // Populate bulan options if they aren't fully set, or just use currentMonthVal
+        bulanSelect.value = currentMonthVal.toString();
+
+        // Populate tahunSelect
+        tahunSelect.innerHTML = '';
+        for (let y = 2022; y <= Math.max(currentYearVal + 4, 2030); y++) {
+            const opt = document.createElement('option');
+            opt.value = y.toString();
+            opt.textContent = y.toString();
+            tahunSelect.appendChild(opt);
+        }
+        tahunSelect.value = currentYearVal.toString();
+
+        // Populate YTD selects
+        ytdDariSelect.innerHTML = '';
+        ytdSampaiSelect.innerHTML = '';
+        for (let y = 2020; y <= Math.max(currentYearVal + 4, 2030); y++) {
+            const opt1 = document.createElement('option');
+            opt1.value = y.toString();
+            opt1.textContent = y.toString();
+            ytdDariSelect.appendChild(opt1);
+
+            const opt2 = document.createElement('option');
+            opt2.value = y.toString();
+            opt2.textContent = y.toString();
+            ytdSampaiSelect.appendChild(opt2);
+        }
+        ytdDariSelect.value = '2022';
+        ytdSampaiSelect.value = currentYearVal.toString();
+        const headerPeriode = document.getElementById('header-periode');
+
         const valRealisasi = document.getElementById('val-realisasi');
         const valCostReduction = document.getElementById('val-cost-reduction');
         const valDiffText = document.getElementById('val-diff-text');
         const realisasiInput = document.getElementById('realisasi-input');
+
         const donutChart = document.getElementById('donut-chart');
         const donutCenterText = document.getElementById('donut-center-text');
         const labelRealisasi = document.getElementById('label-realisasi');
         const labelDiff = document.getElementById('label-diff');
 
+        const btnSave = document.getElementById('btn-save');
+        const btnCancel = document.getElementById('btn-cancel');
+
+        const monthsName = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
         function formatNumber(num) {
-            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
 
         function calculateValues() {
@@ -485,10 +497,10 @@
                 pct = (r / c) * 100;
             }
             realisasiInput.innerText = pct.toFixed(2);
-            updateChart();
+            updateDonutChart();
         }
 
-        function updateChart() {
+        function updateDonutChart() {
             let val = parseFloat(realisasiInput.innerText);
             if (isNaN(val)) val = 0;
             if (val > 100) val = 100;
@@ -503,20 +515,223 @@
             labelDiff.innerText = diff;
         }
 
+        async function fetchData() {
+            const bulan = parseInt(bulanSelect.value, 10);
+            const tahun = parseInt(tahunSelect.value, 10);
+            const monthName = monthsName[bulan - 1];
+
+            if (headerPeriode) {
+                headerPeriode.textContent = `${monthName} ${tahun}`;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}?bulan=${bulan}&tahun=${tahun}`);
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.id) {
+                    currentMasterId = result.data.id;
+                    
+                    const details = result.data.detail_rkap_ti || [];
+                    const relDetail = details.find(d => d.urutan === 1);
+                    const costDetail = details.find(d => d.urutan === 2);
+
+                    currentDetailIds.realisasi = relDetail ? relDetail.id : null;
+                    currentDetailIds.costReduction = costDetail ? costDetail.id : null;
+
+                    const rVal = relDetail ? parseFloat(relDetail.nilai_nominal) : 0;
+                    const cVal = costDetail ? parseFloat(costDetail.nilai_nominal) : 0;
+
+                    valRealisasi.innerText = formatNumber(rVal);
+                    valCostReduction.innerText = formatNumber(cVal);
+                    originalData = { realisasi: rVal, costReduction: cVal };
+                } else {
+                    currentMasterId = null;
+                    currentDetailIds = { realisasi: null, costReduction: null };
+                    valRealisasi.innerText = '0';
+                    valCostReduction.innerText = '0';
+                    originalData = { realisasi: 0, costReduction: 0 };
+                }
+                calculateValues();
+            } catch (err) {
+                console.error('Error fetching RKAP:', err);
+            }
+        }
+
+        async function fetchYTDData() {
+            try {
+                const response = await fetch(API_URL);
+                const result = await response.json();
+                if (result.success && Array.isArray(result.data)) {
+                    allRKAPData = result.data;
+                    renderYTDChart();
+                }
+            } catch (err) {
+                console.error('Error fetching YTD data:', err);
+            }
+        }
+
+        function renderYTDChart() {
+            const startYear = parseInt(ytdDariSelect.value, 10);
+            const endYear = parseInt(ytdSampaiSelect.value, 10);
+            
+            const activeYears = [];
+            for (let y = startYear; y <= endYear; y++) {
+                activeYears.push(y);
+            }
+
+            if (activeYears.length === 0) return;
+
+            // Calculate average % realisasi for each active year
+            const yearAverages = activeYears.map(yr => {
+                const yearRecords = allRKAPData.filter(d => d.tahun === yr);
+                if (yearRecords.length === 0) return 0;
+                
+                let sum = 0;
+                yearRecords.forEach(rec => {
+                    sum += parseFloat(rec.kalkulasi_persentase_realisasi || 0);
+                });
+                return sum / yearRecords.length;
+            });
+
+            // Width: 800, Height: 220
+            // Map percentage (0% -> y=200, 100% -> y=30)
+            const getY = (val) => 200 - (val / 100) * 170;
+            const getX = (idx) => {
+                if (activeYears.length <= 1) return 400;
+                return (idx / (activeYears.length - 1)) * 600 + 100;
+            };
+
+            let pointsPath = '';
+            let circlesHtml = '';
+            let labelsHtml = '';
+
+            activeYears.forEach((yr, idx) => {
+                const val = yearAverages[idx];
+                const x = getX(idx);
+                const y = getY(val);
+
+                pointsPath += `${idx === 0 ? 'M' : 'L'} ${x} ${y} `;
+                circlesHtml += `<circle cx="${x}" cy="${y}" r="6" fill="#f59e0b" stroke="white" stroke-width="2"></circle>`;
+                labelsHtml += `<text x="${x}" y="${y - 10}" fill="#f59e0b" class="text-[10px] font-bold" text-anchor="middle">${val.toFixed(1)}%</text>`;
+            });
+
+            const svgHtml = `
+                <svg class="w-full h-full" viewBox="0 0 800 220" preserveAspectRatio="none">
+                    <!-- Grid Lines -->
+                    <line x1="0" y1="200" x2="800" y2="200" stroke="#e2e8f0" stroke-width="1"></line>
+                    <line x1="0" y1="150" x2="800" y2="150" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
+                    <line x1="0" y1="100" x2="800" y2="100" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
+                    <line x1="0" y1="50" x2="800" y2="50" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2"></line>
+
+                    <!-- Target Tahunan Line (100% Flat at y=30) -->
+                    <line x1="0" y1="30" x2="800" y2="30" stroke="#0f2e60" stroke-width="2" stroke-dasharray="4,4"></line>
+                    ${activeYears.map((yr, idx) => `<text x="${getX(idx)}" y="20" fill="#0f2e60" class="text-[10px] font-bold" text-anchor="middle">100%</text>`).join('')}
+
+                    <!-- Realisasi Aktual Line -->
+                    ${pointsPath ? `<path d="${pointsPath}" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"></path>` : ''}
+
+                    <!-- Data Points & Labels -->
+                    ${circlesHtml}
+                    ${labelsHtml}
+                </svg>
+                <!-- X-Axis Labels -->
+                <div class="absolute bottom-[-15px] left-0 w-full flex justify-between px-[100px] text-xs font-bold text-on-surface-variant">
+                    ${activeYears.map(yr => `<span>${yr}</span>`).join('')}
+                </div>
+            `;
+
+            const container = document.getElementById('ytd-chart-container');
+            if (container) {
+                container.innerHTML = svgHtml;
+            }
+        }
+
+        async function saveData() {
+            const bulan = parseInt(bulanSelect.value, 10);
+            const tahun = parseInt(tahunSelect.value, 10);
+
+            const rStr = valRealisasi.innerText.replace(/,/g, '');
+            const cStr = valCostReduction.innerText.replace(/,/g, '');
+            const rVal = parseFloat(rStr);
+            const cVal = parseFloat(cStr);
+
+            if (isNaN(rVal) || isNaN(cVal) || cVal <= 0) {
+                alert('Mohon masukkan nilai nominal realisasi dan cost reduction dengan benar.');
+                return;
+            }
+
+            const diff = cVal - rVal;
+            const pct = (rVal / cVal) * 100;
+
+            const payload = {
+                bulan,
+                tahun,
+                kalkulasi_cost_reduction_rp: diff,
+                kalkulasi_persentase_realisasi: pct,
+                details: [
+                    {
+                        urutan: 1,
+                        nama_metrik: 'Realisasi',
+                        nilai_nominal: rVal
+                    },
+                    {
+                        urutan: 2,
+                        nama_metrik: 'Cost Reduction',
+                        nilai_nominal: cVal
+                    }
+                ]
+            };
+
+            if (currentDetailIds.realisasi) payload.details[0].id = currentDetailIds.realisasi;
+            if (currentDetailIds.costReduction) payload.details[1].id = currentDetailIds.costReduction;
+
+            try {
+                btnSave.disabled = true;
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert('Data RKAP TI berhasil disimpan!');
+                    fetchData();
+                    fetchYTDData();
+                } else {
+                    alert('Gagal menyimpan: ' + result.message);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Koneksi bermasalah saat menyimpan data.');
+            } finally {
+                btnSave.disabled = false;
+            }
+        }
+
+        // Event Listeners
+        bulanSelect.addEventListener('change', fetchData);
+        tahunSelect.addEventListener('change', fetchData);
+        
         valRealisasi.addEventListener('input', calculateValues);
         valCostReduction.addEventListener('input', calculateValues);
-        realisasiInput.addEventListener('input', updateChart);
-        
-        // Initialize chart state
-        updateChart();
+
+        ytdDariSelect.addEventListener('change', renderYTDChart);
+        ytdSampaiSelect.addEventListener('change', renderYTDChart);
+
+        btnSave.addEventListener('click', saveData);
+        btnCancel.addEventListener('click', () => {
+            valRealisasi.innerText = formatNumber(originalData.realisasi);
+            valCostReduction.innerText = formatNumber(originalData.costReduction);
+            calculateValues();
+        });
+
+        // Initialize state
+        fetchData();
+        fetchYTDData();
     });
 </script>
-
-
-
-
-
-
 
 
 
