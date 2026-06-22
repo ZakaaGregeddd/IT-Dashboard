@@ -12,8 +12,14 @@ interface SidebarMenuItemProps {
 }
 
 const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, onClick, children }) => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(active || false);
   const hasChildren = !!children;
+
+  useEffect(() => {
+    if (active) {
+      setIsOpen(true);
+    }
+  }, [active]);
 
   if (!hasChildren) {
     return (
@@ -44,11 +50,16 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
     <div className="mt-2">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between px-4 py-2 text-slate-300 hover:text-white hover:bg-white/5 transition-colors"
+        className={cn(
+          "w-full flex items-center justify-between px-4 py-2 transition-colors",
+          active 
+            ? "bg-primary-800 border-l-4 border-amber-500 text-white" 
+            : "text-slate-300 hover:text-white hover:bg-white/5"
+        )}
       >
         <div className="flex items-center gap-2.5">
-          <div className="w-4 h-4">{icon}</div>
-          <span className="font-medium text-[9px] text-white uppercase tracking-wide">{label}</span>
+          <div className={cn("w-4 h-4", active ? "text-amber-500" : "text-white")}>{icon}</div>
+          <span className="font-medium text-[9px] uppercase tracking-wide">{label}</span>
         </div>
         <ChevronDown className={cn("w-3 h-3 text-white transition-transform", isOpen ? "" : "transform rotate-180")} />
       </button>
@@ -168,6 +179,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
     };
   }, []);
 
+  const isItPlanningActive = [
+    "Realisasi Program Kerja TI",
+    "Realisasi RKAP TI",
+    "SDM IT (Outsource & Pegawai)",
+    "Lisensi"
+  ].some(item => convertToSlug(item) === currentPath);
+
+  const isAppDevActive = appDevItems.some(item => convertToSlug(item) === currentPath);
+
+  const isItOperationActive = itOperationItems.some(item => convertToSlug(item) === currentPath);
+
   return (
     <aside className={cn(
       "bg-primary-900 text-white flex flex-col flex-shrink-0 relative z-20 transition-all duration-300 ease-in-out overflow-hidden",
@@ -204,20 +226,32 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
             onClick={() => navigateTo('/data-overall')}
           />
 
-          <SidebarMenuItem label="IT Planning & Security" icon={<ShieldCheck className="w-full h-full" />}>
+          <SidebarMenuItem 
+            label="IT Planning & Security" 
+            icon={<ShieldCheck className="w-full h-full" />}
+            active={isItPlanningActive}
+          >
             <SidebarSubItem label="Realisasi Program Kerja TI" currentPath={currentPath} />
             <SidebarSubItem label="Realisasi RKAP TI" currentPath={currentPath} />
             <SidebarSubItem label="SDM IT (Outsource & Pegawai)" currentPath={currentPath} />
             <SidebarSubItem label="Lisensi" currentPath={currentPath} />
           </SidebarMenuItem>
  
-          <SidebarMenuItem label="App Dev & Services / EIS" icon={<Monitor className="w-full h-full" />}>
+          <SidebarMenuItem 
+            label="App Dev & Services / EIS" 
+            icon={<Monitor className="w-full h-full" />}
+            active={isAppDevActive}
+          >
             {appDevItems.map((item, idx) => (
               <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
             ))}
           </SidebarMenuItem>
  
-          <SidebarMenuItem label="IT Operation" icon={<Database className="w-full h-full" />}>
+          <SidebarMenuItem 
+            label="IT Operation" 
+            icon={<Database className="w-full h-full" />}
+            active={isItOperationActive}
+          >
             {itOperationItems.map((item, idx) => (
               <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
             ))}

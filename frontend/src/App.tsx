@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -52,6 +52,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/data-overall') {
       return <OverallPage />;
+    }
+    if (currentPath === '/realisasi-program-kerja-ti') {
+      return <RealisasiProgramKerjaPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';
