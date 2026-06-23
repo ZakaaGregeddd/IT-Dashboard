@@ -10,6 +10,7 @@ import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
 import utilisasiCpuRoutes from './utilisasi-cpu.routes.js';
 import utilisasiMemoryRoutes from './utilisasi-memory.routes.js';
 import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
+import utilisasiCpuAppRoutes from './utilisasi-cpu-app.routes.js';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
 router.use('/utilisasi/cpu', utilisasiCpuRoutes);
 router.use('/utilisasi/memory', utilisasiMemoryRoutes);
 router.use('/utilisasi/storage', utilisasiStorageRoutes);
+router.use('/utilisasi/cpu-app', utilisasiCpuAppRoutes);
 
 export default router;
