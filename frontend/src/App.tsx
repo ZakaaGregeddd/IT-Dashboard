@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -61,6 +61,9 @@ const App: React.FC = () => {
     if (currentPath === '/sdm-it-outsource-pegawai') {
       return <SdmItPage />;
     }
+    if (currentPath === '/lisensi') {
+      return <LisensiPage />;
+    }
     if (currentPath === '/ketersediaan-report-aplikasi-scmc') {
       return <KetersediaanScmcPage />;
     }
@@ -78,6 +81,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-cpu-aplikasi-ellipse-dan-cisea') {
       return <UtilisasiCpuAplikasiPage />;
+    }
+    if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
+      return <UtilisasiCpuDbPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';
