@@ -15,4 +15,6 @@ export { UtilisasiCpuDbPage } from '../features/dashboard/pages/UtilisasiCpuDbPa
 export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemoryDbPage';
 export { UtilisasiStorageDbPage } from '../features/dashboard/pages/UtilisasiStorageDbPage';
 export { UtilisasiWanBackupPage } from '../features/dashboard/pages/UtilisasiWanBackupPage';
+export { KetersediaanKeamananPage } from '../features/dashboard/pages/KetersediaanKeamananPage';
+
 
