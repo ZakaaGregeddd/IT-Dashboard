@@ -16,5 +16,7 @@ export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemo
 export { UtilisasiStorageDbPage } from '../features/dashboard/pages/UtilisasiStorageDbPage';
 export { UtilisasiWanBackupPage } from '../features/dashboard/pages/UtilisasiWanBackupPage';
 export { KetersediaanKeamananPage } from '../features/dashboard/pages/KetersediaanKeamananPage';
+export { PcSupportPage } from '../features/dashboard/pages/PcSupportPage';
+
 
 
