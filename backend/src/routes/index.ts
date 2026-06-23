@@ -13,6 +13,7 @@ import utilisasiCpuDbRoutes from './utilisasi-cpu-db.routes.js';
 import utilisasiMemoryRoutes from './utilisasi-memory.routes.js';
 import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
 import utilisasiCpuAppRoutes from './utilisasi-cpu-app.routes.js';
+import utilisasiBandwidthRoutes from './utilisasi-bandwidth.routes.js';
 
 const router = Router();
 
@@ -30,5 +31,6 @@ router.use('/utilisasi/cpu-database', utilisasiCpuDbRoutes);
 router.use('/utilisasi/memory', utilisasiMemoryRoutes);
 router.use('/utilisasi/storage', utilisasiStorageRoutes);
 router.use('/utilisasi/cpu-app', utilisasiCpuAppRoutes);
+router.use('/utilisasi/bandwidth', utilisasiBandwidthRoutes);
 
 export default router;

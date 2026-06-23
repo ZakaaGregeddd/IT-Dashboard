@@ -11,5 +11,6 @@ export { UtilisasiCpuServerPage } from '../features/dashboard/pages/UtilisasiCpu
 export { UtilisasiMemoryServerPage } from '../features/dashboard/pages/UtilisasiMemoryServerPage';
 export { UtilisasiStorageServerPage } from '../features/dashboard/pages/UtilisasiStorageServerPage';
 export { UtilisasiCpuAplikasiPage } from '../features/dashboard/pages/UtilisasiCpuAplikasiPage';
-export { UtilisasiCpuDbPage } from '../features/dashboard/pages/UtilisasiCpuDbPage';
+export { UtilisasiCpuDbAplikasiPage } from '../features/dashboard/pages/UtilisasiCpuDbAplikasiPage';
+export { UtilisasiBandwidthPage } from '../features/dashboard/pages/UtilisasiBandwidthPage';
 

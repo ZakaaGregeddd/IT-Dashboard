@@ -82,7 +82,7 @@ const DEFAULT_ROWS: CPUDatabaseDetail[] = [
   { urutan: 2, nama_sistem: 'Ellipse', cpu_ghz: 0, utilisasi_ghz: 0, free_persen: 0, utilisasi_persen: 0 },
 ];
 
-export const UtilisasiCpuDbPage: React.FC = () => {
+export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
 
