@@ -7,6 +7,7 @@ import rkapRoutes from './rkap.routes.js';
 import sdmRoutes from './sdm.routes.js';
 import ketersediaanScmcRoutes from './ketersediaan-scmc.routes.js';
 import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
+import utilisasiCpuRoutes from './utilisasi-cpu.routes.js';
 
 const router = Router();
 
@@ -18,5 +19,6 @@ router.use('/rkap', rkapRoutes);
 router.use('/sdm', sdmRoutes);
 router.use('/ketersediaan/scmc', ketersediaanScmcRoutes);
 router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
+router.use('/utilisasi/cpu', utilisasiCpuRoutes);
 
 export default router;

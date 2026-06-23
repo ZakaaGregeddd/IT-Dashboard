@@ -6,6 +6,8 @@ export { RealisasiRkapPage } from '../features/dashboard/pages/RealisasiRkapPage
 export { SdmItPage } from '../features/dashboard/pages/SdmItPage';
 export { KetersediaanScmcPage } from '../features/dashboard/pages/KetersediaanScmcPage';
 export { TingkatKetersediaanSistemPage } from '../features/dashboard/pages/TingkatKetersediaanSistemPage';
+export { UtilisasiCpuServerPage } from '../features/dashboard/pages/UtilisasiCpuServerPage';
+
 
 
 

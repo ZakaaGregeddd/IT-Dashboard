@@ -8,6 +8,17 @@ interface SDMDetailInput {
 }
 
 export class SDMService {
+  private static DEFAULT_ROLES = [
+    { urutan: 1, role_divisi: 'Join Dev', jumlah: 0 },
+    { urutan: 2, role_divisi: 'Network', jumlah: 0 },
+    { urutan: 3, role_divisi: 'Noc', jumlah: 0 },
+    { urutan: 4, role_divisi: 'Office Boy', jumlah: 0 },
+    { urutan: 5, role_divisi: 'PC Support', jumlah: 0 },
+    { urutan: 6, role_divisi: 'Admin', jumlah: 0 },
+    { urutan: 7, role_divisi: 'Data Scientist', jumlah: 0 },
+    { urutan: 8, role_divisi: 'Driver', jumlah: 0 },
+  ];
+
   /**
    * Fetch master and details of SDM IT for a specific month and year
    */
@@ -18,44 +29,38 @@ export class SDMService {
         tahun,
       },
       include: {
-        detail_sdm_it: {
-          orderBy: {
-            urutan: 'asc',
-          },
-        },
+        detail_sdm_it: true,
       },
     });
 
     if (!master) {
-      const latestMaster = await prisma.laporan_sdm_it.findFirst({
-        orderBy: [
-          { tahun: 'desc' },
-          { bulan: 'desc' },
-        ],
-        include: {
-          detail_sdm_it: {
-            orderBy: {
-              urutan: 'asc',
-            },
-          },
-        },
-      });
-
-      if (latestMaster) {
-        return {
-          bulan,
-          tahun,
-          total_keseluruhan_sdm: 0,
-          detail_sdm_it: latestMaster.detail_sdm_it.map((d) => ({
-            urutan: d.urutan,
-            role_divisi: d.role_divisi,
-            jumlah: 0,
-          })),
-        };
-      }
+      return {
+        bulan,
+        tahun,
+        total_keseluruhan_sdm: 0,
+        detail_sdm_it: this.DEFAULT_ROLES,
+      };
     }
 
-    return master;
+    const detail_sdm_it = this.DEFAULT_ROLES.map((role) => {
+      const match = master.detail_sdm_it.find(
+        (d) => d.role_divisi.toLowerCase() === role.role_divisi.toLowerCase()
+      );
+      return {
+        id: match?.id,
+        urutan: role.urutan,
+        role_divisi: role.role_divisi,
+        jumlah: match ? (match.jumlah ?? 0) : 0,
+      };
+    });
+
+    return {
+      id: master.id,
+      bulan: master.bulan,
+      tahun: master.tahun,
+      total_keseluruhan_sdm: detail_sdm_it.reduce((acc, r) => acc + r.jumlah, 0),
+      detail_sdm_it,
+    };
   }
 
   /**
