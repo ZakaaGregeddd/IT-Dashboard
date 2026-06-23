@@ -11,13 +11,6 @@ interface LicenseDetailInput {
 }
 
 export class LicenseService {
-  private static DEFAULT_LICENSES = [
-    { urutan: 1, principle: 'Check Point', nama_produk: 'Insider Firewall (Tanjung Enim)', total_lisensi: 2, tanggal_expired: new Date('2026-06-30'), status: 'Proses Renewal' },
-    { urutan: 2, principle: 'Qontak', nama_produk: 'Whatsapp for Business', total_lisensi: 2, tanggal_expired: new Date('2026-05-21'), status: 'Autodebet' },
-    { urutan: 3, principle: 'Only Office', nama_produk: 'Docu Tools CISEA', total_lisensi: 1, tanggal_expired: new Date('2026-05-31'), status: 'Autodebet' },
-    { urutan: 4, principle: 'Digicert', nama_produk: 'SSL Certificate CISEA', total_lisensi: 1, tanggal_expired: new Date('2026-08-09'), status: 'Aktif' },
-    { urutan: 5, principle: 'Imperva', nama_produk: 'Web Application Firewall', total_lisensi: 1, tanggal_expired: new Date('2026-08-20'), status: 'Aktif' }
-  ];
 
   /**
    * Fetch master and details of licenses for a specific month and year
@@ -37,8 +30,8 @@ export class LicenseService {
       return {
         bulan,
         tahun,
-        total_keseluruhan_lisensi: this.DEFAULT_LICENSES.reduce((acc, r) => acc + r.total_lisensi, 0),
-        detail_lisensi: this.DEFAULT_LICENSES,
+        total_keseluruhan_lisensi: 0,
+        detail_lisensi: [],
       };
     }
 
