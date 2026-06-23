@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, KetersediaanScmcPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -63,6 +63,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/ketersediaan-report-aplikasi-scmc') {
       return <KetersediaanScmcPage />;
+    }
+    if (currentPath === '/tingkat-ketersediaan-sistem') {
+      return <TingkatKetersediaanSistemPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';

@@ -6,6 +6,7 @@ import programKerjaRoutes from './program-kerja.routes.js';
 import rkapRoutes from './rkap.routes.js';
 import sdmRoutes from './sdm.routes.js';
 import ketersediaanScmcRoutes from './ketersediaan-scmc.routes.js';
+import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
 
 const router = Router();
 
@@ -16,5 +17,6 @@ router.use('/program-kerja', programKerjaRoutes);
 router.use('/rkap', rkapRoutes);
 router.use('/sdm', sdmRoutes);
 router.use('/ketersediaan/scmc', ketersediaanScmcRoutes);
+router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
 
 export default router;
