@@ -24,11 +24,7 @@ export class KetersediaanScmcService {
         kategori_ketersediaan: 'REPORT_SCMC',
       },
       include: {
-        detail_ketersediaan_scmc: {
-          orderBy: {
-            urutan: 'asc',
-          },
-        },
+        detail_ketersediaan_scmc: true,
       },
     });
 
@@ -41,7 +37,25 @@ export class KetersediaanScmcService {
       };
     }
 
-    return master;
+    const detail_ketersediaan_scmc = this.DEFAULT_DETAILS.map((def) => {
+      const match = master.detail_ketersediaan_scmc.find(
+        (d) => d.keterangan.toLowerCase() === def.keterangan.toLowerCase()
+      );
+      return {
+        id: match?.id,
+        urutan: def.urutan,
+        keterangan: def.keterangan,
+        jumlah: match ? (match.jumlah ?? 0) : 0,
+      };
+    });
+
+    return {
+      id: master.id,
+      bulan: master.bulan,
+      tahun: master.tahun,
+      kategori_ketersediaan: 'REPORT_SCMC',
+      detail_ketersediaan_scmc,
+    };
   }
 
   /**
