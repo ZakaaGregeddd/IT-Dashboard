@@ -11,3 +11,4 @@ export { UtilisasiCpuServerPage } from '../features/dashboard/pages/UtilisasiCpu
 export { UtilisasiMemoryServerPage } from '../features/dashboard/pages/UtilisasiMemoryServerPage';
 export { UtilisasiStorageServerPage } from '../features/dashboard/pages/UtilisasiStorageServerPage';
 export { UtilisasiCpuDbPage } from '../features/dashboard/pages/UtilisasiCpuDbPage';
+export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemoryDbPage';
