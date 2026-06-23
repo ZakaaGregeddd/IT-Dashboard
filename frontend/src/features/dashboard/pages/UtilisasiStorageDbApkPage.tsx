@@ -77,7 +77,12 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
-export const UtilisasiStorageDbPage: React.FC = () => {
+const DEFAULT_ROWS: StorageDatabaseDetail[] = [
+  { urutan: 1, nama_sistem: 'CISEA', storage_tb: 0, utilisasi_tb: 0, free_persen: 0, utilisasi_persen: 0 },
+  { urutan: 2, nama_sistem: 'Ellipse', storage_tb: 0, utilisasi_tb: 0, free_persen: 0, utilisasi_persen: 0 },
+];
+
+export const UtilisasiStorageDbApkPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
 
@@ -85,7 +90,8 @@ export const UtilisasiStorageDbPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input states
-  const [systemRows, setSystemRows] = useState<StorageDatabaseDetail[]>([]);
+  const [systemRows, setSystemRows] = useState<StorageDatabaseDetail[]>(DEFAULT_ROWS);
+  const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
   const [allDbRecords, setAllDbRecords] = useState<StorageDatabaseData[]>([]);
 
   // YTD filters
@@ -120,7 +126,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/utilisasi/storage-database?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_storage_db_aplikasi)) {
+        if (result.success && result.data && Array.isArray(result.data.detail_storage_db_aplikasi) && result.data.detail_storage_db_aplikasi.length > 0) {
           const parsed = result.data.detail_storage_db_aplikasi.map((item: any) => ({
             ...item,
             storage_tb: parseFloat(item.storage_tb) || 0,
@@ -130,10 +136,11 @@ export const UtilisasiStorageDbPage: React.FC = () => {
           }));
           setSystemRows(parsed);
         } else {
-          setSystemRows([]);
+          setSystemRows(DEFAULT_ROWS);
         }
       } catch (error) {
         console.error('Failed to fetch storage database active data:', error);
+        setSystemRows(DEFAULT_ROWS);
       } finally {
         setIsLoading(false);
       }
@@ -163,6 +170,10 @@ export const UtilisasiStorageDbPage: React.FC = () => {
       return updated;
     });
   };
+
+  const totalStorageTb = systemRows.reduce((acc, row) => acc + (row.storage_tb || 0), 0);
+  const totalUtilTb = systemRows.reduce((acc, row) => acc + (row.utilisasi_tb || 0), 0);
+  const avgUtilisasiPercent = totalStorageTb > 0 ? Math.round((totalUtilTb / totalStorageTb) * 100) : 0;
 
   const handleSaveClick = () => {
     setIsModalOpen(true);
@@ -271,7 +282,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
     }
   };
 
-  // YTD Line Chart Data preparation for Free %
+  // YTD Line Chart Data preparation
   const start = parseInt(startYear, 10);
   const end = parseInt(endYear, 10);
   const selectedYears: string[] = [];
@@ -290,7 +301,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
         const currentMatch = systemRows.find(
           (s) => s.nama_sistem.toLowerCase() === systemName.toLowerCase()
         );
-        return currentMatch ? currentMatch.free_persen : 0;
+        return currentMatch ? currentMatch.utilisasi_persen : 0;
       }
       return 0;
     }
@@ -301,7 +312,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
         (d) => d.nama_sistem.toLowerCase() === systemName.toLowerCase()
       );
       if (match) {
-        sum += Number(match.free_persen) || 0;
+        sum += Number(match.utilisasi_persen) || 0;
         count++;
       }
     });
@@ -312,26 +323,26 @@ export const UtilisasiStorageDbPage: React.FC = () => {
     labels: selectedYears,
     datasets: [
       {
-        label: 'CISEA (Free %)',
+        label: 'CISEA (%)',
         data: selectedYears.map((yr) => getYearlyValue(yr, 'CISEA')),
         borderColor: '#0f2e60',
-        backgroundColor: 'rgba(15, 46, 96, 0.05)',
+        backgroundColor: '#0f2e60',
         tension: 0.4,
         cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
-        fill: true
+        fill: false
       },
       {
-        label: 'Ellipse (Free %)',
+        label: 'Ellipse (%)',
         data: selectedYears.map((yr) => getYearlyValue(yr, 'Ellipse')),
         borderColor: '#f59e0b',
-        backgroundColor: 'rgba(245, 158, 11, 0.05)',
+        backgroundColor: '#f59e0b',
         tension: 0.4,
         cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
-        fill: true
+        fill: false
       }
     ]
   };
@@ -361,12 +372,21 @@ export const UtilisasiStorageDbPage: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        max: 100,
-        ticks: { font: { family: 'Inter', size: 10 } },
-        grid: { color: '#f1f5f9' },
-        title: {
-          display: true,
-          text: 'Persentase (%)'
+        min: 0,
+        max: 110,
+        ticks: {
+          font: { family: 'Inter', size: 10 },
+          stepSize: 10,
+          callback: function(value: any) {
+            if (value > 100) return null;
+            return value + '%';
+          }
+        },
+        grid: {
+          color: (context) => {
+            if (context.tick && context.tick.value > 100) return 'transparent';
+            return '#f1f5f9';
+          }
         }
       },
       x: {
@@ -386,6 +406,8 @@ export const UtilisasiStorageDbPage: React.FC = () => {
       </div>
     );
   }
+
+  const isAnyOverTarget = systemRows.some(r => r.utilisasi_persen >= targetUtilisasi);
 
   return (
     <div className="w-full flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-y-auto bg-slate-50 relative">
@@ -417,12 +439,108 @@ export const UtilisasiStorageDbPage: React.FC = () => {
               options={yearsList}
             />
           </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">Target Utilisasi (%)</span>
+            <input 
+              type="number"
+              value={targetUtilisasi}
+              onChange={(e) => setTargetUtilisasi(parseFloat(e.target.value) || 0)}
+              className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none max-w-[120px]"
+            />
+          </div>
         </div>
       </div>
 
       <div className="flex flex-col gap-5 w-full">
         
-        {/* Data Table */}
+        {/* Row 0: Rekomendasi Kapasitas Storage Database */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4 w-full">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-lg shrink-0 ${
+                avgUtilisasiPercent >= targetUtilisasi 
+                  ? 'bg-amber-50 text-amber-600 border border-amber-200' 
+                  : isAnyOverTarget
+                    ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                    : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              }`}>
+                {avgUtilisasiPercent >= targetUtilisasi || isAnyOverTarget ? (
+                  <AlertTriangle className="w-6 h-6" />
+                ) : (
+                  <CheckCircle className="w-6 h-6" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-bold text-slate-800">
+                  Rekomendasi Kapasitas Storage Database ({bulan} {tahun})
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {avgUtilisasiPercent >= targetUtilisasi ? (
+                    <>
+                      Rata-rata utilisasi storage database saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas storage database.</strong>
+                    </>
+                  ) : isAnyOverTarget ? (
+                    <>
+                      Rata-rata utilisasi storage database saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat database individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada database tersebut.
+                    </>
+                  ) : (
+                    <>
+                      Rata-rata utilisasi storage database saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas storage database saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className={`px-4 py-2.5 rounded-lg border text-center shrink-0 min-w-[150px] ${
+              avgUtilisasiPercent >= targetUtilisasi
+                ? 'bg-amber-50/50 border-amber-200 text-amber-800'
+                : isAnyOverTarget
+                  ? 'bg-amber-50/50 border-amber-200 text-amber-800'
+                  : 'bg-emerald-50/50 border-emerald-200 text-emerald-800'
+            }`}>
+              <span className="text-[10px] font-bold uppercase tracking-wider block opacity-75">Status Sistem</span>
+              <span className="text-base font-extrabold block mt-0.5 animate-pulse">
+                {avgUtilisasiPercent >= targetUtilisasi 
+                  ? 'PERLU UPGRADE' 
+                  : isAnyOverTarget
+                    ? 'PERLU PERHATIAN'
+                    : 'NORMAL'}
+              </span>
+            </div>
+          </div>
+
+          {/* Individual Storage DB Status Breakdown */}
+          {isAnyOverTarget && (
+            <div className="border-t border-slate-100 pt-4 mt-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                Analisis Database Individual
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                {systemRows.map((row, idx) => {
+                  const isOver = row.utilisasi_persen >= targetUtilisasi;
+                  if (!isOver) return null;
+                  
+                  return (
+                    <div 
+                      key={idx} 
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all bg-red-50/85 border-red-200 text-red-700"
+                    >
+                      <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
+                      <span className="font-semibold">{row.nama_sistem}</span>
+                      <span className="opacity-60">|</span>
+                      <span>Utilisasi: <strong className="font-mono">{row.utilisasi_persen.toFixed(1)}%</strong></span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-red-100 text-red-800">
+                        Melebihi Target
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Row 1: Data Table */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
             <h3 className="text-xs font-bold text-primary-900">Data Utilisasi Storage Database</h3>
@@ -432,17 +550,21 @@ export const UtilisasiStorageDbPage: React.FC = () => {
             <table className="w-full text-left border-collapse border border-slate-200">
               <thead>
                 <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
+                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">NO</th>
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">STORAGE DATABASE</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-48 bg-blue-50/30">STORAGE (TB)</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-48 bg-blue-50/30">UTILISASI (TB)</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-48">FREE (%)</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-48">UTILISASI (%)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">STORAGE (TB)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">UTILISASI (TB)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40">FREE (%)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40">UTILISASI (%)</th>
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
                 {systemRows.map((row, index) => (
                   <tr key={index} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="py-2.5 px-4 border border-slate-200 font-semibold text-primary-900">
+                    <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
+                      {index + 1}
+                    </td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-semibold text-slate-800">
                       {row.nama_sistem}
                     </td>
                     <td className="py-1 px-3 border border-slate-200">
@@ -467,7 +589,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
                         className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
                       />
                     </td>
-                    <td className="py-2.5 px-4 text-right border border-slate-200 font-mono text-slate-500">
+                    <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
                       {row.free_persen.toFixed(1)}%
                     </td>
                     <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold text-primary-900">
@@ -475,10 +597,24 @@ export const UtilisasiStorageDbPage: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {systemRows.length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="py-4 text-center text-slate-400">
-                      Tidak ada data.
+                
+                {/* Total / Average Row */}
+                {systemRows.length > 0 && (
+                  <tr className="bg-slate-50 font-bold border-t-2 border-slate-300">
+                    <td className="py-2.5 px-4 text-right border border-slate-200" colSpan={2}>
+                      RATA-RATA / TOTAL
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
+                      {totalStorageTb.toFixed(2)}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
+                      {totalUtilTb.toFixed(2)}
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
+                      {(100 - avgUtilisasiPercent).toFixed(1)}%
+                    </td>
+                    <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
+                      {avgUtilisasiPercent}%
                     </td>
                   </tr>
                 )}
@@ -495,7 +631,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
                   fetch(`http://localhost:5000/api/utilisasi/storage-database?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_storage_db_aplikasi)) {
+                      if (result.success && result.data && Array.isArray(result.data.detail_storage_db_aplikasi) && result.data.detail_storage_db_aplikasi.length > 0) {
                         const parsed = result.data.detail_storage_db_aplikasi.map((item: any) => ({
                           ...item,
                           storage_tb: parseFloat(item.storage_tb) || 0,
@@ -504,6 +640,8 @@ export const UtilisasiStorageDbPage: React.FC = () => {
                           utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
                         }));
                         setSystemRows(parsed);
+                      } else {
+                        setSystemRows(DEFAULT_ROWS);
                       }
                     });
                 }}
@@ -523,7 +661,7 @@ export const UtilisasiStorageDbPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Monthly Visualisation Stacked Bar */}
+        {/* Row 2: Monthly Visualisation Stacked Bar */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Visualisasi Utilisasi Storage Database</h3>
@@ -538,11 +676,11 @@ export const UtilisasiStorageDbPage: React.FC = () => {
           </div>
         </div>
 
-        {/* YTD Line Chart */}
+        {/* Row 3: YTD Line Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Free Storage Database (%)</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Utilisasi Storage Database (%)</p>
             
             <div className="flex items-center gap-2 mt-1">
               <FilterSelect 

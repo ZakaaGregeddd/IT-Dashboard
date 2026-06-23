@@ -13,5 +13,5 @@ export { UtilisasiStorageServerPage } from '../features/dashboard/pages/Utilisas
 export { UtilisasiCpuAplikasiPage } from '../features/dashboard/pages/UtilisasiCpuAplikasiPage';
 export { UtilisasiCpuDbAplikasiPage } from '../features/dashboard/pages/UtilisasiCpuDbAplikasiPage';
 export { UtilisasiBandwidthPage } from '../features/dashboard/pages/UtilisasiBandwidthPage';
-export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemoryDbPage';
-export { UtilisasiStorageDbPage } from '../features/dashboard/pages/UtilisasiStorageDbPage';
+export { UtilisasiMemoryDbApkPage } from '../features/dashboard/pages/UtilisasiMemoryDbApkPage';
+export { UtilisasiStorageDbApkPage } from '../features/dashboard/pages/UtilisasiStorageDbApkPage';

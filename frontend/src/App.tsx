@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage } from '@/pages';
 
 
 const templatePaths: Record<string, string> = {
@@ -85,6 +85,12 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
       return <UtilisasiCpuDbAplikasiPage />;
+    }
+    if (currentPath === '/utilisasi-memory-database-ellipse-dan-cisea') {
+      return <UtilisasiMemoryDbApkPage />;
+    }
+    if (currentPath === '/utilisasi-storage-database-ellipse-dan-cisea') {
+      return <UtilisasiStorageDbApkPage />;
     }
     if (currentPath === '/rata-rata-utilisasi-bandwidth-jaringan') {
       return <UtilisasiBandwidthPage />;
