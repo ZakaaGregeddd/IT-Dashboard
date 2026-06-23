@@ -18,6 +18,7 @@ import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
 import utilisasiStorageDbRoutes from './utilisasi-storage-db.routes.js';
 import utilisasiWanBackupRoutes from './utilisasi-wan-backup.routes.js';
 import utilisasiBandwidthRoutes from './utilisasi-bandwidth.routes.js';
+import pcSupportRoutes from './pc-support.routes.js';
 
 const router = Router();
 
@@ -40,5 +41,6 @@ router.use('/utilisasi/storage', utilisasiStorageRoutes);
 router.use('/utilisasi/storage-database', utilisasiStorageDbRoutes);
 router.use('/utilisasi/wan-backup', utilisasiWanBackupRoutes);
 router.use('/utilisasi/bandwidth', utilisasiBandwidthRoutes);
+router.use('/work-order/pc-support', pcSupportRoutes);
 
 export default router;
