@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -9,7 +9,6 @@ const templatePaths: Record<string, string> = {
   '/data-overall': '2dataoverall',
   '/realisasi-program-kerja-ti': '3realisasi',
   '/realisasi-rkap-ti': '4rkap',
-  '/sdm-it-outsource-pegawai': '5sdm',
   '/lisensi': '6lisensi',
   '/ketersediaan-report-aplikasi-scmc': '7scmc',
   '/tingkat-ketersediaan-sistem': '8sistem',
@@ -58,6 +57,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/realisasi-rkap-ti') {
       return <RealisasiRkapPage />;
+    }
+    if (currentPath === '/sdm-it-outsource-pegawai') {
+      return <SdmItPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';

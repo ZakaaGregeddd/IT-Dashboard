@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Save, CheckCircle, AlertTriangle, X } from 'lucide-react';
 import { BaseDoughnutChart } from '@/components/charts/BaseDoughnutChart';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip as ChartTooltip,
+  Legend as ChartLegend,
+} from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ChartTooltip, ChartLegend);
 
 interface DataPoint {
   realisasi: number;
@@ -359,26 +371,64 @@ export const RealisasiRkapPage: React.FC = () => {
     activeYearsRange.push(startYear);
   }
 
-  // Y-coordinate helper for Line Chart
-  const getY = (val: number) => {
-    return 180 - (val / 100) * 140;
+  // YTD Line Chart configuration
+  const lineChartData = {
+    labels: activeYearsRange,
+    datasets: [
+      {
+        label: 'Cost Reduction Tahunan',
+        data: activeYearsRange.map(() => 100),
+        borderColor: '#f59e0b',
+        borderDash: [6, 4],
+        borderWidth: 2,
+        fill: false,
+        pointRadius: 0,
+      },
+      {
+        label: 'Realisasi Kumulatif',
+        data: activeYearsRange.map((yr) => getYearCumulativeAvg(yr)),
+        borderColor: '#0f2e60',
+        backgroundColor: '#0f2e60',
+        borderWidth: 3.5,
+        pointRadius: 4.5,
+        fill: false,
+        tension: 0.1,
+      }
+    ]
   };
 
-  // X-coordinate helper for Line Chart
-  const getX = (index: number, total: number) => {
-    if (total <= 1) return 500;
-    return (index / (total - 1)) * 1000;
+  const lineChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false // Hide default legend as we already have a custom clean HTML legend below
+      },
+      tooltip: {
+        backgroundColor: '#213145',
+        titleFont: { family: 'Inter', weight: 'bold' as const },
+        bodyFont: { family: 'Inter' },
+        callbacks: {
+          label: (context: any) => ` ${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        max: 120,
+        ticks: {
+          font: { family: 'Inter', size: 10 },
+          callback: (value: any) => `${value}%`
+        },
+        grid: { color: '#f1f5f9' }
+      },
+      x: {
+        ticks: { font: { family: 'Inter', size: 10 } },
+        grid: { color: '#f1f5f9' }
+      }
+    }
   };
-
-  // SVG Line path generator
-  const linePath = activeYearsRange
-    .map((yr, idx) => {
-      const val = getYearCumulativeAvg(yr);
-      const x = getX(idx, activeYearsRange.length);
-      const y = getY(val);
-      return `${idx === 0 ? 'M' : 'L'} ${x} ${y}`;
-    })
-    .join(' ');
 
   // Donut chart dataset configuration using BaseDoughnutChart (based on saved data, not live inputs)
   const chartRealisasi = activeData ? activeData.realisasi : 0;
@@ -440,11 +490,11 @@ export const RealisasiRkapPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Grid Content */}
-      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start">
+      {/* Main Stacked Layout */}
+      <div className="flex flex-col gap-5 w-full">
         
-        {/* Left side: Table form (8 cols) */}
-        <form onSubmit={handleSaveClick} className="xl:col-span-8 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
+        {/* Top: Table form */}
+        <form onSubmit={handleSaveClick} className="w-full bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
             <h3 className="text-xs font-bold text-primary-900">Data Realisasi</h3>
           </div>
@@ -556,126 +606,58 @@ export const RealisasiRkapPage: React.FC = () => {
           </div>
         </form>
 
-        {/* Right side: Charts & YTD (4 cols) */}
-        <div className="xl:col-span-4 flex flex-col gap-5">
-          {/* Card 1: Distribution Overview */}
-          <ChartCard 
-            title="Distribution Overview"
-            subtitle={`${bulan} ${tahun}`}
-          >
-            <div className="relative w-44 h-44 flex items-center justify-center my-3">
-              <BaseDoughnutChart data={donutData} />
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                <span className="text-xl font-bold text-primary-900">{chartPercentageVal.toFixed(0)}%</span>
-                <span className="text-[8px] text-slate-500 font-semibold uppercase tracking-wider">Realisasi</span>
-              </div>
+        {/* Middle: Distribution Overview */}
+        <ChartCard 
+          title="Distribution Overview"
+          subtitle={`${bulan} ${tahun}`}
+        >
+          <div className="relative w-44 h-44 flex items-center justify-center my-3">
+            <BaseDoughnutChart data={donutData} />
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-xl font-bold text-primary-900">{chartPercentageVal.toFixed(0)}%</span>
+              <span className="text-[8px] text-slate-500 font-semibold uppercase tracking-wider">Realisasi</span>
             </div>
+          </div>
+          
+          {/* Legend */}
+          <div className="flex gap-4 mt-4 justify-center text-[9px] font-medium text-slate-600">
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded bg-primary-900" />
+              <span>Realisasi (%)</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded bg-amber-500" />
+              <span>Cost Reduction (%)</span>
+            </div>
+          </div>
+        </ChartCard>
+
+        {/* Bottom: Performa Year to Date (YTD) */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
+          <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
             
-            {/* Legend */}
-            <div className="flex gap-4 mt-4 justify-center text-[9px] font-medium text-slate-600">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded bg-primary-900" />
-                <span>Realisasi (%)</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded bg-amber-500" />
-                <span>Cost Reduction (%)</span>
-              </div>
+            {/* Year Range Selectors */}
+            <div className="flex items-center gap-2 mt-1">
+              <FilterSelect 
+                label="Tahun Awal"
+                value={startYear}
+                onChange={setStartYear}
+                options={allYearsRange}
+              />
+              <span className="text-slate-400 text-xs mt-4">s.d</span>
+              <FilterSelect 
+                label="Tahun Akhir"
+                value={endYear}
+                onChange={setEndYear}
+                options={allYearsRange}
+              />
             </div>
-          </ChartCard>
-
-          {/* Card 2: Performa Year to Date (YTD) */}
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-              <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-              
-              {/* Year Range Selectors */}
-              <div className="flex items-center gap-2 mt-1">
-                <FilterSelect 
-                  label="Tahun Awal"
-                  value={startYear}
-                  onChange={setStartYear}
-                  options={allYearsRange}
-                />
-                <span className="text-slate-400 text-xs mt-4">s.d</span>
-                <FilterSelect 
-                  label="Tahun Akhir"
-                  value={endYear}
-                  onChange={setEndYear}
-                  options={allYearsRange}
-                />
-              </div>
-            </div>
-            
-            <div className="p-4">
-              <div className="w-full h-[180px] relative flex items-end gap-2 pt-6 pb-2 px-2 bg-slate-50/50 rounded border border-slate-100">
-                {/* SVG Line Chart */}
-                <svg className="w-full h-full relative z-10 overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 200">
-                  {/* Grid Lines */}
-                  <line x1="0" y1="50" x2="1000" y2="50" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4,4" />
-                  <line x1="0" y1="100" x2="1000" y2="100" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4,4" />
-                  <line x1="0" y1="150" x2="1000" y2="150" stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4,4" />
-                  
-                  {/* Cost Reduction Tahunan Line (100% Flat) */}
-                  <path d="M 0 40 L 1000 40" fill="none" stroke="#f59e0b" strokeDasharray="6,4" strokeWidth="2"></path>
-                  
-                  {/* Realisasi Kumulatif Line */}
-                  <path 
-                    d={linePath} 
-                    fill="none" 
-                    stroke="#0f2e60" 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth="3.5"
-                  />
-                  
-                  {/* Ticks and Data Labels */}
-                  {activeYearsRange.map((yr, idx) => {
-                    const val = getYearCumulativeAvg(yr);
-                    const x = getX(idx, activeYearsRange.length);
-                    const y = getY(val);
-                    return (
-                      <g key={yr}>
-                        <text className="font-mono fill-amber-500" style={{ fontSize: '9px' }} textAnchor="middle" x={x} y={25}>
-                          100%
-                        </text>
-                        <text className="font-mono fill-primary-900" style={{ fontSize: '9px' }} textAnchor="middle" x={x} y={y - 10}>
-                          {val.toFixed(1)}%
-                        </text>
-                        <circle cx={x} cy={y} fill="#0f2e60" r="4.5" />
-                      </g>
-                    );
-                  })}
-                </svg>
-
-                {/* X-Axis labels */}
-                <div className="absolute bottom-1.5 left-0 w-full flex justify-between px-3 text-[8px] font-bold text-slate-500">
-                  {activeYearsRange.map((yr, idx) => (
-                    <span 
-                      key={yr} 
-                      style={{ 
-                        position: 'absolute', 
-                        left: `${(idx / (activeYearsRange.length - 1)) * 90 + 5}%`,
-                        transform: 'translateX(-50%)'
-                      }}
-                    >
-                      {yr}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* YTD Chart Legend */}
-              <div className="flex gap-4 mt-6 justify-center text-[9px] font-medium text-slate-600">
-                <div className="flex items-center gap-1.5">
-                  <div className="w-6 h-[1.5px] border-t-2 border-dashed border-amber-500"></div>
-                  <span>Cost Reduction Tahunan</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-6 h-[2.5px] bg-[#0f2e60] rounded-full"></div>
-                  <span>Realisasi Kumulatif</span>
-                </div>
-              </div>
+          </div>
+          
+          <div className="p-4">
+            <div className="w-full h-[220px] bg-slate-50/50 rounded border border-slate-100 p-2">
+              <Line data={lineChartData} options={lineChartOptions} />
             </div>
           </div>
         </div>
