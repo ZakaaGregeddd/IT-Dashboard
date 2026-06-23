@@ -58,7 +58,7 @@ export class UtilisasiStorageDbService {
       };
     }
 
-    const activeMaster = currentMaster || latestMaster;
+    const activeMaster = (currentMaster || latestMaster)!;
     const detail_storage_db_aplikasi = activeMaster.detail_storage_db_aplikasi.map((s) => {
       const currentMatch = currentMaster?.detail_storage_db_aplikasi.find(
         (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()

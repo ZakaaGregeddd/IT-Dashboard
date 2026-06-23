@@ -58,7 +58,7 @@ export class UtilisasiMemoryDbService {
       };
     }
 
-    const activeMaster = currentMaster || latestMaster;
+    const activeMaster = (currentMaster || latestMaster)!;
     const detail_memory_db_aplikasi = activeMaster.detail_memory_db_aplikasi.map((s) => {
       const currentMatch = currentMaster?.detail_memory_db_aplikasi.find(
         (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
