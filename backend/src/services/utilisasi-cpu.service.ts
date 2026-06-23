@@ -58,7 +58,7 @@ export class UtilisasiCpuService {
 
     const target_utilisasi_persen = currentMaster?.target_utilisasi_persen 
       ? Number(currentMaster.target_utilisasi_persen)
-      : (latestMaster?.target_utilisasi_persen ? Number(latestMaster.target_utilisasi_persen) : 30);
+      : (latestMaster?.target_utilisasi_persen ? Number(latestMaster.target_utilisasi_persen) : 90);
 
     // If there are no records at all in the database, return hardcoded default
     if (!latestMaster) {

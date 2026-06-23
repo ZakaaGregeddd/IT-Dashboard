@@ -92,7 +92,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
 
   // Input states
   const [serverRows, setServerRows] = useState<CPUDetail[]>([]);
-  const [targetUtilisasi, setTargetUtilisasi] = useState<number>(30);
+  const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
 
   // Historical data for YTD Chart
   const [allCpuRecords, setAllCpuRecords] = useState<CPUData[]>([]);
@@ -139,7 +139,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
             utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
           }));
           setServerRows(parsed);
-          setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 30);
+          setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
         } else {
           setServerRows([]);
         }
@@ -245,7 +245,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
             utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
           }));
           setServerRows(parsed);
-          setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 30);
+          setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
         }
       } else {
         alert('Gagal menyimpan data: ' + result.message);
@@ -455,6 +455,95 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       {/* Main Stacked Layout */}
       <div className="flex flex-col gap-5 w-full">
         
+        {/* Row 0: Rekomendasi Kapasitas CPU */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4 w-full">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className={`p-3 rounded-lg shrink-0 ${
+                avgUtilisasiPercent >= targetUtilisasi 
+                  ? 'bg-amber-50 text-amber-600 border border-amber-200' 
+                  : serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi)
+                    ? 'bg-amber-50 text-amber-600 border border-amber-200'
+                    : 'bg-emerald-50 text-emerald-600 border border-emerald-200'
+              }`}>
+                {avgUtilisasiPercent >= targetUtilisasi || serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi) ? (
+                  <AlertTriangle className="w-6 h-6" />
+                ) : (
+                  <CheckCircle className="w-6 h-6" />
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                <h3 className="text-sm font-bold text-slate-800">
+                  Rekomendasi Kapasitas CPU ({bulan} {tahun})
+                </h3>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  {avgUtilisasiPercent >= targetUtilisasi ? (
+                    <>
+                      Rata-rata utilisasi CPU saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas CPU.</strong>
+                    </>
+                  ) : serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi) ? (
+                    <>
+                      Rata-rata utilisasi CPU saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat server individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada server tersebut.
+                    </>
+                  ) : (
+                    <>
+                      Rata-rata utilisasi CPU saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas CPU saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan kapasitas.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+            <div className={`px-4 py-2.5 rounded-lg border text-center shrink-0 min-w-[150px] ${
+              avgUtilisasiPercent >= targetUtilisasi
+                ? 'bg-amber-50/50 border-amber-200 text-amber-800'
+                : serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi)
+                  ? 'bg-amber-50/50 border-amber-200 text-amber-800'
+                  : 'bg-emerald-50/50 border-emerald-200 text-emerald-800'
+            }`}>
+              <span className="text-[10px] font-bold uppercase tracking-wider block opacity-75">Status Sistem</span>
+              <span className="text-base font-extrabold block mt-0.5 animate-pulse">
+                {avgUtilisasiPercent >= targetUtilisasi 
+                  ? 'PERLU UPGRADE' 
+                  : serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi)
+                    ? 'PERLU PERHATIAN'
+                    : 'NORMAL'}
+              </span>
+            </div>
+          </div>
+
+          {/* Individual Server Status Breakdown */}
+          {serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi) && (
+            <div className="border-t border-slate-100 pt-4 mt-1">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
+                Analisis Server Individual
+              </span>
+              <div className="flex flex-wrap gap-2.5">
+                {serverRows.map((row, idx) => {
+                  if (!row.nama_server) return null;
+                  const isOver = row.utilisasi_persen >= targetUtilisasi;
+                  
+                  if (!isOver) return null;
+                  
+                  return (
+                    <div 
+                      key={idx} 
+                      className="flex items-center gap-2 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all bg-red-50/85 border-red-200 text-red-700"
+                    >
+                      <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
+                      <span className="font-semibold">{row.nama_server}</span>
+                      <span className="opacity-60">|</span>
+                      <span>Utilisasi: <strong className="font-mono">{row.utilisasi_persen}%</strong></span>
+                      <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-red-100 text-red-800">
+                        Melebihi Target
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Row 1: Input Data (Full Width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
@@ -580,7 +669,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                           utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
                         }));
                         setServerRows(parsed);
-                        setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 30);
+                        setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
                       }
                     });
                 }}
