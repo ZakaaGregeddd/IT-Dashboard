@@ -62,18 +62,6 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2021 + i).toString());
 
-// Static mock YTD data to populate chart visual style
-const mockYTDData: Record<string, number> = {
-  '2021': 34,
-  '2022': 39,
-  '2023': 51,
-  '2024': 56,
-  '2025': 62,
-  '2026': 70,
-  '2027': 75,
-  '2028': 80,
-  '2029': 85
-};
 
 export const LisensiPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
@@ -84,6 +72,7 @@ export const LisensiPage: React.FC = () => {
 
   // License rows currently being edited
   const [licenseRows, setLicenseRows] = useState<LicenseDetail[]>([]);
+  const [allLicenseRecords, setAllLicenseRecords] = useState<any[]>([]);
   
   // Chart filters
   const [startYear, setStartYear] = useState<string>('2021');
@@ -102,6 +91,23 @@ export const LisensiPage: React.FC = () => {
     if (isNaN(d.getTime())) return '';
     return d.toISOString().split('T')[0];
   };
+
+  // Fetch all historical records on mount for YTD Chart
+  const fetchAllHistoricalData = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/licenses');
+      const result = await response.json();
+      if (result.success && Array.isArray(result.data)) {
+        setAllLicenseRecords(result.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch License historical data:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllHistoricalData();
+  }, []);
 
   // Fetch active details on filter changes
   useEffect(() => {
@@ -224,6 +230,7 @@ export const LisensiPage: React.FC = () => {
       if (result.success) {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
+        fetchAllHistoricalData();
         if (result.data) {
           const formatted = (result.data.detail_lisensi || []).map((d: any) => ({
             ...d,
@@ -254,12 +261,27 @@ export const LisensiPage: React.FC = () => {
     selectedYears.push(startYear);
   }
 
+  const getYearlyValue = (yr: string): number => {
+    const yearRecs = allLicenseRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
+    if (yearRecs.length === 0) {
+      if (yr === tahun) {
+        return totalJumlah;
+      }
+      return 0;
+    }
+    let sum = 0;
+    yearRecs.forEach((rec) => {
+      sum += Number(rec.total_keseluruhan_lisensi) || 0;
+    });
+    return parseFloat((sum / yearRecs.length).toFixed(1));
+  };
+
   const lineChartData: ChartData<'line'> = {
     labels: selectedYears,
     datasets: [
       {
         label: 'Jumlah Lisensi Aktif (Rata-rata Tahunan)',
-        data: selectedYears.map((yr) => mockYTDData[yr] || 50),
+        data: selectedYears.map((yr) => getYearlyValue(yr)),
         borderColor: '#f59e0b',
         backgroundColor: '#0f2e60',
         tension: 0.1,

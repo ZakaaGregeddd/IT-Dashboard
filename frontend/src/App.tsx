@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
+<<<<<<< HEAD
 import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuDbPage, UtilisasiMemoryDbPage, UtilisasiStorageDbPage } from '@/pages';
+=======
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbPage } from '@/pages';
+>>>>>>> 2dd5fa7a590d02384eea08f7972d0c908b33aece
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -78,6 +82,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-storage-server') {
       return <UtilisasiStorageServerPage />;
+    }
+    if (currentPath === '/utilisasi-cpu-aplikasi-ellipse-dan-cisea') {
+      return <UtilisasiCpuAplikasiPage />;
     }
     if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
       return <UtilisasiCpuDbPage />;

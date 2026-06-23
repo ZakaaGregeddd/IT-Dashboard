@@ -12,8 +12,8 @@ interface CPUDatabaseDetailInput {
 
 export class UtilisasiCpuDbService {
   private static DEFAULT_SYSTEMS = [
-    { urutan: 1, nama_sistem: 'CISEA', cpu_ghz: 2.3, utilisasi_ghz: 1.265, free_persen: 45.0, utilisasi_persen: 55.0 },
-    { urutan: 2, nama_sistem: 'Ellipse', cpu_ghz: 6.6, utilisasi_ghz: 2.046, free_persen: 69.0, utilisasi_persen: 31.0 },
+    { urutan: 1, nama_sistem: 'CISEA', cpu_ghz: 0, utilisasi_ghz: 0, free_persen: 0, utilisasi_persen: 0 },
+    { urutan: 2, nama_sistem: 'Ellipse', cpu_ghz: 0, utilisasi_ghz: 0, free_persen: 0, utilisasi_persen: 0 },
   ];
 
   static async getUtilisasi(bulan: number, tahun: number) {
@@ -59,7 +59,7 @@ export class UtilisasiCpuDbService {
     }
 
     // Build systems list based on active configuration
-    const activeMaster = currentMaster || latestMaster;
+    const activeMaster = (currentMaster || latestMaster)!;
     const detail_cpu_db_aplikasi = activeMaster.detail_cpu_db_aplikasi.map((s) => {
       const currentMatch = currentMaster?.detail_cpu_db_aplikasi.find(
         (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()

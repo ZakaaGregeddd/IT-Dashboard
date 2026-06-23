@@ -26,7 +26,7 @@ ChartJS.register(
   Legend
 );
 
-interface CPUDatabaseDetail {
+interface CpuAppDetail {
   id?: string;
   urutan: number;
   nama_sistem: string;
@@ -36,11 +36,11 @@ interface CPUDatabaseDetail {
   utilisasi_persen: number;
 }
 
-interface CPUDatabaseData {
+interface CpuAppData {
   id?: string;
   bulan: number;
   tahun: number;
-  detail_cpu_db_aplikasi: CPUDatabaseDetail[];
+  detail_cpu_aplikasi: CpuAppDetail[];
 }
 
 interface FilterSelectProps {
@@ -77,12 +77,12 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
-const DEFAULT_ROWS: CPUDatabaseDetail[] = [
+const DEFAULT_ROWS: CpuAppDetail[] = [
   { urutan: 1, nama_sistem: 'CISEA', cpu_ghz: 0, utilisasi_ghz: 0, free_persen: 0, utilisasi_persen: 0 },
   { urutan: 2, nama_sistem: 'Ellipse', cpu_ghz: 0, utilisasi_ghz: 0, free_persen: 0, utilisasi_persen: 0 },
 ];
 
-export const UtilisasiCpuDbPage: React.FC = () => {
+export const UtilisasiCpuAplikasiPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
 
@@ -90,9 +90,11 @@ export const UtilisasiCpuDbPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input states
-  const [systemRows, setSystemRows] = useState<CPUDatabaseDetail[]>(DEFAULT_ROWS);
+  const [appRows, setAppRows] = useState<CpuAppDetail[]>(DEFAULT_ROWS);
   const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
-  const [allDbRecords, setAllDbRecords] = useState<CPUDatabaseData[]>([]);
+
+  // Historical data for YTD Chart
+  const [allAppRecords, setAllAppRecords] = useState<CpuAppData[]>([]);
 
   // YTD filters
   const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 3).toString());
@@ -103,15 +105,16 @@ export const UtilisasiCpuDbPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch all historical records on mount for YTD Chart
   const fetchAllHistoricalData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/utilisasi/cpu-database');
+      const response = await fetch('http://localhost:5000/api/utilisasi/cpu-app');
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
-        setAllDbRecords(result.data);
+        setAllAppRecords(result.data);
       }
     } catch (error) {
-      console.error('Failed to fetch CPU database historical data:', error);
+      console.error('Failed to fetch Application CPU historical data:', error);
     }
   };
 
@@ -119,28 +122,34 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     fetchAllHistoricalData();
   }, []);
 
+  // Fetch active details on filter changes
   useEffect(() => {
     const fetchActiveData = async () => {
       const monthNum = monthsNumMap[bulan] || 1;
       try {
         setIsLoading(true);
-        const response = await fetch(`http://localhost:5000/api/utilisasi/cpu-database?bulan=${monthNum}&tahun=${tahun}`);
+        const response = await fetch(`http://localhost:5000/api/utilisasi/cpu-app?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_cpu_db_aplikasi) && result.data.detail_cpu_db_aplikasi.length > 0) {
-          const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => ({
-            ...item,
-            cpu_ghz: parseFloat(item.cpu_ghz) || 0,
-            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
-            free_persen: parseFloat(item.free_persen) || 0,
-            utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-          }));
-          setSystemRows(parsed);
+        if (result.success && result.data && Array.isArray(result.data.detail_cpu_aplikasi) && result.data.detail_cpu_aplikasi.length > 0) {
+          const parsed = result.data.detail_cpu_aplikasi.map((item: any) => {
+            const cpu = parseFloat(item.cpu_ghz) || 0;
+            const util = parseFloat(item.utilisasi_ghz) || 0;
+            const p = cpu > 0 ? (util / cpu) * 100 : 0;
+            return {
+              ...item,
+              cpu_ghz: cpu,
+              utilisasi_ghz: util,
+              free_persen: 100 - p,
+              utilisasi_persen: p
+            };
+          });
+          setAppRows(parsed);
         } else {
-          setSystemRows(DEFAULT_ROWS);
+          setAppRows(DEFAULT_ROWS);
         }
       } catch (error) {
-        console.error('Failed to fetch CPU database active data:', error);
-        setSystemRows(DEFAULT_ROWS);
+        console.error('Failed to fetch CPU Aplikasi active data:', error);
+        setAppRows(DEFAULT_ROWS);
       } finally {
         setIsLoading(false);
       }
@@ -148,33 +157,31 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     fetchActiveData();
   }, [tahun, bulan]);
 
+  // Compute live totals
+  const totalCpuGhz = appRows.reduce((acc, row) => acc + (row.cpu_ghz || 0), 0);
+  const totalUtilGhz = appRows.reduce((acc, row) => acc + (row.utilisasi_ghz || 0), 0);
+  const avgUtilisasiPercent = totalCpuGhz > 0 ? Math.round((totalUtilGhz / totalCpuGhz) * 100) : 0;
+
+  // Handle edit row inputs
   const handleInputChange = (index: number, field: 'cpu_ghz' | 'utilisasi_ghz', val: string) => {
-    setSystemRows((prev) => {
+    setAppRows((prev) => {
       const updated = [...prev];
       const parsed = parseFloat(val) || 0;
       const currentCpu = field === 'cpu_ghz' ? parsed : (updated[index].cpu_ghz || 0);
       const currentUtil = field === 'utilisasi_ghz' ? parsed : (updated[index].utilisasi_ghz || 0);
-
-      let calculatedUtilPercent = 0;
-      if (currentCpu > 0) {
-        calculatedUtilPercent = parseFloat(((currentUtil / currentCpu) * 100).toFixed(2));
-      }
-      const calculatedFreePercent = parseFloat((100 - calculatedUtilPercent).toFixed(2));
-
+      const calculatedPercent = currentCpu > 0 ? (currentUtil / currentCpu) * 100 : 0;
+      
       updated[index] = {
         ...updated[index],
         [field]: parsed,
-        utilisasi_persen: calculatedUtilPercent,
-        free_persen: calculatedFreePercent
+        free_persen: 100 - calculatedPercent,
+        utilisasi_persen: calculatedPercent
       };
       return updated;
     });
   };
 
-  const totalCpuGhz = systemRows.reduce((acc, row) => acc + (row.cpu_ghz || 0), 0);
-  const totalUtilGhz = systemRows.reduce((acc, row) => acc + (row.utilisasi_ghz || 0), 0);
-  const avgUtilisasiPercent = totalCpuGhz > 0 ? Math.round((totalUtilGhz / totalCpuGhz) * 100) : 0;
-
+  // Save
   const handleSaveClick = () => {
     setIsModalOpen(true);
   };
@@ -186,7 +193,7 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     const payload = {
       bulan: monthNum,
       tahun: parseInt(tahun, 10),
-      details: systemRows.map((row) => ({
+      details: appRows.map((row) => ({
         id: row.id,
         urutan: row.urutan,
         nama_sistem: row.nama_sistem,
@@ -198,7 +205,7 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/utilisasi/cpu-database', {
+      const response = await fetch('http://localhost:5000/api/utilisasi/cpu-app', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -210,38 +217,43 @@ export const UtilisasiCpuDbPage: React.FC = () => {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
         fetchAllHistoricalData();
-        if (result.data && result.data.detail_cpu_db_aplikasi) {
-          const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => ({
-            ...item,
-            cpu_ghz: parseFloat(item.cpu_ghz) || 0,
-            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
-            free_persen: parseFloat(item.free_persen) || 0,
-            utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-          }));
-          setSystemRows(parsed);
+        if (result.data && result.data.detail_cpu_aplikasi) {
+          const parsed = result.data.detail_cpu_aplikasi.map((item: any) => {
+            const cpu = parseFloat(item.cpu_ghz) || 0;
+            const util = parseFloat(item.utilisasi_ghz) || 0;
+            const p = cpu > 0 ? (util / cpu) * 100 : 0;
+            return {
+              ...item,
+              cpu_ghz: cpu,
+              utilisasi_ghz: util,
+              free_persen: 100 - p,
+              utilisasi_persen: p
+            };
+          });
+          setAppRows(parsed);
         }
       } else {
         alert('Gagal menyimpan data: ' + result.message);
       }
     } catch (error) {
-      console.error('Failed to save CPU database data:', error);
+      console.error('Failed to save Application CPU data:', error);
       alert('Terjadi kesalahan koneksi saat menyimpan data.');
     }
   };
 
-  // Stacked Bar Chart for Free % and Utilisasi %
+  // Prepare Bar Chart data (Horizontal, Free vs Utilisasi %)
   const barData: ChartData<'bar'> = {
-    labels: systemRows.map((s) => s.nama_sistem),
+    labels: appRows.map(r => r.nama_sistem),
     datasets: [
       {
         label: 'Free (%)',
-        data: systemRows.map((s) => s.free_persen),
+        data: appRows.map(r => r.free_persen),
         backgroundColor: '#0f2e60',
         borderRadius: 4
       },
       {
         label: 'Utilisasi (%)',
-        data: systemRows.map((s) => s.utilisasi_persen),
+        data: appRows.map(r => r.utilisasi_persen),
         backgroundColor: '#f59e0b',
         borderRadius: 4
       }
@@ -254,6 +266,7 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     maintainAspectRatio: false,
     plugins: {
       legend: {
+        display: true,
         position: 'bottom',
         labels: {
           font: { family: 'Inter', size: 10 },
@@ -282,7 +295,7 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     }
   };
 
-  // YTD Line Chart Data preparation
+  // Prepare YTD Line Chart data
   const start = parseInt(startYear, 10);
   const end = parseInt(endYear, 10);
   const selectedYears: string[] = [];
@@ -294,23 +307,19 @@ export const UtilisasiCpuDbPage: React.FC = () => {
     selectedYears.push(startYear);
   }
 
-  const getYearlyValue = (yr: string, systemName: string): number => {
-    const yearRecs = allDbRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
+  const getYearlyValue = (yr: string, sysName: string): number => {
+    const yearRecs = allAppRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
     if (yearRecs.length === 0) {
       if (yr === tahun) {
-        const currentMatch = systemRows.find(
-          (s) => s.nama_sistem.toLowerCase() === systemName.toLowerCase()
-        );
-        return currentMatch ? currentMatch.utilisasi_persen : 0;
+        const found = appRows.find(r => r.nama_sistem.toLowerCase() === sysName.toLowerCase());
+        return found ? parseFloat(found.utilisasi_persen.toFixed(2)) : 0;
       }
       return 0;
     }
     let sum = 0;
     let count = 0;
     yearRecs.forEach((rec) => {
-      const match = rec.detail_cpu_db_aplikasi.find(
-        (d) => d.nama_sistem.toLowerCase() === systemName.toLowerCase()
-      );
+      const match = rec.detail_cpu_aplikasi.find(d => d.nama_sistem.toLowerCase() === sysName.toLowerCase());
       if (match) {
         sum += Number(match.utilisasi_persen) || 0;
         count++;
@@ -401,17 +410,18 @@ export const UtilisasiCpuDbPage: React.FC = () => {
       <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[300px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-primary-900 border-t-amber-500 rounded-full animate-spin"></div>
-          <span className="text-xs text-slate-500 font-medium">Memuat Data Utilisasi CPU Database...</span>
+          <span className="text-xs text-slate-500 font-medium">Memuat Data Utilisasi CPU Aplikasi...</span>
         </div>
       </div>
     );
   }
 
-  const isAnyOverTarget = systemRows.some(r => r.utilisasi_persen >= targetUtilisasi);
+  const isAnyOverTarget = appRows.some(r => r.utilisasi_persen >= targetUtilisasi);
 
   return (
     <div className="w-full flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-y-auto bg-slate-50 relative">
       
+      {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-[#0f2e60] text-white px-4 py-2.5 rounded-lg shadow-lg animate-bounce transition-all duration-300">
           <CheckCircle className="w-5 h-5" />
@@ -419,11 +429,13 @@ export const UtilisasiCpuDbPage: React.FC = () => {
         </div>
       )}
 
+      {/* Page Title & Controls */}
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Utilisasi CPU Database Aplikasi Ellipse dan CISEA</h2>
+          <h2 className="text-xl font-bold text-slate-800">Utilisasi CPU Aplikasi Ellipse dan CISEA</h2>
         </div>
 
+        {/* Dropdowns */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <FilterSelect 
@@ -451,9 +463,10 @@ export const UtilisasiCpuDbPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Main Stacked Layout */}
       <div className="flex flex-col gap-5 w-full">
         
-        {/* Row 0: Rekomendasi Kapasitas CPU Database */}
+        {/* Row 0: Rekomendasi Kapasitas CPU Aplikasi */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4 w-full">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
@@ -472,20 +485,20 @@ export const UtilisasiCpuDbPage: React.FC = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-bold text-slate-800">
-                  Rekomendasi Kapasitas CPU Database ({bulan} {tahun})
+                  Rekomendasi Kapasitas CPU Aplikasi ({bulan} {tahun})
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   {avgUtilisasiPercent >= targetUtilisasi ? (
                     <>
-                      Rata-rata utilisasi CPU database saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas CPU database.</strong>
+                      Rata-rata utilisasi CPU aplikasi saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas CPU aplikasi.</strong>
                     </>
                   ) : isAnyOverTarget ? (
                     <>
-                      Rata-rata utilisasi CPU database saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat database individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada database tersebut.
+                      Rata-rata utilisasi CPU aplikasi saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat aplikasi individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada aplikasi tersebut.
                     </>
                   ) : (
                     <>
-                      Rata-rata utilisasi CPU database saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas CPU database saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan.
+                      Rata-rata utilisasi CPU aplikasi saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas CPU aplikasi saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan.
                     </>
                   )}
                 </p>
@@ -509,14 +522,14 @@ export const UtilisasiCpuDbPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Individual CPU DB Status Breakdown */}
+          {/* Individual CPU App Status Breakdown */}
           {isAnyOverTarget && (
             <div className="border-t border-slate-100 pt-4 mt-1">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
-                Analisis Database Individual
+                Analisis Aplikasi Individual
               </span>
               <div className="flex flex-wrap gap-2.5">
-                {systemRows.map((row, idx) => {
+                {appRows.map((row, idx) => {
                   const isOver = row.utilisasi_persen >= targetUtilisasi;
                   if (!isOver) return null;
                   
@@ -540,10 +553,10 @@ export const UtilisasiCpuDbPage: React.FC = () => {
           )}
         </div>
 
-        {/* Row 1: Data Table */}
+        {/* Row 1: Input Data (Full Width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <h3 className="text-xs font-bold text-primary-900">Data Utilisasi CPU Database</h3>
+            <h3 className="text-xs font-bold text-primary-900">Data Entri CPU Aplikasi</h3>
           </div>
           
           <div className="overflow-x-auto p-4">
@@ -559,15 +572,15 @@ export const UtilisasiCpuDbPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-                {systemRows.map((row, index) => (
+                {appRows.map((row, index) => (
                   <tr key={index} className="hover:bg-slate-50/30 transition-colors group">
                     <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                       {index + 1}
                     </td>
-                    <td className="py-2.5 px-4 border border-slate-200 font-semibold text-slate-800">
+                    <td className="py-2.5 px-4 font-semibold border border-slate-200 text-slate-800">
                       {row.nama_sistem}
                     </td>
-                    <td className="py-1 px-3 border border-slate-200">
+                    <td className="py-1.5 px-3 border border-slate-200">
                       <input 
                         type="number"
                         step="0.01"
@@ -581,10 +594,10 @@ export const UtilisasiCpuDbPage: React.FC = () => {
                     <td className="py-1.5 px-3 border border-slate-200">
                       <input 
                         type="number"
-                        step="0.0001"
+                        step="0.01"
                         value={row.utilisasi_ghz === 0 ? '' : row.utilisasi_ghz}
                         onChange={(e) => handleInputChange(index, 'utilisasi_ghz', e.target.value)}
-                        placeholder="0.0000"
+                        placeholder="0.00"
                         min="0"
                         className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
                       />
@@ -599,7 +612,7 @@ export const UtilisasiCpuDbPage: React.FC = () => {
                 ))}
                 
                 {/* Total / Average Row */}
-                {systemRows.length > 0 && (
+                {appRows.length > 0 && (
                   <tr className="bg-slate-50 font-bold border-t-2 border-slate-300">
                     <td className="py-2.5 px-4 text-right border border-slate-200" colSpan={2}>
                       RATA-RATA / TOTAL
@@ -622,26 +635,32 @@ export const UtilisasiCpuDbPage: React.FC = () => {
             </table>
           </div>
 
+          {/* Form Actions */}
           <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex justify-end items-center gap-2.5">
             <div className="flex gap-2">
               <button 
                 type="button"
                 onClick={() => {
                   const monthNum = monthsNumMap[bulan] || 1;
-                  fetch(`http://localhost:5000/api/utilisasi/cpu-database?bulan=${monthNum}&tahun=${tahun}`)
+                  fetch(`http://localhost:5000/api/utilisasi/cpu-app?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_cpu_db_aplikasi) && result.data.detail_cpu_db_aplikasi.length > 0) {
-                        const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => ({
-                          ...item,
-                          cpu_ghz: parseFloat(item.cpu_ghz) || 0,
-                          utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
-                          free_persen: parseFloat(item.free_persen) || 0,
-                          utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-                        }));
-                        setSystemRows(parsed);
+                      if (result.success && result.data && Array.isArray(result.data.detail_cpu_aplikasi) && result.data.detail_cpu_aplikasi.length > 0) {
+                        const parsed = result.data.detail_cpu_aplikasi.map((item: any) => {
+                          const cpu = parseFloat(item.cpu_ghz) || 0;
+                          const util = parseFloat(item.utilisasi_ghz) || 0;
+                          const p = cpu > 0 ? (util / cpu) * 100 : 0;
+                          return {
+                            ...item,
+                            cpu_ghz: cpu,
+                            utilisasi_ghz: util,
+                            free_persen: 100 - p,
+                            utilisasi_persen: p
+                          };
+                        });
+                        setAppRows(parsed);
                       } else {
-                        setSystemRows(DEFAULT_ROWS);
+                        setAppRows(DEFAULT_ROWS);
                       }
                     });
                 }}
@@ -661,14 +680,14 @@ export const UtilisasiCpuDbPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Monthly Visualisation Stacked Bar */}
+        {/* Row 2: Monthly Bar Chart (Full Width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Visualisasi Utilisasi CPU Database</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Perbandingan Utilisasi dan Free Headroom ({bulan} {tahun})</p>
+            <h3 className="text-xs font-semibold text-slate-800">Visualisasi Utilisasi CPU</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Perbandingan Free vs Utilisasi CPU Aplikasi ({bulan} {tahun})</p>
           </div>
           <div className="p-4 flex flex-col justify-center items-center h-[300px] relative">
-            {systemRows.length > 0 ? (
+            {appRows.length > 0 ? (
               <Bar data={barData} options={barOptions} />
             ) : (
               <span className="text-xs text-slate-400">Tidak ada data.</span>
@@ -676,12 +695,13 @@ export const UtilisasiCpuDbPage: React.FC = () => {
           </div>
         </div>
 
-        {/* YTD Line Chart */}
+        {/* Row 3: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Utilisasi CPU Database (%)</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Utilisasi CPU Aplikasi (%)</p>
             
+            {/* Year Range Selectors */}
             <div className="flex items-center gap-2 mt-1">
               <FilterSelect 
                 label="Dari Tahun"
@@ -706,12 +726,13 @@ export const UtilisasiCpuDbPage: React.FC = () => {
 
       </div>
 
+      {/* Confirmation Modal */}
       <ConfirmationModal 
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmSave}
         title="Konfirmasi Penyimpanan"
-        message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi CPU Database untuk periode ${bulan} ${tahun}?`}
+        message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi CPU Aplikasi untuk periode ${bulan} ${tahun}?`}
       />
 
     </div>
@@ -742,14 +763,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
           <button 
-            type="button"
+            type="button" 
             onClick={onClose}
             className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50"
           >
             Tidak
           </button>
           <button 
-            type="button"
+            type="button" 
             onClick={onConfirm}
             className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
           >
