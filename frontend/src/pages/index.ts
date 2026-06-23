@@ -12,9 +12,7 @@ export { UtilisasiMemoryServerPage } from '../features/dashboard/pages/Utilisasi
 export { UtilisasiStorageServerPage } from '../features/dashboard/pages/UtilisasiStorageServerPage';
 export { UtilisasiCpuAplikasiPage } from '../features/dashboard/pages/UtilisasiCpuAplikasiPage';
 export { UtilisasiCpuDbPage } from '../features/dashboard/pages/UtilisasiCpuDbPage';
-<<<<<<< HEAD
 export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemoryDbPage';
 export { UtilisasiStorageDbPage } from '../features/dashboard/pages/UtilisasiStorageDbPage';
-=======
+export { UtilisasiWanBackupPage } from '../features/dashboard/pages/UtilisasiWanBackupPage';
 
->>>>>>> 2dd5fa7a590d02384eea08f7972d0c908b33aece

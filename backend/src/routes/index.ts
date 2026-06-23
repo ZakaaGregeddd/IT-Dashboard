@@ -10,14 +10,12 @@ import ketersediaanScmcRoutes from './ketersediaan-scmc.routes.js';
 import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
 import utilisasiCpuRoutes from './utilisasi-cpu.routes.js';
 import utilisasiCpuDbRoutes from './utilisasi-cpu-db.routes.js';
+import utilisasiCpuAppRoutes from './utilisasi-cpu-app.routes.js';
 import utilisasiMemoryRoutes from './utilisasi-memory.routes.js';
 import utilisasiMemoryDbRoutes from './utilisasi-memory-db.routes.js';
 import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
-<<<<<<< HEAD
 import utilisasiStorageDbRoutes from './utilisasi-storage-db.routes.js';
-=======
-import utilisasiCpuAppRoutes from './utilisasi-cpu-app.routes.js';
->>>>>>> 2dd5fa7a590d02384eea08f7972d0c908b33aece
+import utilisasiWanBackupRoutes from './utilisasi-wan-backup.routes.js';
 
 const router = Router();
 
@@ -32,13 +30,11 @@ router.use('/ketersediaan/scmc', ketersediaanScmcRoutes);
 router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
 router.use('/utilisasi/cpu', utilisasiCpuRoutes);
 router.use('/utilisasi/cpu-database', utilisasiCpuDbRoutes);
+router.use('/utilisasi/cpu-app', utilisasiCpuAppRoutes);
 router.use('/utilisasi/memory', utilisasiMemoryRoutes);
 router.use('/utilisasi/memory-database', utilisasiMemoryDbRoutes);
 router.use('/utilisasi/storage', utilisasiStorageRoutes);
-<<<<<<< HEAD
 router.use('/utilisasi/storage-database', utilisasiStorageDbRoutes);
-=======
-router.use('/utilisasi/cpu-app', utilisasiCpuAppRoutes);
->>>>>>> 2dd5fa7a590d02384eea08f7972d0c908b33aece
+router.use('/utilisasi/wan-backup', utilisasiWanBackupRoutes);
 
 export default router;

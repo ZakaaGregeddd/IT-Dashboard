@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-<<<<<<< HEAD
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuDbPage, UtilisasiMemoryDbPage, UtilisasiStorageDbPage } from '@/pages';
-=======
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbPage } from '@/pages';
->>>>>>> 2dd5fa7a590d02384eea08f7972d0c908b33aece
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbPage, UtilisasiMemoryDbPage, UtilisasiStorageDbPage, UtilisasiWanBackupPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -94,6 +90,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-storage-database-ellipse-dan-cisea') {
       return <UtilisasiStorageDbPage />;
+    }
+    if (currentPath === '/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea') {
+      return <UtilisasiWanBackupPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';
