@@ -44,7 +44,28 @@ export class KetersediaanSistemService {
       };
     }
 
-    return master;
+    const detail_ketersediaan_sistem = this.DEFAULT_DETAILS.map((def) => {
+      const match = master.detail_ketersediaan_sistem.find(
+        (d) => d.nama_sistem.toLowerCase() === def.nama_sistem.toLowerCase()
+      );
+      return {
+        id: match?.id,
+        urutan: def.urutan,
+        nama_sistem: def.nama_sistem,
+        rencana_persen: match ? (match.rencana_persen ?? 0) : 0,
+        realisasi_persen: match ? (match.realisasi_persen ?? 0) : 0,
+      };
+    });
+
+    return {
+      id: master.id,
+      bulan: master.bulan,
+      tahun: master.tahun,
+      kategori_ketersediaan: 'SISTEM_APLIKASI',
+      rata_rata_rencana_persen: master.rata_rata_rencana_persen,
+      rata_rata_realisasi_persen: master.rata_rata_realisasi_persen,
+      detail_ketersediaan_sistem,
+    };
   }
 
   /**
