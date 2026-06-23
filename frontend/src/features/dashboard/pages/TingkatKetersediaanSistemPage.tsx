@@ -344,12 +344,12 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
     },
     scales: {
       y: {
-        beginAtZero: false,
-        min: 90,
-        max: 102,
+        beginAtZero: true,
+        min: 0,
+        max: 110,
         ticks: {
           font: { family: 'Inter', size: 10 },
-          stepSize: 1,
+          stepSize: 10,
           callback: function(value: any) {
             if (value > 100) return null;
             return value + '%';

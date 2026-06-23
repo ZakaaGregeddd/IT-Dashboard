@@ -8,6 +8,7 @@ export { KetersediaanScmcPage } from '../features/dashboard/pages/KetersediaanSc
 export { TingkatKetersediaanSistemPage } from '../features/dashboard/pages/TingkatKetersediaanSistemPage';
 export { UtilisasiCpuServerPage } from '../features/dashboard/pages/UtilisasiCpuServerPage';
 export { UtilisasiMemoryServerPage } from '../features/dashboard/pages/UtilisasiMemoryServerPage';
+export { UtilisasiStorageServerPage } from '../features/dashboard/pages/UtilisasiStorageServerPage';
 
 
 
