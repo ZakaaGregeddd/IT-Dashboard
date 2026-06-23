@@ -8,6 +8,7 @@ import sdmRoutes from './sdm.routes.js';
 import ketersediaanScmcRoutes from './ketersediaan-scmc.routes.js';
 import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
 import utilisasiCpuRoutes from './utilisasi-cpu.routes.js';
+import utilisasiMemoryRoutes from './utilisasi-memory.routes.js';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/sdm', sdmRoutes);
 router.use('/ketersediaan/scmc', ketersediaanScmcRoutes);
 router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
 router.use('/utilisasi/cpu', utilisasiCpuRoutes);
+router.use('/utilisasi/memory', utilisasiMemoryRoutes);
 
 export default router;
