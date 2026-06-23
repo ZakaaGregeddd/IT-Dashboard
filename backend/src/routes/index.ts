@@ -17,7 +17,6 @@ import utilisasiMemoryDbRoutes from './utilisasi-memory-db.routes.js';
 import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
 import utilisasiStorageDbRoutes from './utilisasi-storage-db.routes.js';
 import utilisasiWanBackupRoutes from './utilisasi-wan-backup.routes.js';
-import utilisasiCpuAppRoutes from './utilisasi-cpu-app.routes.js';
 import utilisasiBandwidthRoutes from './utilisasi-bandwidth.routes.js';
 
 const router = Router();
@@ -40,7 +39,6 @@ router.use('/utilisasi/memory-database', utilisasiMemoryDbRoutes);
 router.use('/utilisasi/storage', utilisasiStorageRoutes);
 router.use('/utilisasi/storage-database', utilisasiStorageDbRoutes);
 router.use('/utilisasi/wan-backup', utilisasiWanBackupRoutes);
-router.use('/utilisasi/cpu-app', utilisasiCpuAppRoutes);
 router.use('/utilisasi/bandwidth', utilisasiBandwidthRoutes);
 
 export default router;

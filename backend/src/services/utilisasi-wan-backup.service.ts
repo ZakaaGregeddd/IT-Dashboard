@@ -59,7 +59,7 @@ export class UtilisasiWanBackupService {
       };
     }
 
-    const activeMaster = currentMaster || latestMaster;
+    const activeMaster = (currentMaster || latestMaster)!;
     const detail_ketersediaan_backup = activeMaster.detail_ketersediaan_backup.map((s) => {
       const currentMatch = currentMaster?.detail_ketersediaan_backup.find(
         (c) => c.lokasi.toLowerCase() === s.lokasi.toLowerCase()
