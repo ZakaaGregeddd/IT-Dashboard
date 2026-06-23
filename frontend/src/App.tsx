@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuDbPage, UtilisasiMemoryDbPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuDbPage, UtilisasiMemoryDbPage, UtilisasiStorageDbPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -84,6 +84,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-memory-database-ellipse-dan-cisea') {
       return <UtilisasiMemoryDbPage />;
+    }
+    if (currentPath === '/utilisasi-storage-database-ellipse-dan-cisea') {
+      return <UtilisasiStorageDbPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';

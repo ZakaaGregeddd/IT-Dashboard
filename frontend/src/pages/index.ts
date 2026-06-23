@@ -12,3 +12,4 @@ export { UtilisasiMemoryServerPage } from '../features/dashboard/pages/Utilisasi
 export { UtilisasiStorageServerPage } from '../features/dashboard/pages/UtilisasiStorageServerPage';
 export { UtilisasiCpuDbPage } from '../features/dashboard/pages/UtilisasiCpuDbPage';
 export { UtilisasiMemoryDbPage } from '../features/dashboard/pages/UtilisasiMemoryDbPage';
+export { UtilisasiStorageDbPage } from '../features/dashboard/pages/UtilisasiStorageDbPage';
