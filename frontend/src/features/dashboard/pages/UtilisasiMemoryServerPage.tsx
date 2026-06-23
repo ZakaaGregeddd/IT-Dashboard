@@ -26,16 +26,16 @@ ChartJS.register(
   Legend
 );
 
-interface CPUDetail {
+interface MemoryDetail {
   id?: string;
   urutan: number;
   nama_server: string;
-  cpu_cores: number;
-  utilisasi_ghz: number;
+  memory_gb: number;
+  utilisasi_gb: number;
   utilisasi_persen: number;
 }
 
-interface CPUData {
+interface MemoryData {
   id?: string;
   bulan: number;
   tahun: number;
@@ -43,10 +43,8 @@ interface CPUData {
   total_kapasitas: number;
   total_utilisasi: number;
   total_free: number;
-  total_cpu_cores: number;
-  total_utilisasi_ghz: number;
   target_utilisasi_persen: number;
-  detail_utilisasi_cpu: CPUDetail[];
+  detail_utilisasi_memory: MemoryDetail[];
 }
 
 interface FilterSelectProps {
@@ -83,7 +81,7 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
-export const UtilisasiCpuServerPage: React.FC = () => {
+export const UtilisasiMemoryServerPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
 
@@ -91,11 +89,11 @@ export const UtilisasiCpuServerPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input states
-  const [serverRows, setServerRows] = useState<CPUDetail[]>([]);
+  const [serverRows, setServerRows] = useState<MemoryDetail[]>([]);
   const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
 
   // Historical data for YTD Chart
-  const [allCpuRecords, setAllCpuRecords] = useState<CPUData[]>([]);
+  const [allMemoryRecords, setAllMemoryRecords] = useState<MemoryData[]>([]);
 
   // YTD filters
   const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 3).toString());
@@ -109,13 +107,13 @@ export const UtilisasiCpuServerPage: React.FC = () => {
   // Fetch all historical records on mount for YTD Chart
   const fetchAllHistoricalData = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/utilisasi/cpu');
+      const response = await fetch('http://localhost:5000/api/utilisasi/memory');
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
-        setAllCpuRecords(result.data);
+        setAllMemoryRecords(result.data);
       }
     } catch (error) {
-      console.error('Failed to fetch CPU historical data:', error);
+      console.error('Failed to fetch Memory historical data:', error);
     }
   };
 
@@ -129,13 +127,13 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       const monthNum = monthsNumMap[bulan] || 1;
       try {
         setIsLoading(true);
-        const response = await fetch(`http://localhost:5000/api/utilisasi/cpu?bulan=${monthNum}&tahun=${tahun}`);
+        const response = await fetch(`http://localhost:5000/api/utilisasi/memory?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_cpu)) {
-          const parsed = result.data.detail_utilisasi_cpu.map((item: any) => ({
+        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory)) {
+          const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
             ...item,
-            cpu_cores: parseInt(item.cpu_cores, 10) || 0,
-            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
+            memory_gb: parseInt(item.memory_gb, 10) || 0,
+            utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
             utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
           }));
           setServerRows(parsed);
@@ -144,7 +142,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
           setServerRows([]);
         }
       } catch (error) {
-        console.error('Failed to fetch CPU active data:', error);
+        console.error('Failed to fetch Memory active data:', error);
       } finally {
         setIsLoading(false);
       }
@@ -153,21 +151,21 @@ export const UtilisasiCpuServerPage: React.FC = () => {
   }, [tahun, bulan]);
 
   // Compute live totals
-  const totalCores = serverRows.reduce((acc, row) => acc + (row.cpu_cores || 0), 0);
-  const totalGhz = serverRows.reduce((acc, row) => acc + (row.utilisasi_ghz || 0), 0);
-  const avgUtilisasiPercent = totalCores > 0 ? Math.round((totalGhz / totalCores) * 100) : 0;
+  const totalMemory = serverRows.reduce((acc, row) => acc + (row.memory_gb || 0), 0);
+  const totalUtilMemory = serverRows.reduce((acc, row) => acc + (row.utilisasi_gb || 0), 0);
+  const avgUtilisasiPercent = totalMemory > 0 ? Math.round((totalUtilMemory / totalMemory) * 100) : 0;
 
   // Handle edit row inputs
-  const handleInputChange = (index: number, field: 'nama_server' | 'cpu_cores' | 'utilisasi_ghz', val: string) => {
+  const handleInputChange = (index: number, field: 'nama_server' | 'memory_gb' | 'utilisasi_gb', val: string) => {
     setServerRows((prev) => {
       const updated = [...prev];
       if (field === 'nama_server') {
         updated[index] = { ...updated[index], [field]: val };
       } else {
         const parsed = parseFloat(val) || 0;
-        const currentCores = field === 'cpu_cores' ? parsed : (updated[index].cpu_cores || 0);
-        const currentGhz = field === 'utilisasi_ghz' ? parsed : (updated[index].utilisasi_ghz || 0);
-        const calculatedPercent = currentCores > 0 ? Math.round((currentGhz / currentCores) * 100) : 0;
+        const currentMemory = field === 'memory_gb' ? parsed : (updated[index].memory_gb || 0);
+        const currentUtil = field === 'utilisasi_gb' ? parsed : (updated[index].utilisasi_gb || 0);
+        const calculatedPercent = currentMemory > 0 ? Math.round((currentUtil / currentMemory) * 100) : 0;
         
         updated[index] = {
           ...updated[index],
@@ -186,8 +184,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       {
         urutan: prev.length + 1,
         nama_server: '',
-        cpu_cores: 0,
-        utilisasi_ghz: 0,
+        memory_gb: 0,
+        utilisasi_gb: 0,
         utilisasi_persen: 0
       }
     ]);
@@ -218,14 +216,14 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         id: row.id,
         urutan: row.urutan,
         nama_server: row.nama_server,
-        cpu_cores: row.cpu_cores,
-        utilisasi_ghz: row.utilisasi_ghz,
+        memory_gb: row.memory_gb,
+        utilisasi_gb: row.utilisasi_gb,
         utilisasi_persen: row.utilisasi_persen
       }))
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/utilisasi/cpu', {
+      const response = await fetch('http://localhost:5000/api/utilisasi/memory', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -237,11 +235,11 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         setShowToast(true);
         setTimeout(() => setShowToast(false), 3000);
         fetchAllHistoricalData();
-        if (result.data && result.data.detail_utilisasi_cpu) {
-          const parsed = result.data.detail_utilisasi_cpu.map((item: any) => ({
+        if (result.data && result.data.detail_utilisasi_memory) {
+          const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
             ...item,
-            cpu_cores: parseInt(item.cpu_cores, 10) || 0,
-            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
+            memory_gb: parseInt(item.memory_gb, 10) || 0,
+            utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
             utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
           }));
           setServerRows(parsed);
@@ -251,7 +249,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         alert('Gagal menyimpan data: ' + result.message);
       }
     } catch (error) {
-      console.error('Failed to save CPU data:', error);
+      console.error('Failed to save Memory data:', error);
       alert('Terjadi kesalahan koneksi saat menyimpan data.');
     }
   };
@@ -261,14 +259,14 @@ export const UtilisasiCpuServerPage: React.FC = () => {
     labels: serverRows.map(r => r.nama_server || `Server ${r.urutan}`),
     datasets: [
       {
-        label: 'CPU Cores',
-        data: serverRows.map(r => r.cpu_cores),
+        label: 'Memory (GB)',
+        data: serverRows.map(r => r.memory_gb),
         backgroundColor: '#0f2e60',
         borderRadius: 4
       },
       {
-        label: 'Utilisasi Cores',
-        data: serverRows.map(r => r.utilisasi_ghz),
+        label: 'Utilisasi (GB)',
+        data: serverRows.map(r => r.utilisasi_gb),
         backgroundColor: '#f59e0b',
         borderRadius: 4
       }
@@ -318,17 +316,17 @@ export const UtilisasiCpuServerPage: React.FC = () => {
     selectedYears.push(startYear);
   }
 
-  const getYearlyValue = (yr: string, type: 'cores' | 'utilisasi'): number => {
-    const yearRecs = allCpuRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
+  const getYearlyValue = (yr: string, type: 'capacity' | 'utilisasi'): number => {
+    const yearRecs = allMemoryRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
     if (yearRecs.length === 0) {
       if (yr === tahun) {
-        return type === 'cores' ? totalCores : totalGhz;
+        return type === 'capacity' ? totalMemory : totalUtilMemory;
       }
       return 0;
     }
     let sum = 0;
     yearRecs.forEach((rec) => {
-      sum += type === 'cores' ? (Number(rec.total_cpu_cores) || 0) : (Number(rec.total_utilisasi_ghz) || 0);
+      sum += type === 'capacity' ? (Number(rec.total_kapasitas) || 0) : (Number(rec.total_utilisasi) || 0);
     });
     return parseFloat((sum / yearRecs.length).toFixed(2));
   };
@@ -337,8 +335,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
     labels: selectedYears,
     datasets: [
       {
-        label: 'CPU Cores',
-        data: selectedYears.map((yr) => getYearlyValue(yr, 'cores')),
+        label: 'Memory Capacity (GB)',
+        data: selectedYears.map((yr) => getYearlyValue(yr, 'capacity')),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
         tension: 0.4,
@@ -348,7 +346,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         fill: false
       },
       {
-        label: 'Utilisasi Cores',
+        label: 'Utilisasi Memory (GB)',
         data: selectedYears.map((yr) => getYearlyValue(yr, 'utilisasi')),
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
@@ -401,7 +399,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       <div className="flex-1 flex items-center justify-center bg-slate-50 min-h-[300px]">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-4 border-primary-900 border-t-amber-500 rounded-full animate-spin"></div>
-          <span className="text-xs text-slate-500 font-medium">Memuat Data Utilisasi CPU Server...</span>
+          <span className="text-xs text-slate-500 font-medium">Memuat Data Utilisasi Memory Server...</span>
         </div>
       </div>
     );
@@ -421,7 +419,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       {/* Page Title & Controls */}
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Utilisasi CPU Server</h2>
+          <h2 className="text-xl font-bold text-slate-800">Utilisasi Memory Server</h2>
         </div>
 
         {/* Dropdowns */}
@@ -455,7 +453,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
       {/* Main Stacked Layout */}
       <div className="flex flex-col gap-5 w-full">
         
-        {/* Row 0: Rekomendasi Kapasitas CPU */}
+        {/* Row 0: Rekomendasi Kapasitas Memori */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4 w-full">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
@@ -474,20 +472,20 @@ export const UtilisasiCpuServerPage: React.FC = () => {
               </div>
               <div className="flex flex-col gap-1">
                 <h3 className="text-sm font-bold text-slate-800">
-                  Rekomendasi Kapasitas CPU ({bulan} {tahun})
+                  Rekomendasi Kapasitas Memori ({bulan} {tahun})
                 </h3>
                 <p className="text-xs text-slate-500 leading-relaxed">
                   {avgUtilisasiPercent >= targetUtilisasi ? (
                     <>
-                      Rata-rata utilisasi CPU saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas CPU.</strong>
+                      Rata-rata utilisasi memori saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas memori.</strong>
                     </>
                   ) : serverRows.some(r => r.nama_server && r.utilisasi_persen >= targetUtilisasi) ? (
                     <>
-                      Rata-rata utilisasi CPU saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat server individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada server tersebut.
+                      Rata-rata utilisasi memori saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat server individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada server tersebut.
                     </>
                   ) : (
                     <>
-                      Rata-rata utilisasi CPU saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas CPU saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan kapasitas.
+                      Rata-rata utilisasi memori saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas memori saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan kapasitas.
                     </>
                   )}
                 </p>
@@ -547,7 +545,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         {/* Row 1: Input Data (Full Width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <h3 className="text-xs font-bold text-primary-900">Data Entri CPU</h3>
+            <h3 className="text-xs font-bold text-primary-900">Data Entri Memori</h3>
             <button 
               type="button"
               onClick={handleAddRow}
@@ -564,8 +562,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                 <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">NO</th>
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">NAMA SERVER</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">CPU CORES</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">UTILISASI CORES</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">MEMORY (GB)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">UTILISASI (GB)</th>
                   <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40">UTILISASI (%)</th>
                   <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-20">AKSI</th>
                 </tr>
@@ -588,8 +586,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                     <td className="py-1.5 px-3 border border-slate-200">
                       <input 
                         type="number"
-                        value={row.cpu_cores === 0 ? '' : row.cpu_cores}
-                        onChange={(e) => handleInputChange(index, 'cpu_cores', e.target.value)}
+                        value={row.memory_gb === 0 ? '' : row.memory_gb}
+                        onChange={(e) => handleInputChange(index, 'memory_gb', e.target.value)}
                         placeholder="0"
                         min="0"
                         className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
@@ -599,8 +597,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                       <input 
                         type="number"
                         step="0.01"
-                        value={row.utilisasi_ghz === 0 ? '' : row.utilisasi_ghz}
-                        onChange={(e) => handleInputChange(index, 'utilisasi_ghz', e.target.value)}
+                        value={row.utilisasi_gb === 0 ? '' : row.utilisasi_gb}
+                        onChange={(e) => handleInputChange(index, 'utilisasi_gb', e.target.value)}
                         placeholder="0.00"
                         min="0"
                         className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
@@ -629,10 +627,10 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                       RATA-RATA / TOTAL
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {totalCores}
+                      {totalMemory}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {totalGhz.toFixed(2)}
+                      {totalUtilMemory.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                       {avgUtilisasiPercent}%
@@ -658,14 +656,14 @@ export const UtilisasiCpuServerPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   const monthNum = monthsNumMap[bulan] || 1;
-                  fetch(`http://localhost:5000/api/utilisasi/cpu?bulan=${monthNum}&tahun=${tahun}`)
+                  fetch(`http://localhost:5000/api/utilisasi/memory?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_cpu)) {
-                        const parsed = result.data.detail_utilisasi_cpu.map((item: any) => ({
+                      if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory)) {
+                        const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
                           ...item,
-                          cpu_cores: parseInt(item.cpu_cores, 10) || 0,
-                          utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
+                          memory_gb: parseInt(item.memory_gb, 10) || 0,
+                          utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
                           utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
                         }));
                         setServerRows(parsed);
@@ -692,8 +690,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         {/* Row 2: Monthly Bar Chart (Full Width) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Visualisasi - CPU Cores vs Utilisasi</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Perbandingan Kapasitas Cores dengan Utilisasi Cores ({bulan} {tahun})</p>
+            <h3 className="text-xs font-semibold text-slate-800">Visualisasi - Memory Capacity vs Utilisasi</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Perbandingan Kapasitas Memori dengan Utilisasi Memori ({bulan} {tahun})</p>
           </div>
           <div className="p-4 flex flex-col justify-center items-center h-[300px] relative">
             {serverRows.length > 0 ? (
@@ -708,7 +706,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Tren CPU Cores vs Utilisasi Cores</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Memory Capacity vs Utilisasi Memory</p>
             
             {/* Year Range Selectors */}
             <div className="flex items-center gap-2 mt-1">
@@ -741,7 +739,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmSave}
         title="Konfirmasi Penyimpanan"
-        message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi CPU Server untuk periode ${bulan} ${tahun}?`}
+        message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi Memory Server untuk periode ${bulan} ${tahun}?`}
       />
 
     </div>
@@ -772,14 +770,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
           <button 
-            type="button"
+            type="button" 
             onClick={onClose}
             className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50"
           >
             Tidak
           </button>
           <button 
-            type="button"
+            type="button" 
             onClick={onConfirm}
             className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
           >

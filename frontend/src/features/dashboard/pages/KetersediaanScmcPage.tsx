@@ -74,6 +74,11 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
+const DEFAULT_ROWS: SCMCDetail[] = [
+  { urutan: 1, keterangan: 'Realisasi Jumlah Laporan', jumlah: 0 },
+  { urutan: 2, keterangan: 'Jumlah Laporan Tersedia', jumlah: 0 }
+];
+
 export const KetersediaanScmcPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
@@ -82,7 +87,7 @@ export const KetersediaanScmcPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input state
-  const [scmcRows, setScmcRows] = useState<SCMCDetail[]>([]);
+  const [scmcRows, setScmcRows] = useState<SCMCDetail[]>(DEFAULT_ROWS);
 
   // Historical data for YTD Chart
   const [allScmcRecords, setAllScmcRecords] = useState<SCMCData[]>([]);
@@ -121,13 +126,14 @@ export const KetersediaanScmcPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/ketersediaan/scmc?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_scmc)) {
+        if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_scmc) && result.data.detail_ketersediaan_scmc.length > 0) {
           setScmcRows(result.data.detail_ketersediaan_scmc);
         } else {
-          setScmcRows([]);
+          setScmcRows(DEFAULT_ROWS);
         }
       } catch (error) {
         console.error('Failed to fetch SCMC active data:', error);
+        setScmcRows(DEFAULT_ROWS);
       } finally {
         setIsLoading(false);
       }
@@ -432,9 +438,14 @@ export const KetersediaanScmcPage: React.FC = () => {
                   fetch(`http://localhost:5000/api/ketersediaan/scmc?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_scmc)) {
+                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_scmc) && result.data.detail_ketersediaan_scmc.length > 0) {
                         setScmcRows(result.data.detail_ketersediaan_scmc);
+                      } else {
+                        setScmcRows(DEFAULT_ROWS);
                       }
+                    })
+                    .catch(() => {
+                      setScmcRows(DEFAULT_ROWS);
                     });
                 }}
                 className="px-4 py-1.5 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] hover:bg-slate-100 transition-colors uppercase tracking-wider"

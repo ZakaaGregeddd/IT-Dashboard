@@ -9,6 +9,8 @@ import licenseRoutes from './license.routes.js';
 import ketersediaanScmcRoutes from './ketersediaan-scmc.routes.js';
 import ketersediaanSistemRoutes from './ketersediaan-sistem.routes.js';
 import utilisasiCpuRoutes from './utilisasi-cpu.routes.js';
+import utilisasiMemoryRoutes from './utilisasi-memory.routes.js';
+import utilisasiStorageRoutes from './utilisasi-storage.routes.js';
 
 const router = Router();
 
@@ -22,5 +24,7 @@ router.use('/licenses', licenseRoutes);
 router.use('/ketersediaan/scmc', ketersediaanScmcRoutes);
 router.use('/ketersediaan/sistem', ketersediaanSistemRoutes);
 router.use('/utilisasi/cpu', utilisasiCpuRoutes);
+router.use('/utilisasi/memory', utilisasiMemoryRoutes);
+router.use('/utilisasi/storage', utilisasiStorageRoutes);
 
 export default router;

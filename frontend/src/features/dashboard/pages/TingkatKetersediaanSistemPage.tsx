@@ -77,6 +77,13 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
+const DEFAULT_ROWS: SistemDetail[] = [
+  { urutan: 1, nama_sistem: 'Ellipse', rencana_persen: 0, realisasi_persen: 0 },
+  { urutan: 2, nama_sistem: 'Email', rencana_persen: 0, realisasi_persen: 0 },
+  { urutan: 3, nama_sistem: 'CISEA', rencana_persen: 0, realisasi_persen: 0 },
+  { urutan: 4, nama_sistem: 'SIMKES', rencana_persen: 0, realisasi_persen: 0 }
+];
+
 export const TingkatKetersediaanSistemPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
@@ -85,7 +92,7 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input state
-  const [sistemRows, setSistemRows] = useState<SistemDetail[]>([]);
+  const [sistemRows, setSistemRows] = useState<SistemDetail[]>(DEFAULT_ROWS);
 
   // Historical data for YTD Chart
   const [allSistemRecords, setAllSistemRecords] = useState<SistemData[]>([]);
@@ -124,7 +131,7 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/ketersediaan/sistem?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_sistem)) {
+        if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_sistem) && result.data.detail_ketersediaan_sistem.length > 0) {
           // Parse decimal objects to numbers if needed
           const parsed = result.data.detail_ketersediaan_sistem.map((item: any) => ({
             ...item,
@@ -133,10 +140,11 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
           }));
           setSistemRows(parsed);
         } else {
-          setSistemRows([]);
+          setSistemRows(DEFAULT_ROWS);
         }
       } catch (error) {
         console.error('Failed to fetch sistem active data:', error);
+        setSistemRows(DEFAULT_ROWS);
       } finally {
         setIsLoading(false);
       }
@@ -336,12 +344,12 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
     },
     scales: {
       y: {
-        beginAtZero: false,
-        min: 90,
-        max: 102,
+        beginAtZero: true,
+        min: 0,
+        max: 110,
         ticks: {
           font: { family: 'Inter', size: 10 },
-          stepSize: 1,
+          stepSize: 10,
           callback: function(value: any) {
             if (value > 100) return null;
             return value + '%';
@@ -481,14 +489,19 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
                   fetch(`http://localhost:5000/api/ketersediaan/sistem?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_sistem)) {
+                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_sistem) && result.data.detail_ketersediaan_sistem.length > 0) {
                         const parsed = result.data.detail_ketersediaan_sistem.map((item: any) => ({
                           ...item,
                           rencana_persen: parseFloat(item.rencana_persen) || 0,
                           realisasi_persen: parseFloat(item.realisasi_persen) || 0
                         }));
                         setSistemRows(parsed);
+                      } else {
+                        setSistemRows(DEFAULT_ROWS);
                       }
+                    })
+                    .catch(() => {
+                      setSistemRows(DEFAULT_ROWS);
                     });
                 }}
                 className="px-4 py-1.5 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] hover:bg-slate-100 transition-colors uppercase tracking-wider"
