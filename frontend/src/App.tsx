@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-<<<<<<< HEAD
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage } from '@/pages';
-=======
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage } from '@/pages';
->>>>>>> 36ad60cda462fe2e60d5e7bd02db2560b60918c3
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuDbPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -82,6 +78,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-storage-server') {
       return <UtilisasiStorageServerPage />;
+    }
+    if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
+      return <UtilisasiCpuDbPage />;
     }
     // Find the mapped folder name for the current path or fallback to dashboard
     const folderName = templatePaths[currentPath] || '1dashboard';
