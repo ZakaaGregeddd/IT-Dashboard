@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings } from 'lucide-react';
+import { setIsDirtyCheck } from '@/utils/navigation';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -99,6 +100,26 @@ export const LisensiPage: React.FC = () => {
 
   const [bulan, setBulan] = useState<string>(getCurrentMonthName());
   const [tahun, setTahun] = useState<string>(getCurrentYear());
+
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'Ada perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    setIsDirtyCheck(() => isDirty);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      setIsDirtyCheck(null);
+    };
+  }, [isDirty]);
 
   // License rows currently being edited
   const [licenseRows, setLicenseRows] = useState<LicenseDetail[]>([]);
@@ -222,8 +243,10 @@ export const LisensiPage: React.FC = () => {
             tanggal_expired: formatDateForInput(d.tanggal_expired)
           }));
           setLicenseRows(formatted);
+          setIsDirty(false);
         } else {
           setLicenseRows([]);
+          setIsDirty(false);
         }
       } catch (error) {
         console.error('Failed to fetch active license data:', error);
@@ -259,6 +282,7 @@ export const LisensiPage: React.FC = () => {
 
   // Table row editing handlers (using unique urutan identifier for paginated/filtered list)
   const handleRowChangeByUrutan = (urutan: number, field: keyof LicenseDetail, val: any) => {
+    setIsDirty(true);
     setLicenseRows((prev) => {
       return prev.map((row) => {
         if (row.urutan === urutan) {
@@ -272,6 +296,7 @@ export const LisensiPage: React.FC = () => {
   // Add row (initialize with empty/blank values to allow user typing)
   // Resets filters and paginates to the last page so the new row is immediately visible
   const handleAddRow = () => {
+    setIsDirty(true);
     setEntryEnableNameFilter(false);
     setEntryEnableDateFilter(false);
     setEntryEnableStatusFilter(false);
@@ -305,6 +330,7 @@ export const LisensiPage: React.FC = () => {
 
   // Delete row by unique urutan identifier
   const handleDeleteRowByUrutan = (urutan: number) => {
+    setIsDirty(true);
     setLicenseRows((prev) => {
       const updated = prev.filter((row) => row.urutan !== urutan);
       // Re-map the urutan sequential numbering
@@ -355,6 +381,7 @@ export const LisensiPage: React.FC = () => {
       const result = await response.json();
       if (result.success) {
         setShowToast(true);
+        setIsDirty(false);
         setTimeout(() => setShowToast(false), 3000);
         fetchAllHistoricalData();
         if (result.data) {
@@ -1388,8 +1415,10 @@ export const LisensiPage: React.FC = () => {
                         tanggal_expired: formatDateForInput(d.tanggal_expired)
                       }));
                       setLicenseRows(formatted);
+                      setIsDirty(false);
                     } else {
                       setLicenseRows([]);
+                      setIsDirty(false);
                     }
                   });
               }}
