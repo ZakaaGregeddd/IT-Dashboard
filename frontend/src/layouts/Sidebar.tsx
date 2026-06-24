@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ChevronDown, Database, LayoutDashboard, Monitor, ShieldCheck } from 'lucide-react';
 import { cn } from '@/components/ui/Card';
@@ -80,8 +81,8 @@ const convertToSlug = (text: string): string => {
     .replace(/\s+/g, '-');   // Replace spaces with dash
 };
 
-export const SidebarSubItem: React.FC<{ label: string; currentPath: string }> = ({ label, currentPath }) => {
-  const slug = convertToSlug(label);
+export const SidebarSubItem: React.FC<{ label: string; currentPath: string; to?: string; isNested?: boolean }> = ({ label, currentPath, to, isNested }) => {
+  const slug = to || convertToSlug(label);
   const isActive = currentPath === slug;
   return (
     <a 
@@ -90,13 +91,50 @@ export const SidebarSubItem: React.FC<{ label: string; currentPath: string }> = 
         navigateTo(slug);
       }}
       className={cn(
-        "pl-9 pr-4 py-1.5 text-[9px] transition-colors leading-snug ml-6 cursor-pointer block",
+        "pr-4 py-1.5 text-[9px] transition-colors leading-snug cursor-pointer block",
+        isNested ? "pl-12 ml-6 font-medium" : "pl-9 ml-6",
         isActive ? "text-amber-500 font-semibold" : "text-slate-300 hover:text-white"
       )}
       href={slug}
     >
       {label}
     </a>
+  );
+};
+
+interface SidebarSubCategoryProps {
+  label: string;
+  active?: boolean;
+  children: React.ReactNode;
+}
+
+const SidebarSubCategory: React.FC<SidebarSubCategoryProps> = ({ label, active, children }) => {
+  const [isOpen, setIsOpen] = useState(active || false);
+
+  useEffect(() => {
+    if (active) {
+      setIsOpen(true);
+    }
+  }, [active]);
+
+  return (
+    <div className="flex flex-col mt-0.5 mb-0.5">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "w-full flex items-start pl-9 pr-4 py-1.5 text-[9px] transition-colors leading-snug ml-6 cursor-pointer text-left relative",
+          active ? "text-amber-500 font-semibold" : "text-slate-300 hover:text-white"
+        )}
+      >
+        <ChevronDown className={cn("w-2.5 h-2.5 shrink-0 transition-transform absolute left-3.5 top-[7px]", isOpen ? "" : "transform -rotate-90")} />
+        <span className="leading-tight pr-2">{label}</span>
+      </button>
+      {isOpen && (
+        <div className="flex flex-col py-0.5">
+          {children}
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -252,9 +290,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
             icon={<Database className="w-full h-full" />}
             active={isItOperationActive}
           >
-            {itOperationItems.map((item, idx) => (
-              <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
-            ))}
+            <SidebarSubItem label="Utilisasi CPU Server" currentPath={currentPath} to="/utilisasi-cpu-server" />
+            <SidebarSubItem label="Utilisasi Memory Server" currentPath={currentPath} to="/utilisasi-memory-server" />
+            <SidebarSubItem label="Utilisasi Storage Server" currentPath={currentPath} to="/utilisasi-storage-server" />
+            {/* Sub-Category: Aplikasi */}
+            <SidebarSubCategory 
+              label="Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket"
+              active={[
+                '/utilisasi-cpu-aplikasi-ellipse-dan-cisea'
+              ].includes(currentPath)}
+            >
+              <SidebarSubItem label="CPU" currentPath={currentPath} to="/utilisasi-cpu-aplikasi-ellipse-dan-cisea" isNested />
+            </SidebarSubCategory>
+            
+            {/* Sub-Category: Database */}
+            <SidebarSubCategory 
+              label="Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND)"
+              active={[
+                '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea',
+                '/utilisasi-memory-database-ellipse-dan-cisea',
+                '/utilisasi-storage-database-ellipse-dan-cisea'
+              ].includes(currentPath)}
+            >
+              <SidebarSubItem label="CPU Database" currentPath={currentPath} to="/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea" isNested />
+              <SidebarSubItem label="Memory Database" currentPath={currentPath} to="/utilisasi-memory-database-ellipse-dan-cisea" isNested />
+              <SidebarSubItem label="Storage" currentPath={currentPath} to="/utilisasi-storage-database-ellipse-dan-cisea" isNested />
+            </SidebarSubCategory>
+
+            <SidebarSubItem label="Rata-rata Utilisasi Bandwidth Jaringan" currentPath={currentPath} to="/rata-rata-utilisasi-bandwidth-jaringan" />
+            <SidebarSubItem label="Ketersedian Sistem Backup Ellipse, Email, DR Ellipse, Jaringan (WAN) dan CISEA" currentPath={currentPath} to="/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea" />
+            <SidebarSubItem label="Tingkat Ketersediaan Sistem Keamanan TI" currentPath={currentPath} to="/tingkat-ketersediaan-sistem-keamanan-ti" />
+            <SidebarSubItem label="Penyelesaian Pekerjaan PC Support" currentPath={currentPath} to="/penyelesaian-pekerjaan-pc-support" />
+            <SidebarSubItem label="Penyelesaian Permintaan Layanan Aplikasi TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-aplikasi-ti" />
+            <SidebarSubItem label="Penyelesaian Permintaan Layanan TI di Operasional TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-ti-di-operasional-ti" />
+            <SidebarSubItem label="Realisasi Restore Ellipse dan Email Sesuai Kebutuhan" currentPath={currentPath} to="/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan" />
           </SidebarMenuItem>
         </nav>
       </div>
