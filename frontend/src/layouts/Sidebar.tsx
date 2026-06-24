@@ -143,24 +143,6 @@ const appDevItems = [
   "Tingkat ketersediaan sistem"
 ];
 
-const itOperationItems = [
-  "utilisasi CPU server",
-  "utilisasi memory server",
-  "utilisasi storage server",
-  "utilisasi CPU aplikasi",
-  "utilisasi memory aplikasi",
-  "utilisasi CPU database aplikasi ellipse dan CISEA",
-  "utilisasi memory database Ellipse dan CISEA",
-  "utilisasi storage database Ellipse dan CISEA",
-  "rata-rata utilisasi bandwidth jaringan",
-  "ketersedian sistem backup Ellipse, email, DR Ellipse, jaringan (WAN) dan CISEA",
-  "Tingkat ketersediaan sistem keamanan TI",
-  "Penyelesaian perkerjaan PC support",
-  "penyelesaian permintaan layanan aplikasi TI",
-  "penyelesaian permintaan layanan TI di opernasional TI",
-  "Realisasi restore ellipse dan email sesuai kebutuhan"
-];
-
 // Title Case formatter with rules for prepositions and acronyms
 const formatDropdownText = (text: string): string => {
   const lowercaseWords = ['dan', 'di'];
@@ -230,7 +212,23 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
 
   const isAppDevActive = appDevItems.some(item => convertToSlug(item) === currentPath);
 
-  const isItOperationActive = itOperationItems.some(item => convertToSlug(item) === currentPath);
+  const isItOperationActive = [
+    '/utilisasi-cpu-server',
+    '/utilisasi-memory-server',
+    '/utilisasi-storage-server',
+    '/utilisasi-cpu-aplikasi',
+    '/utilisasi-memory-aplikasi',
+    '/utilisasi-cpu-database',
+    '/utilisasi-memory-database',
+    '/utilisasi-storage-database',
+    '/rata-rata-utilisasi-bandwidth-jaringan',
+    '/ketersedian-sistem-backup',
+    '/ketersediaan-sistem-keamanan-ti',
+    '/penyelesaian-pekerjaan-pc-support',
+    '/penyelesaian-permintaan-layanan-aplikasi-ti',
+    '/penyelesaian-permintaan-layanan-ti',
+    '/realisasi-restore-ellipse-dan-email'
+  ].includes(currentPath);
 
   return (
     <aside 

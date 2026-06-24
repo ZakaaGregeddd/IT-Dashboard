@@ -1,33 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { MainLayout } from '@/layouts/MainLayout';
-import { TemplateLoader } from '@/components/TemplateLoader';
+import { MainLayout } from './layouts/MainLayout';
 import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage, UtilisasiWanBackupPage, KetersediaanKeamananPage, PcSupportPage, RestorePage, OperasionalTiPage, LayananAppPage, UtilisasiMemoryAplikasiPage } from '@/pages';
-
-const templatePaths: Record<string, string> = {
-  '/': '1dashboard',
-  '/dashboard': '1dashboard',
-  '/data-overall': '2dataoverall',
-  '/realisasi-program-kerja-ti': '3realisasi',
-  '/realisasi-rkap-ti': '4rkap',
-  '/lisensi': '6lisensi',
-  '/ketersediaan-report-aplikasi-scmc': '7scmc',
-  '/tingkat-ketersediaan-sistem': '8sistem',
-  '/utilisasi-cpu-server': '9cpuserver',
-  '/utilisasi-memory-server': '10memoryerver',
-  '/utilisasi-storage-server': '11storageserver',
-  '/utilisasi-cpu-aplikasi': '12cpuapp',
-  '/utilisasi-memory-aplikasi': '23memoryapp',
-  '/utilisasi-cpu-database': '13cpudb',
-  '/utilisasi-memory-database': '14memorydb',
-  '/utilisasi-storage-database': '15storagedb',
-  '/rata-rata-utilisasi-bandwidth-jaringan': '16jaringan',
-  '/ketersedian-sistem-backup': '17wan',
-  '/ketersediaan-sistem-keamanan-ti': '18keamanan',
-  '/penyelesaian-pekerjaan-pc-support': '19pcsupport',
-  '/penyelesaian-permintaan-layanan-aplikasi-ti': '20layananapp',
-  '/penyelesaian-permintaan-layanan-ti': '21operasiTI',
-  '/realisasi-restore-ellipse-dan-email': '22restore'
-};
 
 const App: React.FC = () => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
@@ -116,9 +89,8 @@ const App: React.FC = () => {
     if (currentPath === '/penyelesaian-permintaan-layanan-aplikasi-ti') {
       return <LayananAppPage />;
     }
-    // Find the mapped folder name for the current path or fallback to dashboard
-    const folderName = templatePaths[currentPath] || '1dashboard';
-    return <TemplateLoader folderName={folderName} />;
+    // Default fallback to Dashboard
+    return <DashboardPage />;
   };
 
   return (
