@@ -292,7 +292,7 @@ export const LisensiPage: React.FC = () => {
           total_lisensi: 0,
           satuan: 'Unit',
           tanggal_expired: '',
-          status: 'Aktif',
+          status: 'Lisensi aktif',
           catatan: ''
         }
       ];
@@ -367,7 +367,7 @@ export const LisensiPage: React.FC = () => {
           setLicenseRows(formatted);
         }
       } else {
-        alert('Gagal menyimpan data: ' + result.message);
+        alert('Gagal menyimpan data: ' + result.message + (result.errors ? '\nDetail: ' + JSON.stringify(result.errors) : ''));
       }
     } catch (error) {
       console.error('Failed to save license data:', error);
@@ -1203,9 +1203,9 @@ export const LisensiPage: React.FC = () => {
                     className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
                   >
                     <option value="Semua">Semua Status</option>
-                    <option value="Aktif">Lisensi aktif</option>
-                    <option value="Proses Renewal">Lisensi aktif, Proses Renewal</option>
-                    <option value="Autodebet">Lisensi aktif, Autodebet</option>
+                    <option value="Lisensi aktif">Lisensi aktif</option>
+                    <option value="Lisensi aktif, Proses Renewal">Lisensi aktif, Proses Renewal</option>
+                    <option value="Lisensi aktif, Autodebet">Lisensi aktif, Autodebet</option>
                   </select>
                 </div>
               )}
@@ -1283,9 +1283,9 @@ export const LisensiPage: React.FC = () => {
                       onChange={(e) => handleRowChangeByUrutan(row.urutan, 'status', e.target.value)}
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     >
-                      <option value="Aktif">Lisensi aktif</option>
-                      <option value="Proses Renewal">Lisensi aktif, Proses Renewal</option>
-                      <option value="Autodebet">Lisensi aktif, Autodebet</option>
+                      <option value="Lisensi aktif">Lisensi aktif</option>
+                      <option value="Lisensi aktif, Proses Renewal">Lisensi aktif, Proses Renewal</option>
+                      <option value="Lisensi aktif, Autodebet">Lisensi aktif, Autodebet</option>
                     </select>
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
