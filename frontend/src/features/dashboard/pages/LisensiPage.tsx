@@ -193,6 +193,7 @@ export const LisensiPage: React.FC = () => {
   const [entrySearchStatus, setEntrySearchStatus] = useState('Semua');
   const [entryNameSortOrder, setEntryNameSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [entryDateSortOrder, setEntryDateSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [entryTotalSortOrder, setEntryTotalSortOrder] = useState<'asc' | 'desc' | null>(null);
 
   // Reset detail filters when active detail view changes
   useEffect(() => {
@@ -214,7 +215,7 @@ export const LisensiPage: React.FC = () => {
   // Reset entry pagination page to 1 when filters or sorting change
   useEffect(() => {
     setEntryCurrentPage(1);
-  }, [entrySearchName, entryStartDate, entryEndDate, entrySearchStatus, entryNameSortOrder, entryDateSortOrder, entryEnableNameFilter, entryEnableDateFilter, entryEnableStatusFilter]);
+  }, [entrySearchName, entryStartDate, entryEndDate, entrySearchStatus, entryNameSortOrder, entryDateSortOrder, entryTotalSortOrder, entryEnableNameFilter, entryEnableDateFilter, entryEnableStatusFilter]);
 
   // Helper to format ISO Date strings for HTML date input
   const formatDateForInput = (dateVal: string | Date) => {
@@ -425,7 +426,7 @@ export const LisensiPage: React.FC = () => {
           });
 
           const remapped = merged.map((item, idx) => ({ ...item, urutan: idx + 1 }));
-          
+
           setIsDirty(true);
           return remapped;
         });
@@ -454,6 +455,7 @@ export const LisensiPage: React.FC = () => {
     setEntrySearchStatus('Semua');
     setEntryNameSortOrder(null);
     setEntryDateSortOrder(null);
+    setEntryTotalSortOrder(null);
 
     setLicenseRows((prev) => {
       const updated = [
@@ -483,7 +485,7 @@ export const LisensiPage: React.FC = () => {
       const updated = prev.filter((row) => row.urutan !== urutan);
       // Re-map the urutan sequential numbering
       const remapped = updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
-      
+
       // Ensure the current page does not exceed the new total pages
       const totalPages = Math.ceil(remapped.length / entryRowsPerPage) || 1;
       if (entryCurrentPage > totalPages) {
@@ -738,8 +740,15 @@ export const LisensiPage: React.FC = () => {
 
     // 4. Apply sorting
     const sorted = [...rows];
-    if (entryNameSortOrder || entryDateSortOrder) {
+    if (entryNameSortOrder || entryDateSortOrder || entryTotalSortOrder) {
       sorted.sort((a, b) => {
+        if (entryTotalSortOrder) {
+          const totalA = parseInt(a.total_lisensi as any, 10) || 0;
+          const totalB = parseInt(b.total_lisensi as any, 10) || 0;
+          if (totalA !== totalB) {
+            return entryTotalSortOrder === 'asc' ? totalA - totalB : totalB - totalA;
+          }
+        }
         if (entryDateSortOrder && entryNameSortOrder) {
           // Primary: Date, Secondary: Name
           const dateA = a.tanggal_expired ? new Date(a.tanggal_expired).getTime() : 0;
@@ -769,7 +778,7 @@ export const LisensiPage: React.FC = () => {
 
   const filteredEntryRows = getFilteredEntryRows();
   const totalEntryPages = Math.ceil(filteredEntryRows.length / entryRowsPerPage) || 1;
-  
+
   // Slice to get the current page's rows
   const entryStartIndex = (entryCurrentPage - 1) * entryRowsPerPage;
   const paginatedEntryRows = filteredEntryRows.slice(entryStartIndex, entryStartIndex + entryRowsPerPage);
@@ -954,7 +963,7 @@ export const LisensiPage: React.FC = () => {
               {/* Right: Sorting (Always Visible!) */}
               <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
-                
+
                 {/* Sort Nama */}
                 <div className="flex items-center gap-1.5">
                   <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
@@ -962,11 +971,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNameSortOrder(nameSortOrder === 'asc' ? null : 'asc')}
-                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        nameSortOrder === 'asc'
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${nameSortOrder === 'asc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan A-Z"
                     >
                       A-Z
@@ -974,11 +982,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNameSortOrder(nameSortOrder === 'desc' ? null : 'desc')}
-                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        nameSortOrder === 'desc'
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${nameSortOrder === 'desc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Z-A"
                     >
                       Z-A
@@ -993,11 +1000,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDateSortOrder(dateSortOrder === 'asc' ? null : 'asc')}
-                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        dateSortOrder === 'asc'
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${dateSortOrder === 'asc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Exp Date Terdekat"
                     >
                       Terdekat
@@ -1005,11 +1011,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDateSortOrder(dateSortOrder === 'desc' ? null : 'desc')}
-                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        dateSortOrder === 'desc'
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${dateSortOrder === 'desc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Exp Date Terjauh"
                     >
                       Terjauh
@@ -1105,10 +1110,10 @@ export const LisensiPage: React.FC = () => {
                     </td>
                     <td className="py-2.5 px-4 border-r border-slate-200 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${row.status === 'Aktif'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : row.status === 'Proses Renewal'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-blue-50 text-blue-700 border-blue-200'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : row.status === 'Proses Renewal'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
                         }`}>
                         {row.status}
                       </span>
@@ -1275,7 +1280,7 @@ export const LisensiPage: React.FC = () => {
             {/* Right: Sorting (Always Visible!) */}
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
-              
+
               {/* Sort Nama */}
               <div className="flex items-center gap-1.5">
                 <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
@@ -1283,11 +1288,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'asc' ? null : 'asc')}
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryNameSortOrder === 'asc'
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryNameSortOrder === 'asc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan A-Z"
                   >
                     A-Z
@@ -1295,11 +1299,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'desc' ? null : 'desc')}
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryNameSortOrder === 'desc'
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryNameSortOrder === 'desc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Z-A"
                   >
                     Z-A
@@ -1314,11 +1317,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'asc' ? null : 'asc')}
-                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryDateSortOrder === 'asc'
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryDateSortOrder === 'asc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Exp Date Terdekat"
                   >
                     Terdekat
@@ -1326,11 +1328,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'desc' ? null : 'desc')}
-                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryDateSortOrder === 'desc'
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryDateSortOrder === 'desc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Exp Date Terjauh"
                   >
                     Terjauh
@@ -1338,12 +1339,42 @@ export const LisensiPage: React.FC = () => {
                 </div>
               </div>
 
-              {(entryNameSortOrder || entryDateSortOrder) && (
+              {/* Sort Total */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-bold text-slate-500 uppercase">Total</span>
+                <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[28px] items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEntryTotalSortOrder(entryTotalSortOrder === 'asc' ? null : 'asc')}
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryTotalSortOrder === 'asc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    title="Urutkan Total Terkecil"
+                  >
+                    Terkecil
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntryTotalSortOrder(entryTotalSortOrder === 'desc' ? null : 'desc')}
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryTotalSortOrder === 'desc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                    title="Urutkan Total Terbesar"
+                  >
+                    Terbesar
+                  </button>
+                </div>
+              </div>
+
+              {(entryNameSortOrder || entryDateSortOrder || entryTotalSortOrder) && (
                 <button
                   type="button"
                   onClick={() => {
                     setEntryNameSortOrder(null);
                     setEntryDateSortOrder(null);
+                    setEntryTotalSortOrder(null);
                   }}
                   className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors"
                 >
@@ -1352,7 +1383,7 @@ export const LisensiPage: React.FC = () => {
               )}
             </div>
           </div>
- 
+
           {/* Conditionally Rendered Inputs Row */}
           {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
             <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
@@ -1369,7 +1400,7 @@ export const LisensiPage: React.FC = () => {
                   />
                 </div>
               )}
- 
+
               {/* Date Range Filter Inputs */}
               {entryEnableDateFilter && (
                 <div className="flex items-end gap-2 flex-wrap">
@@ -1396,7 +1427,7 @@ export const LisensiPage: React.FC = () => {
                   </div>
                 </div>
               )}
- 
+
               {/* Status Filter Dropdown */}
               {entryEnableStatusFilter && (
                 <div className="flex flex-col gap-1 min-w-[160px]">
@@ -1694,10 +1725,10 @@ export const LisensiPage: React.FC = () => {
         onSave={(urgent, warning) => {
           setUrgentLimit(urgent);
           setWarningLimit(warning);
-          
+
           localStorage.setItem('lisensi_urgentLimit', urgent.toString());
           localStorage.setItem('lisensi_warningLimit', warning.toString());
-          
+
           setIsConfigModalOpen(false);
         }}
       />
@@ -1990,11 +2021,10 @@ const ImportModal: React.FC<ImportModalProps> = ({
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={triggerFileSelect}
-                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
-                  isDragging
+                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${isDragging
                     ? 'border-emerald-600 bg-emerald-50/50 scale-[0.99]'
                     : 'border-slate-200 hover:border-emerald-500 hover:bg-slate-50/30'
-                }`}
+                  }`}
               >
                 <input
                   ref={fileInputRef}
