@@ -371,7 +371,7 @@ export const RealisasiProgramKerjaPage: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        max: 120,
+        max: 100,
         ticks: {
           font: { family: 'Inter', size: 10 },
           callback: (value: any) => `${value}%`

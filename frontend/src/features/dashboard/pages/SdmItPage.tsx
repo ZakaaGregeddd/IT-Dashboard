@@ -323,7 +323,15 @@ export const SdmItPage: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { font: { family: 'Inter', size: 10 } },
+        ticks: { 
+          font: { family: 'Inter', size: 10 },
+          callback: function(value) {
+            if (Number.isInteger(value)) {
+              return value;
+            }
+            return null;
+          }
+        },
         grid: { color: '#f1f5f9' }
       },
       x: {
@@ -500,7 +508,7 @@ export const SdmItPage: React.FC = () => {
         {/* Row 2: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Komposisi SDM per Divisi (Year to Date)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Rata-Rata total SDM (Year to Date)</h3>
             
             {/* Year Range Selectors */}
             <div className="flex items-center gap-2 mt-1">
