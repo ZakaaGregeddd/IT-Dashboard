@@ -449,6 +449,7 @@ export const LisensiPage: React.FC = () => {
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">No</th>
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Principle</th>
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Nama Produk</th>
+                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider text-center w-40">Status</th>
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider text-center w-48">Exp Date</th>
                 </tr>
               </thead>
@@ -459,7 +460,7 @@ export const LisensiPage: React.FC = () => {
                   ? warningLicenses
                   : safeLicenses
                 ).map((row, index) => (
-                  <tr key={index} className="hover:bg-slate-50/30 transition-colors">
+                   <tr key={index} className="hover:bg-slate-50/30 transition-colors">
                     <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                       {index + 1}
                     </td>
@@ -469,6 +470,17 @@ export const LisensiPage: React.FC = () => {
                     <td className="py-2.5 px-4 border border-slate-200">
                       {row.nama_produk}
                     </td>
+                    <td className="py-2.5 px-4 border border-slate-200 text-center">
+                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${
+                        row.status === 'Aktif' 
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                          : row.status === 'Proses Renewal'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
+                      }`}>
+                        {row.status}
+                      </span>
+                    </td>
                     <td className="py-2.5 px-4 text-center border border-slate-200 font-mono">
                       {row.tanggal_expired || '-'}
                     </td>
@@ -476,7 +488,7 @@ export const LisensiPage: React.FC = () => {
                 ))}
                 {(activeDetailView === 'urgent' ? urgentLicenses : activeDetailView === 'peringatan' ? warningLicenses : safeLicenses).length === 0 && (
                   <tr>
-                    <td colSpan={4} className="py-8 text-center text-xs text-slate-400">
+                    <td colSpan={5} className="py-8 text-center text-xs text-slate-400">
                       Tidak ada lisensi dalam kategori ini.
                     </td>
                   </tr>
@@ -502,17 +514,17 @@ export const LisensiPage: React.FC = () => {
         </div>
         
         <div className="overflow-x-auto h-auto p-4">
-          <table className="w-full text-left border-collapse border border-slate-200">
+          <table className="w-full min-w-[1600px] text-left border-collapse border border-slate-200">
             <thead>
               <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
                 <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">NO</th>
-                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-40">Principle</th>
-                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Nama Produk</th>
+                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-[320px]">Principle</th>
+                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-[400px]">Nama Produk</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-24">Total</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-24">Satuan</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-36">Exp Date</th>
-                <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-48">Status</th>
-                <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider">Keterangan</th>
+                <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-[280px]">Status</th>
+                <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-[500px]">Keterangan</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-16">AKSI</th>
               </tr>
             </thead>
@@ -523,21 +535,21 @@ export const LisensiPage: React.FC = () => {
                     {index + 1}
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
-                      type="text"
+                    <textarea 
                       value={row.principle}
                       onChange={(e) => handleRowChange(index, 'principle', e.target.value)}
                       placeholder="e.g. Check Point"
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
+                      rows={2}
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
-                      type="text"
+                    <textarea 
                       value={row.nama_produk}
                       onChange={(e) => handleRowChange(index, 'nama_produk', e.target.value)}
                       placeholder="e.g. Insider Firewall"
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
+                      rows={2}
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
@@ -579,12 +591,12 @@ export const LisensiPage: React.FC = () => {
                     </select>
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
-                      type="text"
+                    <textarea 
                       value={row.keterangan || ''}
                       onChange={(e) => handleRowChange(index, 'keterangan', e.target.value)}
                       placeholder="Catatan..."
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
+                      rows={2}
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
                     />
                   </td>
                   <td className="py-2.5 px-4 text-center border border-slate-200">
