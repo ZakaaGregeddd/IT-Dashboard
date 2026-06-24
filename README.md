@@ -54,7 +54,7 @@ Sistem ini mencakup 22 modul pelaporan IT terintegrasi yang terbagi ke dalam 3 k
 
 ---
 
-## ⏱ Panduan Memulai Cepat (Quick Start)
+## Panduan Memulai Cepat (Quick Start)
 
 ### 1. Konfigurasi Backend & Database PostgreSQL
 ```bash
@@ -79,5 +79,3 @@ npm run dev              # Jalankan aplikasi development (port 5173)
 
 Untuk panduan teknis yang lebih mendalam mengenai detail arsitektur, implementasi event listener status kotor (dirty state), konfigurasi parameter lisensi, optimalisasi visualisasi, dan cara menambah halaman baru, silakan baca buku panduan pengembang di:
  **[Panduan Konfigurasi & Pengembangan IT Dashboard (docs/README.md)](./docs/README.md)** ---
-
-*Hak Cipta © 2026 Dashboard Performa IT Perusahaan. Seluruh hak cipta dilindungi.* 
