@@ -8,6 +8,7 @@ interface LicenseDetailInput {
   total_lisensi: number;
   tanggal_expired: string | Date;
   status: string;
+  catatan?: string | null;
 }
 
 export class LicenseService {
@@ -135,6 +136,7 @@ export class LicenseService {
               total_lisensi: detail.total_lisensi,
               tanggal_expired: expDate,
               status: detail.status,
+              catatan: detail.catatan ?? null,
               updated_at: new Date(),
             },
           });
@@ -148,6 +150,7 @@ export class LicenseService {
               total_lisensi: detail.total_lisensi,
               tanggal_expired: expDate,
               status: detail.status,
+              catatan: detail.catatan ?? null,
             },
           });
         }
