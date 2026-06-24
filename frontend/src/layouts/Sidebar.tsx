@@ -199,9 +199,12 @@ const formatDropdownText = (text: string): string => {
 
 interface SidebarProps {
   isCollapsed: boolean;
+  width: number;
+  isResizing: boolean;
+  onMouseDownResize?: (e: React.MouseEvent) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing, onMouseDownResize }) => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
@@ -230,11 +233,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
   const isItOperationActive = itOperationItems.some(item => convertToSlug(item) === currentPath);
 
   return (
-    <aside className={cn(
-      "bg-primary-900 text-white flex flex-col flex-shrink-0 relative z-20 transition-all duration-300 ease-in-out overflow-hidden",
-      isCollapsed ? "w-0" : "w-48"
-    )}>
-      <div className="w-48 h-full flex flex-col">
+    <aside 
+      style={{ width: isCollapsed ? 0 : width }}
+      className={cn(
+        "bg-primary-900 text-white flex flex-col flex-shrink-0 relative z-20 overflow-hidden select-none",
+        isResizing ? "" : "transition-all duration-300 ease-in-out"
+      )}
+    >
+      <div style={{ width }} className="h-full flex flex-col relative">
         {/* Sidebar Header */}
         <div className="h-11 flex items-center px-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2">
@@ -244,7 +250,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
               <div className="w-2 h-2 border border-white rounded-sm"></div>
               <div className="w-2 h-2 border border-white rounded-sm"></div>
             </div>
-            <span className="font-semibold text-xs leading-tight tracking-wide">
+            <span className="font-semibold text-xs leading-tight tracking-wide whitespace-nowrap">
               Sistem Pelaporan<br/>Bulanan Terpusat
             </span>
           </div>
@@ -329,6 +335,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
             <SidebarSubItem label="Realisasi Restore Ellipse dan Email Sesuai Kebutuhan" currentPath={currentPath} to="/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan" />
           </SidebarMenuItem>
         </nav>
+        
+        {/* Resize Handle */}
+        {!isCollapsed && onMouseDownResize && (
+          <div 
+            onMouseDown={onMouseDownResize}
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/40 active:bg-amber-500/70 transition-colors z-30 group flex items-center justify-center"
+          >
+            <div className="w-0.5 h-8 bg-white/10 group-hover:bg-white/40 rounded transition-colors" />
+          </div>
+        )}
       </div>
     </aside>
   );
