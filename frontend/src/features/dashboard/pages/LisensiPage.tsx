@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings, Upload, FileSpreadsheet, Info } from 'lucide-react';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Line } from 'react-chartjs-2';
+import * as XLSX from 'xlsx';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -133,6 +134,9 @@ export const LisensiPage: React.FC = () => {
   const [activeDetailView, setActiveDetailView] = useState<'urgent' | 'peringatan' | 'aman' | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   // Expanded table checklist-based filtering states (Nama & Exp Date)
   const [enableNameFilter, setEnableNameFilter] = useState(false);
   const [enableDateFilter, setEnableDateFilter] = useState(false);
@@ -301,6 +305,140 @@ export const LisensiPage: React.FC = () => {
         return row;
       });
     });
+  };
+
+  // Process the Excel file uploaded by user (drag & drop or file picker)
+  const processExcelFile = (file: File) => {
+    setImportError(null);
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (fileExtension !== 'xlsx' && fileExtension !== 'xls' && fileExtension !== 'csv') {
+      setImportError('Format berkas tidak didukung. Harap unggah berkas Excel (.xlsx, .xls) atau CSV.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json<any>(worksheet);
+
+        if (jsonData.length === 0) {
+          setImportError('Berkas Excel kosong atau tidak memiliki data.');
+          return;
+        }
+
+        // Map column headers dynamically
+        const mappedDetails: LicenseDetail[] = [];
+        jsonData.forEach((row: any) => {
+          let principle = '';
+          let nama_produk = '';
+          let total_lisensi = 0;
+          let satuan = 'Unit';
+          let tanggal_expired = '';
+          let status = 'Aktif';
+          let catatan = '';
+
+          Object.keys(row).forEach((key) => {
+            const cleanKey = key.trim().toLowerCase();
+            const val = String(row[key] ?? '').trim();
+
+            if (['principle', 'vendor', 'produsen', 'pembuat', 'brand'].includes(cleanKey)) {
+              principle = val;
+            } else if (['nama produk', 'nama_produk', 'produk', 'product', 'nama barang', 'nama'].includes(cleanKey)) {
+              nama_produk = val;
+            } else if (['total lisensi', 'total_lisensi', 'total', 'jumlah', 'qty', 'quantity', 'unit'].includes(cleanKey)) {
+              total_lisensi = parseInt(val, 10) || 0;
+            } else if (['satuan', 'unit satuan'].includes(cleanKey)) {
+              satuan = val || 'Unit';
+            } else if (['tanggal expired', 'tanggal_expired', 'expired', 'expired date', 'exp date', 'expiry', 'tanggal kadaluarsa', 'kadaluarsa'].includes(cleanKey)) {
+              let parsedDate = '';
+              if (val) {
+                if (!isNaN(Number(val)) && Number(val) > 30000) {
+                  const dateObj = XLSX.SSF.parse_date_code(Number(val));
+                  const m = String(dateObj.m).padStart(2, '0');
+                  const d = String(dateObj.d).padStart(2, '0');
+                  parsedDate = `${dateObj.y}-${m}-${d}`;
+                } else {
+                  const dObj = new Date(val);
+                  if (!isNaN(dObj.getTime())) {
+                    parsedDate = dObj.toISOString().split('T')[0];
+                  } else {
+                    parsedDate = '';
+                  }
+                }
+              }
+              tanggal_expired = parsedDate;
+            } else if (['status', 'aktif', 'active'].includes(cleanKey)) {
+              status = val || 'Aktif';
+            } else if (['catatan', 'keterangan', 'note', 'notes'].includes(cleanKey)) {
+              catatan = val;
+            }
+          });
+
+          if (principle && nama_produk) {
+            mappedDetails.push({
+              principle,
+              nama_produk,
+              total_lisensi,
+              satuan,
+              tanggal_expired: tanggal_expired || formatDateForInput(new Date()),
+              status: status || 'Aktif',
+              catatan,
+              urutan: 0
+            });
+          }
+        });
+
+        if (mappedDetails.length === 0) {
+          setImportError('Gagal mendeteksi kolom yang sesuai. Pastikan file Anda memiliki kolom minimal "Principle" dan "Nama Produk".');
+          return;
+        }
+
+        // Accumulate and merge with existing licenseRows
+        setLicenseRows((prev) => {
+          const merged = [...prev];
+          mappedDetails.forEach((imported) => {
+            const existingIndex = merged.findIndex(
+              (r) =>
+                r.principle.trim().toLowerCase() === imported.principle.trim().toLowerCase() &&
+                r.nama_produk.trim().toLowerCase() === imported.nama_produk.trim().toLowerCase()
+            );
+
+            if (existingIndex > -1) {
+              const currentTotal = parseInt(merged[existingIndex].total_lisensi as any, 10) || 0;
+              merged[existingIndex] = {
+                ...merged[existingIndex],
+                total_lisensi: currentTotal + imported.total_lisensi,
+                tanggal_expired: imported.tanggal_expired || merged[existingIndex].tanggal_expired,
+                status: imported.status || merged[existingIndex].status,
+                catatan: `${merged[existingIndex].catatan ? merged[existingIndex].catatan + ' ' : ''}(Import: ${imported.catatan || 'Unit ditambahkan'})`.trim()
+              };
+            } else {
+              merged.push({
+                ...imported,
+                urutan: merged.length + 1
+              });
+            }
+          });
+
+          const remapped = merged.map((item, idx) => ({ ...item, urutan: idx + 1 }));
+          
+          setIsDirty(true);
+          return remapped;
+        });
+
+        setIsImportModalOpen(false);
+        setImportError(null);
+      } catch (err) {
+        console.error('Error parsing excel file:', err);
+        setImportError('Gagal membaca file Excel. Pastikan berkas tidak terenkripsi atau rusak.');
+      }
+    };
+
+    reader.readAsArrayBuffer(file);
   };
 
   // Add row (initialize with empty/blank values to allow user typing)
@@ -1042,16 +1180,26 @@ export const LisensiPage: React.FC = () => {
 
       {/* Data Entry Card (Adaptive Height with Filters and Pagination) */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-auto">
-        <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-          <h3 className="text-xs font-bold text-primary-900">Data Entri Lisensi</h3>
-          <button
-            type="button"
-            onClick={handleAddRow}
-            className="flex items-center gap-1 bg-primary-900 text-white px-3 py-1.5 rounded font-semibold text-[10px] hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider"
-          >
-            <Plus className="w-3.5 h-3.5" />
-            Tambah Baris Baru
-          </button>
+        <div className="p-4 border-b border-slate-150 bg-slate-50/50 flex justify-between items-center">
+          <h3 className="text-xs font-bold text-primary-900">Data Lisensi Terdaftar</h3>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsImportModalOpen(true)}
+              className="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-600 text-white px-3 py-1.5 rounded font-semibold text-[10px] transition-all shadow-sm uppercase tracking-wider"
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Import by Excel
+            </button>
+            <button
+              type="button"
+              onClick={handleAddRow}
+              className="flex items-center gap-1 bg-primary-900 text-white px-3 py-1.5 rounded font-semibold text-[10px] hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Tambah Baris Baru
+            </button>
+          </div>
         </div>
 
         {/* Entry Table Checklist Filters Bar */}
@@ -1526,6 +1674,17 @@ export const LisensiPage: React.FC = () => {
         message={`Apakah Anda yakin ingin menyimpan perubahan data lisensi untuk periode ${bulan} ${tahun}?`}
       />
 
+      {/* Import Excel Modal */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={processExcelFile}
+        isDragging={isDragging}
+        setIsDragging={setIsDragging}
+        error={importError}
+        setError={setImportError}
+      />
+
       {/* Configuration Settings Modal */}
       <ConfigurationModal
         isOpen={isConfigModalOpen}
@@ -1712,6 +1871,221 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           >
             Ya, Simpan
           </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface ImportModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onImport: (file: File) => void;
+  isDragging: boolean;
+  setIsDragging: (val: boolean) => void;
+  error: string | null;
+  setError: (val: string | null) => void;
+}
+
+const ImportModal: React.FC<ImportModalProps> = ({
+  isOpen,
+  onClose,
+  onImport,
+  isDragging,
+  setIsDragging,
+  error,
+  setError
+}) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      setSelectedFile(null);
+    }
+  }, [isOpen]);
+
+  if (!isOpen) return null;
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    setError(null);
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setError(null);
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleConfirmImport = () => {
+    if (selectedFile) {
+      onImport(selectedFile);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[999] flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center border-b border-slate-100 pb-3">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-emerald-100 text-emerald-700 rounded-lg">
+              <FileSpreadsheet className="w-5 h-5" />
+            </div>
+            <h4 className="text-sm font-bold text-slate-800 flex items-center gap-1.5">
+              Import by Excel
+              <span className="px-1.5 py-0.5 text-[8px] font-bold bg-amber-100 text-amber-800 rounded uppercase tracking-wider flex items-center gap-1">
+                Beta
+                <span className="relative group flex items-center">
+                  <Info className="w-2.5 h-2.5 text-amber-800/70 hover:text-amber-900 cursor-help" />
+                  <span className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-1.5 hidden group-hover:block bg-slate-800 text-white text-[9px] px-2 py-1 rounded shadow-lg whitespace-nowrap z-50 font-sans normal-case tracking-normal">
+                    fitur ini masih dalam pengembangan
+                  </span>
+                </span>
+              </span>
+            </h4>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {!selectedFile ? (
+            <>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Harap unggah berkas Excel (.xlsx, .xls) or CSV. Jika terdapat data lisensi dengan **Principle** dan **Nama Produk** yang sama, jumlah unit lisensi akan terakumulasi secara otomatis.
+              </p>
+
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={triggerFileSelect}
+                className={`border-2 border-dashed rounded-xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer transition-all ${
+                  isDragging
+                    ? 'border-emerald-600 bg-emerald-50/50 scale-[0.99]'
+                    : 'border-slate-200 hover:border-emerald-500 hover:bg-slate-50/30'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".xlsx,.xls,.csv"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+                <div className={`p-3 rounded-full transition-transform ${isDragging ? 'scale-110 text-emerald-600' : 'text-slate-400'}`}>
+                  <Upload className="w-8 h-8 animate-bounce" />
+                </div>
+                <div className="text-center">
+                  <span className="text-xs font-bold text-slate-700 block">
+                    Seret dan jatuhkan file di sini
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    atau <span className="text-emerald-700 font-bold hover:underline">pilih file dari komputer</span>
+                  </span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-100 rounded-lg p-3 flex flex-col gap-1.5 text-[10px] text-slate-500">
+                <span className="font-bold text-slate-600 uppercase tracking-wider text-[9px] block mb-0.5">Format Kolom yang Didukung:</span>
+                <div className="grid grid-cols-2 gap-x-2 gap-y-1 font-mono">
+                  <div>• Principle / Vendor</div>
+                  <div>• Nama Produk / Product</div>
+                  <div>• Total Lisensi / Qty</div>
+                  <div>• Tanggal Expired / Exp Date</div>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col gap-4">
+              <div className="bg-slate-50 border border-slate-100 rounded-xl p-6 flex flex-col items-center justify-center gap-3 text-center">
+                <div className="p-3.5 bg-emerald-100 text-emerald-700 rounded-full">
+                  <FileSpreadsheet className="w-10 h-10" />
+                </div>
+                <div className="w-full">
+                  <span className="text-xs font-bold text-slate-800 block truncate px-4">
+                    {selectedFile.name}
+                  </span>
+                  <span className="text-[10px] text-slate-400 mt-1 block">
+                    Ukuran: {formatFileSize(selectedFile.size)}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-xs text-slate-500 text-center leading-relaxed px-4">
+                Apakah Anda yakin ingin mengimpor dan memproses data dari berkas ini? Data yang terduplikasi akan diakumulasikan secara otomatis.
+              </p>
+            </div>
+          )}
+
+          {error && (
+            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-[11px] font-medium animate-shake">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="flex justify-end gap-2 mt-2 pt-3 border-t border-slate-100">
+          {!selectedFile ? (
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors"
+            >
+              Batal
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedFile(null);
+                  setError(null);
+                }}
+                className="px-4 py-2 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50 transition-colors"
+              >
+                Ganti Berkas
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmImport}
+                className="px-4 py-2 rounded bg-emerald-700 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-emerald-800 transition-colors shadow-sm"
+              >
+                Konfirmasi & Impor
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

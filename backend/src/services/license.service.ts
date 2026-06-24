@@ -125,7 +125,10 @@ export class LicenseService {
 
       // 4. Upsert the incoming details
       const upsertPromises = details.map((detail) => {
-        const expDate = new Date(detail.tanggal_expired);
+        let expDate = new Date(detail.tanggal_expired);
+        if (isNaN(expDate.getTime())) {
+          expDate = new Date();
+        }
         if (detail.id) {
           return tx.detail_lisensi.update({
             where: { id: detail.id },
