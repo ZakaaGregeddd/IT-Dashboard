@@ -7,9 +7,28 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // Default to expanded (false) to match user screenshot
-  const [sidebarWidth, setSidebarWidth] = useState(230); // Increased default width slightly (from 192px to 230px)
+  // Collapse sidebar by default on mobile screens (<1024px)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1024;
+    }
+    return false;
+  });
+  const [sidebarWidth, setSidebarWidth] = useState(230);
   const [isResizing, setIsResizing] = useState(false);
+
+  // Automatically collapse sidebar on resize if below tablet threshold
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarCollapsed(true);
+      } else {
+        setIsSidebarCollapsed(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const startResizing = useCallback((mouseDownEvent: React.MouseEvent) => {
     setIsResizing(true);
@@ -45,14 +64,26 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     };
   }, [isResizing, resize, stopResizing]);
 
+  const showMobileOverlay = !isSidebarCollapsed && typeof window !== 'undefined' && window.innerWidth < 1024;
+
   return (
-    <div className="flex h-screen overflow-hidden text-slate-800 bg-white">
+    <div className="flex h-screen overflow-hidden text-slate-800 bg-white relative">
       <Sidebar 
         isCollapsed={isSidebarCollapsed} 
         width={sidebarWidth}
         isResizing={isResizing}
         onMouseDownResize={startResizing}
+        onCollapse={() => setIsSidebarCollapsed(true)}
       />
+      
+      {/* Mobile Sidebar Backdrop Overlay */}
+      {showMobileOverlay && (
+        <div 
+          onClick={() => setIsSidebarCollapsed(true)}
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden cursor-pointer animate-in fade-in duration-200"
+        />
+      )}
+
       <main className="flex-1 flex flex-col h-screen overflow-hidden bg-white relative z-10">
         <Header 
           isSidebarCollapsed={isSidebarCollapsed} 

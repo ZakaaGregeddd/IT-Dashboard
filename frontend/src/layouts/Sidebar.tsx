@@ -184,14 +184,18 @@ interface SidebarProps {
   width: number;
   isResizing: boolean;
   onMouseDownResize?: (e: React.MouseEvent) => void;
+  onCollapse?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing, onMouseDownResize }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing, onMouseDownResize, onCollapse }) => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
+      if (typeof window !== 'undefined' && window.innerWidth < 1024 && onCollapse) {
+        onCollapse();
+      }
     };
 
     window.addEventListener('popstate', handleLocationChange);
@@ -201,7 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('navigate', handleLocationChange);
     };
-  }, []);
+  }, [onCollapse]);
 
   const isItPlanningActive = [
     "Realisasi Program Kerja TI",
@@ -234,7 +238,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
     <aside 
       style={{ width: isCollapsed ? 0 : width }}
       className={cn(
-        "bg-primary-900 text-white flex flex-col flex-shrink-0 relative z-20 overflow-hidden select-none",
+        "bg-primary-900 text-white flex flex-col flex-shrink-0 z-50 overflow-hidden select-none",
+        "fixed lg:relative top-0 bottom-0 left-0 h-screen lg:h-auto border-r border-white/5",
         isResizing ? "" : "transition-all duration-300 ease-in-out"
       )}
     >
@@ -338,7 +343,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
         {!isCollapsed && onMouseDownResize && (
           <div 
             onMouseDown={onMouseDownResize}
-            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/40 active:bg-amber-500/70 transition-colors z-30 group flex items-center justify-center"
+            className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/40 active:bg-amber-500/70 transition-colors z-30 group lg:flex hidden items-center justify-center"
           >
             <div className="w-0.5 h-8 bg-white/10 group-hover:bg-white/40 rounded transition-colors" />
           </div>
