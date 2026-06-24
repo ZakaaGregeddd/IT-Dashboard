@@ -19,6 +19,7 @@ export { UtilisasiWanBackupPage } from '../features/dashboard/pages/UtilisasiWan
 export { KetersediaanKeamananPage } from '../features/dashboard/pages/KetersediaanKeamananPage';
 export { PcSupportPage } from '../features/dashboard/pages/PcSupportPage';
 export { RestorePage } from '../features/dashboard/pages/RestorePage';
+export { OperasionalTiPage } from '../features/dashboard/pages/OperasionalTiPage';
 
 
 
