@@ -1086,7 +1086,7 @@ export const OverallPage: React.FC = () => {
                 title="Visualisasi Utilisasi CPU" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiCpu} 
-                onClick={() => window.location.href = '/utilisasi-cpu-aplikasi-ellipse-dan-cisea'}
+                onClick={() => window.location.href = '/utilisasi-cpu-aplikasi'}
               />
             </div>
             <div className="h-[240px]">
@@ -1094,7 +1094,7 @@ export const OverallPage: React.FC = () => {
                 title="Visualisasi Utilisasi Memory" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiMemApp} 
-                onClick={() => window.location.href = '/utilisasi-memory-aplikasi-ellipse-dan-cisea'}
+                onClick={() => window.location.href = '/utilisasi-memory-aplikasi'}
               />
             </div>
             <div className="h-[240px]">
@@ -1102,7 +1102,7 @@ export const OverallPage: React.FC = () => {
                 title="Visualisasi Utilisasi CPU Database" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiCpuDb} 
-                onClick={() => window.location.href = '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea'}
+                onClick={() => window.location.href = '/utilisasi-cpu-database'}
               />
             </div>
             <div className="h-[240px]">
@@ -1110,7 +1110,7 @@ export const OverallPage: React.FC = () => {
                 title="Visualisasi Utilisasi Memory Database" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiMemDb} 
-                onClick={() => window.location.href = '/utilisasi-memory-database-ellipse-dan-cisea'}
+                onClick={() => window.location.href = '/utilisasi-memory-database'}
               />
             </div>
             <div className="h-[240px]">
@@ -1118,7 +1118,7 @@ export const OverallPage: React.FC = () => {
                 title="Visualisasi Storage Database" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiStorageDb} 
-                onClick={() => window.location.href = '/utilisasi-storage-database-ellipse-dan-cisea'}
+                onClick={() => window.location.href = '/utilisasi-storage-database'}
               />
             </div>
           </div>
@@ -1142,7 +1142,7 @@ export const OverallPage: React.FC = () => {
           <div className="h-[240px]">
             <KeamananSistemCard 
               data={data.keamanan} 
-              onClick={() => window.location.href = '/tingkat-ketersediaan-sistem-keamanan-ti'}
+              onClick={() => window.location.href = '/ketersediaan-sistem-keamanan-ti'}
             />
           </div>
           <div className="h-[240px]">
@@ -1166,7 +1166,7 @@ export const OverallPage: React.FC = () => {
               title="Visualisasi Penyelesaian Permintaan Layanan TI di Operasional TI" 
               options={commonLegendOptions} 
               data={data.layananOperasional} 
-              onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-ti-di-operasional-ti'}
+              onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-ti'}
             />
           </div>
 
@@ -1175,7 +1175,7 @@ export const OverallPage: React.FC = () => {
               title="Visualisasi Realisasi Restore Ellipse dan Email sesuai kebutuhan" 
               options={commonLegendOptions} 
               data={data.restore} 
-              onClick={() => window.location.href = '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan'}
+              onClick={() => window.location.href = '/realisasi-restore-ellipse-dan-email'}
             />
           </div>
         </div>

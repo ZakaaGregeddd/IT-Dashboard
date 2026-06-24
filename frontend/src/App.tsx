@@ -15,18 +15,18 @@ const templatePaths: Record<string, string> = {
   '/utilisasi-cpu-server': '9cpuserver',
   '/utilisasi-memory-server': '10memoryerver',
   '/utilisasi-storage-server': '11storageserver',
-  '/utilisasi-cpu-aplikasi-ellipse-dan-cisea': '12cpuapp',
-  '/utilisasi-memory-aplikasi-ellipse-dan-cisea': '23memoryapp',
-  '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea': '13cpudb',
-  '/utilisasi-memory-database-ellipse-dan-cisea': '14memorydb',
-  '/utilisasi-storage-database-ellipse-dan-cisea': '15storagedb',
+  '/utilisasi-cpu-aplikasi': '12cpuapp',
+  '/utilisasi-memory-aplikasi': '23memoryapp',
+  '/utilisasi-cpu-database': '13cpudb',
+  '/utilisasi-memory-database': '14memorydb',
+  '/utilisasi-storage-database': '15storagedb',
   '/rata-rata-utilisasi-bandwidth-jaringan': '16jaringan',
-  '/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea': '17wan',
-  '/tingkat-ketersediaan-sistem-keamanan-ti': '18keamanan',
+  '/ketersedian-sistem-backup': '17wan',
+  '/ketersediaan-sistem-keamanan-ti': '18keamanan',
   '/penyelesaian-pekerjaan-pc-support': '19pcsupport',
   '/penyelesaian-permintaan-layanan-aplikasi-ti': '20layananapp',
-  '/penyelesaian-permintaan-layanan-ti-di-operasional-ti': '21operasiTI',
-  '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan': '22restore'
+  '/penyelesaian-permintaan-layanan-ti': '21operasiTI',
+  '/realisasi-restore-ellipse-dan-email': '22restore'
 };
 
 const App: React.FC = () => {
@@ -80,37 +80,37 @@ const App: React.FC = () => {
     if (currentPath === '/utilisasi-storage-server') {
       return <UtilisasiStorageServerPage />;
     }
-    if (currentPath === '/utilisasi-cpu-aplikasi-ellipse-dan-cisea') {
+    if (currentPath === '/utilisasi-cpu-aplikasi') {
       return <UtilisasiCpuAplikasiPage />;
     }
-    if (currentPath === '/utilisasi-memory-aplikasi-ellipse-dan-cisea') {
+    if (currentPath === '/utilisasi-memory-aplikasi') {
       return <UtilisasiMemoryAplikasiPage />;
     }
-    if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
+    if (currentPath === '/utilisasi-cpu-database') {
       return <UtilisasiCpuDbAplikasiPage />;
     }
-    if (currentPath === '/utilisasi-memory-database-ellipse-dan-cisea') {
+    if (currentPath === '/utilisasi-memory-database') {
       return <UtilisasiMemoryDbApkPage />;
     }
-    if (currentPath === '/utilisasi-storage-database-ellipse-dan-cisea') {
+    if (currentPath === '/utilisasi-storage-database') {
       return <UtilisasiStorageDbApkPage />;
     }
     if (currentPath === '/rata-rata-utilisasi-bandwidth-jaringan') {
       return <UtilisasiBandwidthPage />;
     }
-    if (currentPath === '/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea') {
+    if (currentPath === '/ketersedian-sistem-backup') {
       return <UtilisasiWanBackupPage />;
     }
-    if (currentPath === '/tingkat-ketersediaan-sistem-keamanan-ti') {
+    if (currentPath === '/ketersediaan-sistem-keamanan-ti') {
       return <KetersediaanKeamananPage />;
     }
     if (currentPath === '/penyelesaian-pekerjaan-pc-support') {
       return <PcSupportPage />;
     }
-    if (currentPath === '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan') {
+    if (currentPath === '/realisasi-restore-ellipse-dan-email') {
       return <RestorePage />;
     }
-    if (currentPath === '/penyelesaian-permintaan-layanan-ti-di-operasional-ti') {
+    if (currentPath === '/penyelesaian-permintaan-layanan-ti') {
       return <OperasionalTiPage />;
     }
     if (currentPath === '/penyelesaian-permintaan-layanan-aplikasi-ti') {

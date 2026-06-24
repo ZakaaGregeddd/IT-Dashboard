@@ -425,7 +425,7 @@ export const UtilisasiStorageDbApkPage: React.FC = () => {
 
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Utilisasi Storage Database Ellipse dan CISEA</h2>
+          <h2 className="text-xl font-bold text-slate-800">Storage</h2>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">

@@ -134,14 +134,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ data }) =>
           title="Penyelesaian Permintaan Layanan TI di Operasional TI" 
           options={angledLabelsOptions}
           data={data.layananOperasional} 
-          onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-ti-di-operasional-ti'}
+          onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-ti'}
         />
 
         <KpiChartCard 
           title="Realisasi Restore Ellipse dan Email" 
           options={defaultOptions}
           data={data.restoreEllipse} 
-          onClick={() => window.location.href = '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan'}
+          onClick={() => window.location.href = '/realisasi-restore-ellipse-dan-email'}
         />
       </div>
     </div>

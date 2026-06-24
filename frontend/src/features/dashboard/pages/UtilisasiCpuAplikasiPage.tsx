@@ -432,7 +432,7 @@ export const UtilisasiCpuAplikasiPage: React.FC = () => {
       {/* Page Title & Controls */}
       <div className="flex flex-col gap-4">
         <div>
-          <h2 className="text-xl font-bold text-slate-800">Utilisasi CPU Aplikasi Ellipse dan CISEA</h2>
+          <h2 className="text-xl font-bold text-slate-800">CPU</h2>
         </div>
 
         {/* Dropdowns */}

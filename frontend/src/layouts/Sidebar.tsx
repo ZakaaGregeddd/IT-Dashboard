@@ -42,7 +42,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
         <div className={cn("w-4 h-4", active ? "text-amber-500" : "text-slate-300")}>
           {icon}
         </div>
-        <span className="font-medium text-[10px] uppercase tracking-wide">{label}</span>
+        <span className="font-medium text-[11px] uppercase tracking-wide">{label}</span>
       </a>
     );
   }
@@ -60,7 +60,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
       >
         <div className="flex items-center gap-2.5">
           <div className={cn("w-4 h-4", active ? "text-amber-500" : "text-white")}>{icon}</div>
-          <span className="font-medium text-[9px] uppercase tracking-wide">{label}</span>
+          <span className="font-medium text-[10px] uppercase tracking-wide">{label}</span>
         </div>
         <ChevronDown className={cn("w-3 h-3 text-white transition-transform", isOpen ? "" : "transform rotate-180")} />
       </button>
@@ -91,7 +91,7 @@ export const SidebarSubItem: React.FC<{ label: string; currentPath: string; to?:
         navigateTo(slug);
       }}
       className={cn(
-        "pr-4 py-1.5 text-[9px] transition-colors leading-snug cursor-pointer block",
+        "pr-4 py-1.5 text-[10px] transition-colors leading-snug cursor-pointer block",
         isNested ? "pl-12 ml-6 font-medium" : "pl-9 ml-6",
         isActive ? "text-amber-500 font-semibold" : "text-slate-300 hover:text-white"
       )}
@@ -122,7 +122,7 @@ const SidebarSubCategory: React.FC<SidebarSubCategoryProps> = ({ label, active, 
       <button 
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "w-full flex items-start pl-9 pr-4 py-1.5 text-[9px] transition-colors leading-snug ml-6 cursor-pointer text-left relative",
+          "w-full flex items-start pl-9 pr-4 py-1.5 text-[10px] transition-colors leading-snug ml-6 cursor-pointer text-left relative",
           active ? "text-amber-500 font-semibold" : "text-slate-300 hover:text-white"
         )}
       >
@@ -147,8 +147,8 @@ const itOperationItems = [
   "utilisasi CPU server",
   "utilisasi memory server",
   "utilisasi storage server",
-  "utilisasi CPU aplikasi Ellipse dan CISEA",
-  "utilisasi memory aplikasi Ellipse dan CISEA",
+  "utilisasi CPU aplikasi",
+  "utilisasi memory aplikasi",
   "utilisasi CPU database aplikasi ellipse dan CISEA",
   "utilisasi memory database Ellipse dan CISEA",
   "utilisasi storage database Ellipse dan CISEA",
@@ -304,35 +304,35 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             <SidebarSubCategory 
               label="Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket"
               active={[
-                '/utilisasi-cpu-aplikasi-ellipse-dan-cisea',
-                '/utilisasi-memory-aplikasi-ellipse-dan-cisea'
+                '/utilisasi-cpu-aplikasi',
+                '/utilisasi-memory-aplikasi'
               ].includes(currentPath)}
             >
-              <SidebarSubItem label="CPU" currentPath={currentPath} to="/utilisasi-cpu-aplikasi-ellipse-dan-cisea" isNested />
-              <SidebarSubItem label="Memory" currentPath={currentPath} to="/utilisasi-memory-aplikasi-ellipse-dan-cisea" isNested />
+              <SidebarSubItem label="CPU" currentPath={currentPath} to="/utilisasi-cpu-aplikasi" isNested />
+              <SidebarSubItem label="Memory" currentPath={currentPath} to="/utilisasi-memory-aplikasi" isNested />
             </SidebarSubCategory>
             
             {/* Sub-Category: Database */}
             <SidebarSubCategory 
               label="Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND)"
               active={[
-                '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea',
-                '/utilisasi-memory-database-ellipse-dan-cisea',
-                '/utilisasi-storage-database-ellipse-dan-cisea'
+                '/utilisasi-cpu-database',
+                '/utilisasi-memory-database',
+                '/utilisasi-storage-database'
               ].includes(currentPath)}
             >
-              <SidebarSubItem label="CPU Database" currentPath={currentPath} to="/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea" isNested />
-              <SidebarSubItem label="Memory Database" currentPath={currentPath} to="/utilisasi-memory-database-ellipse-dan-cisea" isNested />
-              <SidebarSubItem label="Storage" currentPath={currentPath} to="/utilisasi-storage-database-ellipse-dan-cisea" isNested />
+              <SidebarSubItem label="CPU Database" currentPath={currentPath} to="/utilisasi-cpu-database" isNested />
+              <SidebarSubItem label="Memory Database" currentPath={currentPath} to="/utilisasi-memory-database" isNested />
+              <SidebarSubItem label="Storage" currentPath={currentPath} to="/utilisasi-storage-database" isNested />
             </SidebarSubCategory>
 
             <SidebarSubItem label="Rata-rata Utilisasi Bandwidth Jaringan" currentPath={currentPath} to="/rata-rata-utilisasi-bandwidth-jaringan" />
-            <SidebarSubItem label="Ketersedian Sistem Backup Ellipse, Email, DR Ellipse, Jaringan (WAN) dan CISEA" currentPath={currentPath} to="/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea" />
-            <SidebarSubItem label="Tingkat Ketersediaan Sistem Keamanan TI" currentPath={currentPath} to="/tingkat-ketersediaan-sistem-keamanan-ti" />
+            <SidebarSubItem label="Ketersedian Sistem Backup Ellipse, Email, DR Ellipse, Jaringan (WAN) dan CISEA" currentPath={currentPath} to="/ketersedian-sistem-backup" />
+            <SidebarSubItem label="Tingkat Ketersediaan Sistem Keamanan TI" currentPath={currentPath} to="/ketersediaan-sistem-keamanan-ti" />
             <SidebarSubItem label="Penyelesaian Pekerjaan PC Support" currentPath={currentPath} to="/penyelesaian-pekerjaan-pc-support" />
             <SidebarSubItem label="Penyelesaian Permintaan Layanan Aplikasi TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-aplikasi-ti" />
-            <SidebarSubItem label="Penyelesaian Permintaan Layanan TI di Operasional TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-ti-di-operasional-ti" />
-            <SidebarSubItem label="Realisasi Restore Ellipse dan Email Sesuai Kebutuhan" currentPath={currentPath} to="/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan" />
+            <SidebarSubItem label="Penyelesaian Permintaan Layanan TI di Operasional TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-ti" />
+            <SidebarSubItem label="Realisasi Restore Ellipse dan Email Sesuai Kebutuhan" currentPath={currentPath} to="/realisasi-restore-ellipse-dan-email" />
           </SidebarMenuItem>
         </nav>
         

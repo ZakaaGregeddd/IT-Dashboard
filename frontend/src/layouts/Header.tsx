@@ -24,18 +24,18 @@ const breadcrumbMapping: Record<string, string> = {
   '/utilisasi-cpu-server': 'IT Operation / Utilisasi CPU Server',
   '/utilisasi-memory-server': 'IT Operation / Utilisasi Memori Server',
   '/utilisasi-storage-server': 'IT Operation / Utilisasi Storage Server',
-  '/utilisasi-cpu-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi CPU Aplikasi Ellipse dan CISEA',
-  '/utilisasi-memory-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi Memory Aplikasi Ellipse dan CISEA',
-  '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi CPU Database Aplikasi Ellipse dan CISEA',
-  '/utilisasi-memory-database-ellipse-dan-cisea': 'IT Operation / Utilisasi Memori Database Ellipse dan CISEA',
-  '/utilisasi-storage-database-ellipse-dan-cisea': 'IT Operation / Utilisasi Storage Database Ellipse dan CISEA',
+  '/utilisasi-cpu-aplikasi': 'IT Operation / Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket / CPU',
+  '/utilisasi-memory-aplikasi': 'IT Operation / Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket / Memory',
+  '/utilisasi-cpu-database': 'IT Operation / Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND) / CPU Database',
+  '/utilisasi-memory-database': 'IT Operation / Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND) / Memory Database',
+  '/utilisasi-storage-database': 'IT Operation / Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND) / Storage',
   '/rata-rata-utilisasi-bandwidth-jaringan': 'IT Operation / Rata-rata Utilisasi Bandwidth Jaringan',
-  '/ketersedian-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea': 'IT Operation / Ketersediaan Sistem Backup Ellipse, Email, DR Ellipse, Jaringan WAN dan CISEA',
-  '/tingkat-ketersediaan-sistem-keamanan-ti': 'IT Operation / Tingkat Ketersediaan Sistem Keamanan TI',
+  '/ketersedian-sistem-backup': 'IT Operation / Ketersediaan Sistem Backup Ellipse, Email, DR Ellipse, Jaringan WAN dan CISEA',
+  '/ketersediaan-sistem-keamanan-ti': 'IT Operation / Tingkat Ketersediaan Sistem Keamanan TI',
   '/penyelesaian-pekerjaan-pc-support': 'IT Operation / Penyelesaian Pekerjaan PC Support',
   '/penyelesaian-permintaan-layanan-aplikasi-ti': 'IT Operation / Penyelesaian Permintaan Layanan Aplikasi TI',
-  '/penyelesaian-permintaan-layanan-ti-di-operasional-ti': 'IT Operation / Penyelesaian Permintaan Layanan TI di Operasional TI',
-  '/realisasi-restore-ellipse-dan-email-sesuai-kebutuhan': 'IT Operation / Realisasi Restore Ellipse dan Email'
+  '/penyelesaian-permintaan-layanan-ti': 'IT Operation / Penyelesaian Permintaan Layanan TI di Operasional TI',
+  '/realisasi-restore-ellipse-dan-email': 'IT Operation / Realisasi Restore Ellipse dan Email'
 };
 
 export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSidebar }) => {
