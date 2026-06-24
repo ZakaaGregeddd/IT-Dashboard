@@ -86,7 +86,7 @@ export const SdmItPage: React.FC = () => {
   const [allSdmRecords, setAllSdmRecords] = useState<SDMData[]>([]);
 
   // YTD Line Chart filters
-  const [startYear, setStartYear] = useState<string>(getCurrentYear());
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
   const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // UI state

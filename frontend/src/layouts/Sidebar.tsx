@@ -305,7 +305,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             <SidebarSubItem label="Utilisasi Storage Server" currentPath={currentPath} to="/utilisasi-storage-server" />
             {/* Sub-Category: Aplikasi */}
             <SidebarSubCategory 
-              label="Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket"
+              label="utilisasi CPU & memory aplikasi Ellipse & CISEA"
               active={[
                 '/utilisasi-cpu-aplikasi',
                 '/utilisasi-memory-aplikasi'
@@ -317,7 +317,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             
             {/* Sub-Category: Database */}
             <SidebarSubCategory 
-              label="Utilisasi CPU & Memory Database Ellipse, Minemarket & Eproc (CISEA - SPEND)"
+              label="Utilisasi CPU, memory & storage database Ellipse & CISEA"
               active={[
                 '/utilisasi-cpu-database',
                 '/utilisasi-memory-database',
