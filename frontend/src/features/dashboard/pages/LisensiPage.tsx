@@ -38,7 +38,7 @@ interface FilterSelectProps {
 const FilterSelect: React.FC<FilterSelectProps> = ({ label, value, onChange, options }) => (
   <div className="flex flex-col gap-1">
     <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wide">{label}</span>
-    <select 
+    <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
       className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none min-w-[110px]"
@@ -62,6 +62,36 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2021 + i).toString());
 
+interface AutoResizeTextareaProps {
+  value: string;
+  onChange: (val: string) => void;
+  placeholder?: string;
+  className?: string;
+}
+
+const AutoResizeTextarea: React.FC<AutoResizeTextareaProps> = ({ value, onChange, placeholder, className }) => {
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      // Adding a small padding offset so text doesn't feel cramped
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  }, [value]);
+
+  return (
+    <textarea
+      ref={textareaRef}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      rows={1}
+      className={className}
+      style={{ overflowY: 'hidden', resize: 'none' }}
+    />
+  );
+};
 
 export const LisensiPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
@@ -73,7 +103,7 @@ export const LisensiPage: React.FC = () => {
   // License rows currently being edited
   const [licenseRows, setLicenseRows] = useState<LicenseDetail[]>([]);
   const [allLicenseRecords, setAllLicenseRecords] = useState<any[]>([]);
-  
+
   // Chart filters
   const [startYear, setStartYear] = useState<string>('2021');
   const [endYear, setEndYear] = useState<string>(getCurrentYear());
@@ -82,7 +112,22 @@ export const LisensiPage: React.FC = () => {
   const [activeDetailView, setActiveDetailView] = useState<'urgent' | 'peringatan' | 'aman' | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  // Expanded table checklist-based filtering states (Nama & Exp Date)
+  const [enableNameFilter, setEnableNameFilter] = useState(false);
+  const [enableDateFilter, setEnableDateFilter] = useState(false);
+  const [detailSearchName, setDetailSearchName] = useState('');
+  const [detailStartDate, setDetailStartDate] = useState('');
+  const [detailEndDate, setDetailEndDate] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+
+  // Reset detail filters when active detail view changes
+  useEffect(() => {
+    setEnableNameFilter(false);
+    setEnableDateFilter(false);
+    setDetailSearchName('');
+    setDetailStartDate('');
+    setDetailEndDate('');
+  }, [activeDetailView]);
 
   // Helper to format ISO Date strings for HTML date input
   const formatDateForInput = (dateVal: string | Date) => {
@@ -329,9 +374,48 @@ export const LisensiPage: React.FC = () => {
     );
   }
 
+  const getFilteredDetailRows = () => {
+    let rows = activeDetailView === 'urgent'
+      ? urgentLicenses
+      : activeDetailView === 'peringatan'
+        ? warningLicenses
+        : safeLicenses;
+
+    // 1. Filter by Name (if enabled and text entered)
+    if (enableNameFilter && detailSearchName.trim() !== '') {
+      const q = detailSearchName.toLowerCase();
+      rows = rows.filter(
+        (r) =>
+          (r.nama_produk || '').toLowerCase().includes(q) ||
+          (r.principle || '').toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Filter by Exp Date range (if enabled and dates entered)
+    if (enableDateFilter) {
+      if (detailStartDate) {
+        const start = new Date(detailStartDate).getTime();
+        rows = rows.filter((r) => {
+          const exp = new Date(r.tanggal_expired).getTime();
+          return exp >= start;
+        });
+      }
+      if (detailEndDate) {
+        const end = new Date(detailEndDate).getTime();
+        rows = rows.filter((r) => {
+          const exp = new Date(r.tanggal_expired).getTime();
+          return exp <= end;
+        });
+      }
+    }
+    return rows;
+  };
+
+  const filteredDetailRows = getFilteredDetailRows();
+
   return (
     <div className="w-full flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-y-auto bg-slate-50 relative">
-      
+
       {/* Toast Notification */}
       {showToast && (
         <div className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-[#0f2e60] text-white px-4 py-2.5 rounded-lg shadow-lg animate-bounce transition-all duration-300">
@@ -348,13 +432,13 @@ export const LisensiPage: React.FC = () => {
 
         {/* Dropdowns */}
         <div className="flex flex-wrap items-center gap-3">
-          <FilterSelect 
+          <FilterSelect
             label="Bulan"
             value={bulan}
             onChange={setBulan}
             options={monthsList}
           />
-          <FilterSelect 
+          <FilterSelect
             label="Tahun"
             value={tahun}
             onChange={setTahun}
@@ -366,13 +450,13 @@ export const LisensiPage: React.FC = () => {
       {/* Ringkasan Lisensi (Three Cards) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Urgent Card */}
-        <div 
+        <div
           onClick={() => setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent')}
           className="bg-red-50 hover:bg-red-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-red-200 transition-all shadow-sm"
         >
           <div className="text-red-700 font-bold text-xs uppercase tracking-wider">Urgent (&lt;= 2 Bulan)</div>
           <div className="text-3xl font-extrabold text-red-800 mt-2">{urgentLicenses.length}</div>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent');
@@ -384,13 +468,13 @@ export const LisensiPage: React.FC = () => {
         </div>
 
         {/* Peringatan Card */}
-        <div 
+        <div
           onClick={() => setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan')}
           className="bg-amber-50 hover:bg-amber-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-amber-200 transition-all shadow-sm"
         >
           <div className="text-amber-700 font-bold text-xs uppercase tracking-wider">Peringatan (&gt; 2 - 4 Bulan)</div>
           <div className="text-3xl font-extrabold text-amber-800 mt-2">{warningLicenses.length}</div>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan');
@@ -402,13 +486,13 @@ export const LisensiPage: React.FC = () => {
         </div>
 
         {/* Aman Card */}
-        <div 
+        <div
           onClick={() => setActiveDetailView(activeDetailView === 'aman' ? null : 'aman')}
           className="bg-[#0f2e60] hover:bg-[#0c244c] cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-[#0f2e60] transition-all shadow-sm"
         >
           <div className="text-white font-bold text-xs uppercase tracking-wider">Aman (&gt; 4 Bulan)</div>
           <div className="text-3xl font-extrabold text-white mt-2">{safeLicenses.length}</div>
-          <button 
+          <button
             onClick={(e) => {
               e.stopPropagation();
               setActiveDetailView(activeDetailView === 'aman' ? null : 'aman');
@@ -422,74 +506,165 @@ export const LisensiPage: React.FC = () => {
 
       {/* Expanded Area for Cards detail (Accordion table format) */}
       {activeDetailView && (
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
-          <div className="flex justify-between items-center mb-3">
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col gap-4">
+          <div className="flex justify-between items-center border-b border-slate-150 pb-3">
             <div className="flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-primary-900" />
-              <h4 className="font-bold text-xs text-primary-900">
-                Detail Lisensi:{' '}
+              <AlertCircle className="w-5 h-5 text-primary-900 animate-pulse" />
+              <h4 className="font-bold text-sm text-primary-900">
+                Detail Kategori:{' '}
                 {activeDetailView === 'urgent'
                   ? 'Urgent (<= 2 Bulan)'
                   : activeDetailView === 'peringatan'
-                  ? 'Peringatan (> 2 - 4 Bulan)'
-                  : 'Aman (> 4 Bulan)'}
+                    ? 'Peringatan (> 2 - 4 Bulan)'
+                    : 'Aman (> 4 Bulan)'}
               </h4>
             </div>
-            <button 
+            <button
               onClick={() => setActiveDetailView(null)}
-              className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors"
+              className="text-slate-400 hover:text-slate-600 p-1.5 rounded-full hover:bg-slate-100 transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse border border-slate-200">
+
+          {/* Table Filters Checklist Bar */}
+          <div className="flex flex-col gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            {/* Checklist Row */}
+            <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={enableNameFilter}
+                  onChange={(e) => {
+                    setEnableNameFilter(e.target.checked);
+                    if (!e.target.checked) setDetailSearchName('');
+                  }}
+                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                />
+                <span>Nama</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={enableDateFilter}
+                  onChange={(e) => {
+                    setEnableDateFilter(e.target.checked);
+                    if (!e.target.checked) {
+                      setDetailStartDate('');
+                      setDetailEndDate('');
+                    }
+                  }}
+                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                />
+                <span>Exp Date</span>
+              </label>
+
+              {(enableNameFilter || enableDateFilter) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEnableNameFilter(false);
+                    setEnableDateFilter(false);
+                    setDetailSearchName('');
+                    setDetailStartDate('');
+                    setDetailEndDate('');
+                  }}
+                  className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-auto"
+                >
+                  Reset Semua
+                </button>
+              )}
+            </div>
+
+            {/* Conditionally Rendered Inputs Row */}
+            {(enableNameFilter || enableDateFilter) && (
+              <div className="flex flex-wrap items-center gap-4 border-t border-slate-200/60 pt-3 mt-1">
+                {/* Name Filter Input */}
+                {enableNameFilter && (
+                  <div className="flex-1 min-w-[240px] flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
+                    <input
+                      type="text"
+                      value={detailSearchName}
+                      onChange={(e) => setDetailSearchName(e.target.value)}
+                      placeholder="Cari nama produk / principle..."
+                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                    />
+                  </div>
+                )}
+
+                {/* Date Range Filter Inputs */}
+                {enableDateFilter && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mulai Tanggal</span>
+                      <input
+                        type="date"
+                        value={detailStartDate}
+                        onChange={(e) => setDetailStartDate(e.target.value)}
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                      />
+                    </div>
+                    <span className="text-slate-400 text-xs mt-4">s.d</span>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sampai Tanggal</span>
+                      <input
+                        type="date"
+                        value={detailEndDate}
+                        onChange={(e) => setDetailEndDate(e.target.value)}
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Table Area */}
+          <div className="overflow-x-auto rounded-lg border border-slate-200">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">No</th>
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Principle</th>
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Nama Produk</th>
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider text-center w-40">Status</th>
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider text-center w-48">Exp Date</th>
+                <tr className="bg-slate-50 text-[10px] font-bold text-slate-500 border-b border-slate-200">
+                  <th className="py-3 px-4 border-r border-slate-200 uppercase tracking-wider w-16 text-center">No</th>
+                  <th className="py-3 px-4 border-r border-slate-200 uppercase tracking-wider">Principle</th>
+                  <th className="py-3 px-4 border-r border-slate-200 uppercase tracking-wider">Nama Produk</th>
+                  <th className="py-3 px-4 border-r border-slate-200 uppercase tracking-wider text-center w-44">Status</th>
+                  <th className="py-3 px-4 uppercase tracking-wider text-center w-48">Exp Date</th>
                 </tr>
               </thead>
-              <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-                {(activeDetailView === 'urgent'
-                  ? urgentLicenses
-                  : activeDetailView === 'peringatan'
-                  ? warningLicenses
-                  : safeLicenses
-                ).map((row, index) => (
-                   <tr key={index} className="hover:bg-slate-50/30 transition-colors">
-                    <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
+              <tbody className="text-xs text-slate-700 divide-y divide-slate-150 bg-white">
+                {filteredDetailRows.map((row, index) => (
+                  <tr key={index} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="py-2.5 px-4 text-center border-r border-slate-200 text-slate-400 font-medium">
                       {index + 1}
                     </td>
-                    <td className="py-2.5 px-4 font-semibold border border-slate-200">
+                    <td className="py-2.5 px-4 font-bold border-r border-slate-200">
                       {row.principle}
                     </td>
-                    <td className="py-2.5 px-4 border border-slate-200">
+                    <td className="py-2.5 px-4 border-r border-slate-200">
                       {row.nama_produk}
                     </td>
-                    <td className="py-2.5 px-4 border border-slate-200 text-center">
-                      <span className={`px-2 py-1 rounded-full text-[10px] font-semibold border ${
-                        row.status === 'Aktif' 
+                    <td className="py-2.5 px-4 border-r border-slate-200 text-center">
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${row.status === 'Aktif'
                           ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                           : row.status === 'Proses Renewal'
-                          ? 'bg-amber-50 text-amber-700 border-amber-200'
-                          : 'bg-blue-50 text-blue-700 border-blue-200'
-                      }`}>
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-blue-50 text-blue-700 border-blue-200'
+                        }`}>
                         {row.status}
                       </span>
                     </td>
-                    <td className="py-2.5 px-4 text-center border border-slate-200 font-mono">
+                    <td className="py-2.5 px-4 text-center font-mono font-bold text-slate-600">
                       {row.tanggal_expired || '-'}
                     </td>
                   </tr>
                 ))}
-                {(activeDetailView === 'urgent' ? urgentLicenses : activeDetailView === 'peringatan' ? warningLicenses : safeLicenses).length === 0 && (
+                {filteredDetailRows.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="py-8 text-center text-xs text-slate-400">
-                      Tidak ada lisensi dalam kategori ini.
+                    <td colSpan={5} className="py-10 text-center text-xs text-slate-400 font-medium">
+                      {detailSearchName ? 'Tidak ada data lisensi yang cocok dengan pencarian Anda.' : 'Tidak ada data lisensi dalam kategori ini.'}
                     </td>
                   </tr>
                 )}
@@ -503,7 +678,7 @@ export const LisensiPage: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-auto">
         <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
           <h3 className="text-xs font-bold text-primary-900">Data Entri Lisensi</h3>
-          <button 
+          <button
             type="button"
             onClick={handleAddRow}
             className="flex items-center gap-1 bg-primary-900 text-white px-3 py-1.5 rounded font-semibold text-[10px] hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider"
@@ -512,7 +687,7 @@ export const LisensiPage: React.FC = () => {
             Tambah Baris Baru
           </button>
         </div>
-        
+
         <div className="overflow-x-auto h-auto p-4">
           <table className="w-full min-w-[1600px] text-left border-collapse border border-slate-200">
             <thead>
@@ -535,25 +710,23 @@ export const LisensiPage: React.FC = () => {
                     {index + 1}
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <textarea 
+                    <AutoResizeTextarea
                       value={row.principle}
-                      onChange={(e) => handleRowChange(index, 'principle', e.target.value)}
+                      onChange={(val) => handleRowChange(index, 'principle', val)}
                       placeholder="e.g. Check Point"
-                      rows={2}
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <textarea 
+                    <AutoResizeTextarea
                       value={row.nama_produk}
-                      onChange={(e) => handleRowChange(index, 'nama_produk', e.target.value)}
+                      onChange={(val) => handleRowChange(index, 'nama_produk', val)}
                       placeholder="e.g. Insider Firewall"
-                      rows={2}
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
+                    <input
                       type="number"
                       value={row.total_lisensi === 0 ? '' : row.total_lisensi}
                       onChange={(e) => handleRowChange(index, 'total_lisensi', parseInt(e.target.value, 10) || 0)}
@@ -563,7 +736,7 @@ export const LisensiPage: React.FC = () => {
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
+                    <input
                       type="text"
                       value={row.satuan || ''}
                       onChange={(e) => handleRowChange(index, 'satuan', e.target.value)}
@@ -572,7 +745,7 @@ export const LisensiPage: React.FC = () => {
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <input 
+                    <input
                       type="date"
                       value={row.tanggal_expired}
                       onChange={(e) => handleRowChange(index, 'tanggal_expired', e.target.value)}
@@ -580,7 +753,7 @@ export const LisensiPage: React.FC = () => {
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <select 
+                    <select
                       value={row.status}
                       onChange={(e) => handleRowChange(index, 'status', e.target.value)}
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
@@ -591,17 +764,16 @@ export const LisensiPage: React.FC = () => {
                     </select>
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
-                    <textarea 
+                    <AutoResizeTextarea
                       value={row.keterangan || ''}
-                      onChange={(e) => handleRowChange(index, 'keterangan', e.target.value)}
+                      onChange={(val) => handleRowChange(index, 'keterangan', val)}
                       placeholder="Catatan..."
-                      rows={2}
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none resize-none"
+                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
                   </td>
                   <td className="py-2.5 px-4 text-center border border-slate-200">
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => handleDeleteRow(index)}
                       className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                       title="Hapus"
@@ -618,7 +790,7 @@ export const LisensiPage: React.FC = () => {
                   </td>
                 </tr>
               )}
-              
+
               {/* Total Row */}
               <tr className="bg-slate-50 font-bold border-t-2 border-slate-300">
                 <td className="py-2.5 px-4 text-right border border-slate-200" colSpan={3}>
@@ -636,7 +808,7 @@ export const LisensiPage: React.FC = () => {
         {/* Form Actions */}
         <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex justify-end items-center gap-2.5">
           <div className="flex gap-2">
-            <button 
+            <button
               type="button"
               onClick={() => {
                 const monthNum = monthsNumMap[bulan] || 1;
@@ -660,7 +832,7 @@ export const LisensiPage: React.FC = () => {
             >
               Batal
             </button>
-            <button 
+            <button
               type="button"
               onClick={handleSaveClick}
               className="flex items-center gap-1.5 bg-primary-900 text-white px-4 py-1.5 rounded font-semibold text-[10px] hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider"
@@ -679,17 +851,17 @@ export const LisensiPage: React.FC = () => {
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Lisensi Aktif</p>
           </div>
-          
+
           {/* Year Range Selectors */}
           <div className="flex items-center gap-2 mt-1">
-            <FilterSelect 
+            <FilterSelect
               label="Dari Tahun"
               value={startYear}
               onChange={setStartYear}
               options={yearsList}
             />
             <span className="text-slate-400 text-xs mt-4">s.d</span>
-            <FilterSelect 
+            <FilterSelect
               label="Sampai Tahun"
               value={endYear}
               onChange={setEndYear}
@@ -697,14 +869,14 @@ export const LisensiPage: React.FC = () => {
             />
           </div>
         </div>
-        
+
         <div className="w-full p-4" style={{ minHeight: '400px', position: 'relative' }}>
           <Line data={lineChartData} options={lineChartOptions} />
         </div>
       </div>
 
       {/* Confirmation Modal */}
-      <ConfirmationModal 
+      <ConfirmationModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirmSave}
@@ -739,14 +911,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
-          <button 
+          <button
             type="button"
             onClick={onClose}
             className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50"
           >
             Tidak
           </button>
-          <button 
+          <button
             type="button"
             onClick={onConfirm}
             className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
