@@ -1465,7 +1465,7 @@ export const LisensiPage: React.FC = () => {
             </thead>
             <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
               {paginatedEntryRows.map((row) => (
-                <tr key={row.urutan} className={`transition-colors group ${row.isDeleted ? 'bg-red-50 hover:bg-red-100/70 text-red-900/60' : 'hover:bg-slate-50/30'}`}>
+                <tr key={row.urutan} className={`transition-colors group ${row.isDeleted ? 'bg-red-100 hover:bg-red-200/70 text-red-950/70' : 'hover:bg-slate-50/30'}`}>
                   <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                     {row.urutan}
                   </td>
