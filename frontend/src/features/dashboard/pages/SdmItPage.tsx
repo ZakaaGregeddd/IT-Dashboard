@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, X } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, X, ArrowUpDown } from 'lucide-react';
 import { Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -79,6 +79,8 @@ export const SdmItPage: React.FC = () => {
   // Input state for details table
   const [sdmRows, setSdmRows] = useState<SDMDetail[]>([]);
 
+  // Sort state for the input table: null | 'asc' | 'desc'
+  const [jumlahSortOrder, setJumlahSortOrder] = useState<'asc' | 'desc' | null>(null);
 
   // All historical records for YTD
   const [allSdmRecords, setAllSdmRecords] = useState<SDMData[]>([]);
@@ -122,8 +124,10 @@ export const SdmItPage: React.FC = () => {
         const result = await response.json();
         if (result.success && result.data && Array.isArray(result.data.detail_sdm_it)) {
           setSdmRows(result.data.detail_sdm_it);
+          setJumlahSortOrder(null); // Reset sorting when changing month/year
         } else {
           setSdmRows([]);
+          setJumlahSortOrder(null);
         }
       } catch (error) {
         console.error('Failed to fetch active SDM data:', error);
@@ -137,24 +141,40 @@ export const SdmItPage: React.FC = () => {
   // Compute live total
   const totalJumlah = sdmRows.reduce((acc, row) => acc + (row.jumlah || 0), 0);
 
-  // Handle edit row input value
-  const handleJumlahChange = (index: number, val: string) => {
+  // Handle edit row input value by unique urutan identifier
+  const handleJumlahChangeByUrutan = (urutan: number, val: string) => {
     const parsed = parseInt(val, 10) || 0;
     setSdmRows((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], jumlah: parsed };
-      return updated;
+      return prev.map((row) => {
+        if (row.urutan === urutan) {
+          return { ...row, jumlah: parsed };
+        }
+        return row;
+      });
     });
   };
 
-  // Handle delete row
-  const handleDeleteRow = (index: number) => {
+  // Handle delete row by unique urutan identifier
+  const handleDeleteRowByUrutan = (urutan: number) => {
     setSdmRows((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
+      const updated = prev.filter((row) => row.urutan !== urutan);
       // Re-assign order (urutan)
       return updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
     });
   };
+
+  // Get sorted rows
+  const getSortedSdmRows = () => {
+    const rows = [...sdmRows];
+    if (jumlahSortOrder === 'asc') {
+      rows.sort((a, b) => a.jumlah - b.jumlah);
+    } else if (jumlahSortOrder === 'desc') {
+      rows.sort((a, b) => b.jumlah - a.jumlah);
+    }
+    return rows;
+  };
+
+  const sortedSdmRows = getSortedSdmRows();
 
 
 
@@ -404,13 +424,26 @@ export const SdmItPage: React.FC = () => {
                   <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
                     <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">NO</th>
                     <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">ROLE/DIVISI</th>
-                    <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-32">JUMLAH</th>
+                    <th 
+                      onClick={() => {
+                        if (jumlahSortOrder === null) setJumlahSortOrder('asc');
+                        else if (jumlahSortOrder === 'asc') setJumlahSortOrder('desc');
+                        else setJumlahSortOrder(null);
+                      }}
+                      className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-32 cursor-pointer hover:bg-slate-100 select-none transition-colors"
+                      title="Klik untuk mengurutkan berdasarkan Jumlah"
+                    >
+                      <div className="flex items-center justify-end gap-1.5">
+                        <span>JUMLAH</span>
+                        <ArrowUpDown className={`w-3.5 h-3.5 ${jumlahSortOrder ? 'text-primary-900' : 'text-slate-400'}`} />
+                      </div>
+                    </th>
                     <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-20">AKSI</th>
                   </tr>
                 </thead>
                 <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-                  {sdmRows.map((row, index) => (
-                    <tr key={index} className="hover:bg-slate-50/30 transition-colors group">
+                  {sortedSdmRows.map((row, index) => (
+                    <tr key={row.urutan} className="hover:bg-slate-50/30 transition-colors group">
                       <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                         {index + 1}
                       </td>
@@ -421,7 +454,7 @@ export const SdmItPage: React.FC = () => {
                         <input 
                           type="number"
                           value={row.jumlah === 0 ? '' : row.jumlah}
-                          onChange={(e) => handleJumlahChange(index, e.target.value)}
+                          onChange={(e) => handleJumlahChangeByUrutan(row.urutan, e.target.value)}
                           placeholder="0"
                           min="0"
                           className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
@@ -430,7 +463,7 @@ export const SdmItPage: React.FC = () => {
                       <td className="py-2.5 px-4 text-center border border-slate-200">
                         <button 
                           type="button" 
-                          onClick={() => handleDeleteRow(index)}
+                          onClick={() => handleDeleteRowByUrutan(row.urutan)}
                           className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                           title="Hapus"
                         >

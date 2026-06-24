@@ -756,7 +756,7 @@ export const LisensiPage: React.FC = () => {
                     </div>
                     {/* Urutan Abjad */}
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Abjad</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
                       <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
                         <button
                           type="button"
@@ -813,7 +813,7 @@ export const LisensiPage: React.FC = () => {
                     </div>
                     {/* Urutan Waktu */}
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Waktu</span>
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
                       <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
                         <button
                           type="button"
@@ -1003,7 +1003,7 @@ export const LisensiPage: React.FC = () => {
                   </div>
                   {/* Urutan Abjad */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Abjad</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
                     <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
                       <button
                         type="button"
@@ -1060,7 +1060,7 @@ export const LisensiPage: React.FC = () => {
                   </div>
                   {/* Urutan Waktu */}
                   <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Waktu</span>
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
                     <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
                       <button
                         type="button"
