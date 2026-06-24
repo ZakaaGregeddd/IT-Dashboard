@@ -238,11 +238,8 @@ export const RestorePage: React.FC = () => {
     }
   };
 
-  // Monthly trend datasets (Only data from database, no hardcoded dummy values)
-  const getMonthlyTrendData = () => {
-    const monthsShort = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-    const monthsLong = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-    
+    // YTD trend datasets: displays the yearly average completion
+  const getYearlyTrendData = () => {
     const labels: string[] = [];
     const masuk: number[] = [];
     const selesai: number[] = [];
@@ -250,26 +247,42 @@ export const RestorePage: React.FC = () => {
     const start = parseInt(startYear, 10);
     const end = parseInt(endYear, 10);
     
-    // Filter and sort database records to only include matching years chronologically
-    const sortedRecords = [...allDbRecords]
-      .filter(rec => rec.tahun >= start && rec.tahun <= end)
-      .sort((a, b) => a.tahun - b.tahun);
-    
-    sortedRecords.forEach((dbRecord) => {
-      monthsLong.forEach((mLong, mIdx) => {
-        labels.push(`${monthsShort[mIdx]} ${dbRecord.tahun}`);
-        const detail = dbRecord.detail_realisasi_restore?.find(
-          d => d.bulan_teks.toLowerCase() === mLong.toLowerCase()
-        );
-        masuk.push(detail ? detail.wo_masuk : 0);
-        selesai.push(detail ? detail.wo_selesai : 0);
-      });
-    });
+    for (let y = start; y <= end; y++) {
+      labels.push(y.toString());
+      const dbRecord = allDbRecords.find(rec => rec.tahun === y);
+      
+      let totalMasuk = 0;
+      let totalSelesai = 0;
+      let count = 0;
+      
+      if (dbRecord) {
+        const details = (dbRecord as any).detail_pc_support || (dbRecord as any).detail_layanan_aplikasi || (dbRecord as any).detail_layanan_operasional || (dbRecord as any).detail_realisasi_restore;
+        if (Array.isArray(details) && details.length > 0) {
+          details.forEach(d => {
+            totalMasuk += Number(d.wo_masuk) || 0;
+            totalSelesai += Number(d.wo_selesai) || 0;
+            count++;
+          });
+        }
+      } else if (y === parseInt(tahun, 10) && systemRows.length > 0) {
+        systemRows.forEach(d => {
+          totalMasuk += Number(d.wo_masuk) || 0;
+          totalSelesai += Number(d.wo_selesai) || 0;
+          count++;
+        });
+      }
+      
+      const avgMasuk = count > 0 ? parseFloat((totalMasuk / count).toFixed(2)) : 0;
+      const avgSelesai = count > 0 ? parseFloat((totalSelesai / count).toFixed(2)) : 0;
+      
+      masuk.push(avgMasuk);
+      selesai.push(avgSelesai);
+    }
     
     return { labels, masuk, selesai };
   };
 
-  const trendData = getMonthlyTrendData();
+  const trendData = getYearlyTrendData();
 
   const lineChartData: ChartData<'line'> = {
     labels: trendData.labels,
@@ -325,11 +338,7 @@ export const RestorePage: React.FC = () => {
         grid: { color: '#f1f5f9' }
       },
       x: {
-        ticks: { 
-          font: { family: 'Inter', size: 9 },
-          maxRotation: 45,
-          minRotation: 45
-        },
+        ticks: { font: { family: 'Inter', size: 10 } },
         grid: { display: false }
       }
     }
@@ -489,8 +498,8 @@ export const RestorePage: React.FC = () => {
         {/* YTD Line Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Tren Bulanan Multi-Tahun</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Analisis perbandingan WO Masuk vs WO Selesai per bulan (Hanya menampilkan data dari database)</p>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Tahunan WO Masuk vs WO Selesai (Hanya menampilkan data dari database)</p>
             
             <div className="flex items-center gap-2 mt-1">
               <FilterSelect 

@@ -9,12 +9,12 @@ interface WanBackupDetailInput {
 
 export class UtilisasiWanBackupService {
   private static DEFAULT_SYSTEMS = [
-    { urutan: 1, lokasi: 'M.Kadin - Tanjung Enim', ketersediaan_persen: 100 },
-    { urutan: 2, lokasi: 'Tarahan - Tanjung Enim', ketersediaan_persen: 100 },
-    { urutan: 3, lokasi: 'Kertapati - Tanjung Enim', ketersediaan_persen: 100 },
-    { urutan: 4, lokasi: 'Mess Puncak - Tanjung Enim', ketersediaan_persen: 100 },
-    { urutan: 5, lokasi: 'Bukit Kecil - Tanjung Enim', ketersediaan_persen: 100 },
-    { urutan: 6, lokasi: 'UPO - Tanjung Enim', ketersediaan_persen: 100 },
+    { urutan: 1, lokasi: 'M.Kadin - Tanjung Enim', ketersediaan_persen: 0 },
+    { urutan: 2, lokasi: 'Tarahan - Tanjung Enim', ketersediaan_persen: 0 },
+    { urutan: 3, lokasi: 'Kertapati - Tanjung Enim', ketersediaan_persen: 0 },
+    { urutan: 4, lokasi: 'Mess Puncak - Tanjung Enim', ketersediaan_persen: 0 },
+    { urutan: 5, lokasi: 'Bukit Kecil - Tanjung Enim', ketersediaan_persen: 0 },
+    { urutan: 6, lokasi: 'UPO - Tanjung Enim', ketersediaan_persen: 0 },
   ];
 
   static async getUtilisasi(bulan: number, tahun: number) {
@@ -79,7 +79,7 @@ export class UtilisasiWanBackupService {
         return {
           urutan: s.urutan,
           lokasi: s.lokasi,
-          ketersediaan_persen: defaultMatch ? defaultMatch.ketersediaan_persen : 100,
+          ketersediaan_persen: defaultMatch ? defaultMatch.ketersediaan_persen : 0,
         };
       }
     });

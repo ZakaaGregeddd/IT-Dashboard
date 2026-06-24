@@ -11,14 +11,14 @@ interface CPUDetailInput {
 
 export class UtilisasiCpuService {
   private static DEFAULT_SERVERS = [
-    { urutan: 1, nama_server: 'steppl-esxi1', cpu_cores: 128, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 2, nama_server: 'steppl-esxi2', cpu_cores: 128, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 3, nama_server: 'steppl-esxi3', cpu_cores: 128, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 4, nama_server: 'steppl-esxi4', cpu_cores: 128, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 5, nama_server: 'tjevmerp1', cpu_cores: 147, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 6, nama_server: 'tjevmerp2', cpu_cores: 147, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 7, nama_server: 'tjevmerp3', cpu_cores: 147, utilisasi_ghz: 0, utilisasi_persen: 0 },
-    { urutan: 8, nama_server: 'tjevmerp4', cpu_cores: 147, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 1, nama_server: 'steppl-esxi1', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 2, nama_server: 'steppl-esxi2', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 3, nama_server: 'steppl-esxi3', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 4, nama_server: 'steppl-esxi4', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 5, nama_server: 'tjevmerp1', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 6, nama_server: 'tjevmerp2', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 7, nama_server: 'tjevmerp3', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
+    { urutan: 8, nama_server: 'tjevmerp4', cpu_cores: 0, utilisasi_ghz: 0, utilisasi_persen: 0 },
   ];
 
   /**
@@ -67,10 +67,10 @@ export class UtilisasiCpuService {
         tahun,
         tipe_utilisasi: 'SERVER_CPU',
         rata_rata_utilisasi_persen: 0,
-        total_kapasitas: 1100,
+        total_kapasitas: 0,
         total_utilisasi: 0,
-        total_free: 1100,
-        total_cpu_cores: 1100,
+        total_free: 0,
+        total_cpu_cores: 0,
         total_utilisasi_ghz: 0,
         target_utilisasi_persen,
         detail_utilisasi_cpu: this.DEFAULT_SERVERS,

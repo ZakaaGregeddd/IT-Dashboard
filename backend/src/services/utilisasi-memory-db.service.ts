@@ -12,8 +12,8 @@ interface MemoryDatabaseDetailInput {
 
 export class UtilisasiMemoryDbService {
   private static DEFAULT_SYSTEMS = [
-    { urutan: 1, nama_sistem: 'CISEA', memory_gb: 64, utilisasi_gb: 27, free_persen: 57.8, utilisasi_persen: 42.2 },
-    { urutan: 2, nama_sistem: 'Ellipse', memory_gb: 512, utilisasi_gb: 225, free_persen: 56.1, utilisasi_persen: 43.9 },
+    { urutan: 1, nama_sistem: 'CISEA', memory_gb: 0, utilisasi_gb: 0, free_persen: 100, utilisasi_persen: 0 },
+    { urutan: 2, nama_sistem: 'Ellipse', memory_gb: 0, utilisasi_gb: 0, free_persen: 100, utilisasi_persen: 0 },
   ];
 
   static async getUtilisasi(bulan: number, tahun: number) {

@@ -245,15 +245,6 @@ export const UtilisasiWanBackupPage: React.FC = () => {
 
 
   
-  const locations = [
-    { name: 'M.Kadin - Tanjung Enim', color: '#001941' },
-    { name: 'Tarahan - Tanjung Enim', color: '#855300' },
-    { name: 'Kertapati - Tanjung Enim', color: '#311200' },
-    { name: 'Mess Puncak - Tanjung Enim', color: '#0f2e60' },
-    { name: 'Bukit Kecil - Tanjung Enim', color: '#fea619' },
-    { name: 'UPO - Tanjung Enim', color: '#747780' }
-  ];
-
   const getDynamicMockData = () => {
     const start = parseInt(startYear, 10);
     const end = parseInt(endYear, 10);
@@ -263,32 +254,29 @@ export const UtilisasiWanBackupPage: React.FC = () => {
       const yrStr = yrNum.toString();
       const dbRecs = allDbRecords.filter(rec => rec.tahun === yrNum);
       
-      const yearObj: Record<string, any> = { tahun: yrStr };
+      let sumAll = 0;
+      let countAll = 0;
       
-      locations.forEach(loc => {
-        if (dbRecs.length > 0) {
-          let sum = 0;
-          let count = 0;
-          dbRecs.forEach(rec => {
-            const match = rec.detail_ketersediaan_backup.find(
-              d => d.lokasi.toLowerCase() === loc.name.toLowerCase()
-            );
-            if (match) {
-              sum += Number(match.ketersediaan_persen) || 0;
-              count++;
-            }
-          });
-          yearObj[loc.name] = count > 0 ? parseFloat((sum / count).toFixed(2)) : 0;
-        } else if (yrNum === parseInt(tahun, 10) && systemRows.length > 0) {
-          const currentMatch = systemRows.find(
-            s => s.lokasi.toLowerCase() === loc.name.toLowerCase()
-          );
-          yearObj[loc.name] = currentMatch ? currentMatch.ketersediaan_persen : 0;
-        } else {
-          yearObj[loc.name] = 0;
-        }
+      if (dbRecs.length > 0) {
+        dbRecs.forEach(rec => {
+          if (Array.isArray(rec.detail_ketersediaan_backup)) {
+            rec.detail_ketersediaan_backup.forEach(d => {
+              sumAll += Number(d.ketersediaan_persen) || 0;
+              countAll++;
+            });
+          }
+        });
+      } else if (yrNum === parseInt(tahun, 10) && systemRows.length > 0) {
+        systemRows.forEach(row => {
+          sumAll += Number(row.ketersediaan_persen) || 0;
+          countAll++;
+        });
+      }
+      
+      data.push({
+        tahun: yrStr,
+        rata_rata: countAll > 0 ? parseFloat((sumAll / countAll).toFixed(2)) : 0
       });
-      data.push(yearObj);
     }
     return data;
   };
@@ -298,19 +286,18 @@ export const UtilisasiWanBackupPage: React.FC = () => {
 
   const lineChartData: ChartData<'line'> = {
     labels: filteredMockData.map(d => d.tahun),
-    datasets: locations.map(loc => {
-      return {
-        label: loc.name,
-        data: filteredMockData.map(d => d[loc.name as keyof typeof d] as number),
-        borderColor: loc.color,
-        backgroundColor: loc.color,
+    datasets: [
+      {
+        label: 'Rata-rata Ketersediaan (%)',
+        data: filteredMockData.map(d => d.rata_rata),
+        borderColor: '#0f2e60',
+        backgroundColor: '#0f2e60',
         tension: 0.1,
         borderWidth: 2,
         pointRadius: 4,
-        pointHoverRadius: 6,
         fill: false
-      };
-    })
+      }
+    ]
   };
 
   const lineChartOptions: ChartOptions<'line'> = {
@@ -322,7 +309,7 @@ export const UtilisasiWanBackupPage: React.FC = () => {
     },
     plugins: {
       legend: {
-        display: false // We use the custom legendary layout below
+        display: false
       },
       tooltip: {
         backgroundColor: '#213145',
@@ -332,8 +319,16 @@ export const UtilisasiWanBackupPage: React.FC = () => {
     },
     scales: {
       y: {
-        beginAtZero: false,
-        ticks: { font: { family: 'Inter', size: 10 } },
+        beginAtZero: true,
+        min: 0,
+        max: 100,
+        ticks: { 
+          font: { family: 'Inter', size: 10 },
+          stepSize: 10,
+          callback: function(value: any) {
+            return value + '%';
+          }
+        },
         grid: { color: '#f1f5f9' },
         title: {
           display: true,
@@ -396,7 +391,7 @@ export const UtilisasiWanBackupPage: React.FC = () => {
         {/* Data Table */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
-            <h3 className="text-xs font-bold text-primary-900">Data Ketersediaan Jaringan (WAN) PTBA</h3>
+            <h3 className="text-xs font-bold text-primary-900">Data Ketersediaan WAN Backup</h3>
           </div>
           
           <div className="overflow-x-auto p-4">
@@ -404,8 +399,8 @@ export const UtilisasiWanBackupPage: React.FC = () => {
               <thead>
                 <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
                   <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">No</th>
-                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">LOKASI</th>
-                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-48 bg-blue-50/30">Ketersediaan</th>
+                  <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider">Lokasi</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">Ketersediaan (%)</th>
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
@@ -426,7 +421,7 @@ export const UtilisasiWanBackupPage: React.FC = () => {
                           placeholder="0"
                           min="0"
                           max="100"
-                          className="w-24 px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
+                          className="w-32 px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
                         />
                         <span className="text-slate-500 font-medium text-xs">%</span>
                       </div>
@@ -450,15 +445,17 @@ export const UtilisasiWanBackupPage: React.FC = () => {
                 type="button"
                 onClick={() => {
                   const monthNum = monthsNumMap[bulan] || 1;
-                  fetch(`http://localhost:5000/api/utilisasi/wan-backup?bulan=${monthNum}&tahun=${tahun}`)
+                  fetch(`http://localhost:5000/api/ketersediaan/wan-backup?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_backup)) {
+                      if (result.success && result.data && Array.isArray(result.data.detail_ketersediaan_backup) && result.data.detail_ketersediaan_backup.length > 0) {
                         const parsed = result.data.detail_ketersediaan_backup.map((item: any) => ({
                           ...item,
                           ketersediaan_persen: parseFloat(item.ketersediaan_persen) || 0
                         }));
                         setSystemRows(parsed);
+                      } else {
+                        setSystemRows([]);
                       }
                     });
                 }}
@@ -478,11 +475,11 @@ export const UtilisasiWanBackupPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Monthly Visualisation Bar */}
+        {/* Monthly Visualisation Bar Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Visualisasi Ketersediaan Jaringan (WAN) PTBA</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Persentase Ketersediaan per Lokasi ({bulan} {tahun})</p>
+            <h3 className="text-xs font-semibold text-slate-800">Visualisasi Ketersediaan Jaringan (WAN)</h3>
+            <p className="text-[10px] text-slate-500 mt-0.5">Ketersediaan per Lokasi ({bulan} {tahun})</p>
           </div>
           <div className="p-4 flex flex-col justify-center items-center h-[300px] relative">
             {systemRows.length > 0 ? (
@@ -521,13 +518,11 @@ export const UtilisasiWanBackupPage: React.FC = () => {
           </div>
 
           <div className="p-4 border-t border-slate-100 bg-slate-50/20">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-              {locations.map((loc, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: loc.color }} />
-                  <span className="text-[10px] font-medium text-slate-600 truncate">{loc.name}</span>
-                </div>
-              ))}
+            <div className="flex justify-center gap-6">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: '#0f2e60' }} />
+                <span className="text-[10px] font-semibold text-slate-600">Rata-rata Ketersediaan (%)</span>
+              </div>
             </div>
           </div>
         </div>

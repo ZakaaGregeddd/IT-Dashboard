@@ -10,9 +10,9 @@ interface KeamananDetailInput {
 
 export class KetersediaanKeamananService {
   private static DEFAULT_DETAILS = [
-    { urutan: 1, nama_sistem: 'Proxy Tanjung Enim', rencana_persen: 100, realisasi_persen: 100 },
-    { urutan: 2, nama_sistem: 'Security Jaringan', rencana_persen: 100, realisasi_persen: 100 },
-    { urutan: 3, nama_sistem: 'Antivirus', rencana_persen: 100, realisasi_persen: 100 },
+    { urutan: 1, nama_sistem: 'Proxy Tanjung Enim', rencana_persen: 0, realisasi_persen: 0 },
+    { urutan: 2, nama_sistem: 'Security Jaringan', rencana_persen: 0, realisasi_persen: 0 },
+    { urutan: 3, nama_sistem: 'Antivirus', rencana_persen: 0, realisasi_persen: 0 },
   ];
 
   static async getKetersediaan(bulan: number, tahun: number) {
@@ -48,8 +48,8 @@ export class KetersediaanKeamananService {
         id: match?.id,
         urutan: def.urutan,
         nama_sistem: def.nama_sistem,
-        rencana_persen: match ? Number(match.rencana_persen) || 0 : 100,
-        realisasi_persen: match ? Number(match.realisasi_persen) || 0 : 100,
+        rencana_persen: match ? Number(match.rencana_persen) || 0 : 0,
+        realisasi_persen: match ? Number(match.realisasi_persen) || 0 : 0,
       };
     });
 

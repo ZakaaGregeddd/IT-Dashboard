@@ -12,8 +12,8 @@ interface StorageDatabaseDetailInput {
 
 export class UtilisasiStorageDbService {
   private static DEFAULT_SYSTEMS = [
-    { urutan: 1, nama_sistem: 'CISEA', storage_tb: 1.45, utilisasi_tb: 0.31, free_persen: 78.6, utilisasi_persen: 21.4 },
-    { urutan: 2, nama_sistem: 'Ellipse', storage_tb: 5.39, utilisasi_tb: 1.91, free_persen: 64.6, utilisasi_persen: 35.4 },
+    { urutan: 1, nama_sistem: 'CISEA', storage_tb: 0, utilisasi_tb: 0, free_persen: 100, utilisasi_persen: 0 },
+    { urutan: 2, nama_sistem: 'Ellipse', storage_tb: 0, utilisasi_tb: 0, free_persen: 100, utilisasi_persen: 0 },
   ];
 
   static async getUtilisasi(bulan: number, tahun: number) {
