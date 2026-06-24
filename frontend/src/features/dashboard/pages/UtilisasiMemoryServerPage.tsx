@@ -131,6 +131,11 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
     const saved = localStorage.getItem('memory_server_rowsPerPage');
     return saved ? parseInt(saved, 10) : 10;
   });
+  const [pageInput, setPageInput] = useState(currentPage.toString());
+
+  useEffect(() => {
+    setPageInput(currentPage.toString());
+  }, [currentPage]);
 
   // Reset page to 1 when filters or rowsPerPage change
   useEffect(() => {
@@ -710,9 +715,28 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
               >
                 &larr; Prev
               </button>
-              <span className="text-slate-600 font-bold">
-                Halaman {currentPage} dari {totalPages}
-              </span>
+              <div className="flex items-center gap-1 text-slate-600 font-bold">
+                <span>Halaman</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalPages}
+                  value={pageInput}
+                  onChange={(e) => {
+                    const valStr = e.target.value;
+                    setPageInput(valStr);
+                    const val = parseInt(valStr, 10);
+                    if (!isNaN(val) && val >= 1 && val <= totalPages) {
+                      setCurrentPage(val);
+                    }
+                  }}
+                  onBlur={() => {
+                    setPageInput(currentPage.toString());
+                  }}
+                  className="w-12 text-center bg-white border border-slate-200 rounded py-1 px-1.5 font-bold focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span>dari {totalPages}</span>
+              </div>
               <button
                 type="button"
                 disabled={currentPage === totalPages}
