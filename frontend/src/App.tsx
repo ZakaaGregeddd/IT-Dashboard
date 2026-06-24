@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MainLayout } from '@/layouts/MainLayout';
 import { TemplateLoader } from '@/components/TemplateLoader';
-import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage, UtilisasiWanBackupPage, KetersediaanKeamananPage, PcSupportPage, RestorePage, OperasionalTiPage, LayananAppPage } from '@/pages';
+import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage, UtilisasiWanBackupPage, KetersediaanKeamananPage, PcSupportPage, RestorePage, OperasionalTiPage, LayananAppPage, UtilisasiMemoryAplikasiPage } from '@/pages';
 
 const templatePaths: Record<string, string> = {
   '/': '1dashboard',
@@ -16,6 +16,7 @@ const templatePaths: Record<string, string> = {
   '/utilisasi-memory-server': '10memoryerver',
   '/utilisasi-storage-server': '11storageserver',
   '/utilisasi-cpu-aplikasi-ellipse-dan-cisea': '12cpuapp',
+  '/utilisasi-memory-aplikasi-ellipse-dan-cisea': '23memoryapp',
   '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea': '13cpudb',
   '/utilisasi-memory-database-ellipse-dan-cisea': '14memorydb',
   '/utilisasi-storage-database-ellipse-dan-cisea': '15storagedb',
@@ -81,6 +82,9 @@ const App: React.FC = () => {
     }
     if (currentPath === '/utilisasi-cpu-aplikasi-ellipse-dan-cisea') {
       return <UtilisasiCpuAplikasiPage />;
+    }
+    if (currentPath === '/utilisasi-memory-aplikasi-ellipse-dan-cisea') {
+      return <UtilisasiMemoryAplikasiPage />;
     }
     if (currentPath === '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea') {
       return <UtilisasiCpuDbAplikasiPage />;

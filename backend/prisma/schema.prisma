@@ -288,6 +288,7 @@ model laporan_infrastruktur_master {
   detail_cpu_aplikasi        detail_cpu_aplikasi[]
   detail_cpu_db_aplikasi     detail_cpu_db_aplikasi[]
   detail_ketersediaan_backup detail_ketersediaan_backup[]
+  detail_memory_aplikasi     detail_memory_aplikasi[]
   detail_memory_db_aplikasi  detail_memory_db_aplikasi[]
   detail_program_kerja_ti    detail_program_kerja_ti[]
   detail_storage_db_aplikasi detail_storage_db_aplikasi[]
@@ -414,11 +415,6 @@ model laporan_work_order {
   @@unique([id, kategori_layanan], map: "uq_wo_id_kategori")
 }
 
-enum Role {
-  ADMIN
-  USER
-}
-
 model User {
   id           String   @id @default(uuid())
   email        String   @unique
@@ -441,9 +437,28 @@ model File {
   fileSize     BigInt   @map("file_size")
   checksum     String   @map("checksum")
   uploadedBy   String   @map("uploaded_by")
-  uploader     User     @relation("UploadedFiles", fields: [uploadedBy], references: [id])
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
+  uploader     User     @relation("UploadedFiles", fields: [uploadedBy], references: [id])
 
   @@map("files")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model detail_memory_aplikasi {
+  id                           String                        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  laporan_infrastruktur_id     String                        @db.Uuid
+  tipe_infrastruktur           String?                       @default("MEMORY_APLIKASI") @db.VarChar(50)
+  urutan                       Int
+  nama_sistem                  String                        @db.VarChar(150)
+  memory_gb                    Decimal?                      @db.Decimal(14, 4)
+  utilisasi_gb                 Decimal?                      @db.Decimal(14, 4)
+  free_persen                  Decimal?                      @db.Decimal(5, 2)
+  utilisasi_persen             Decimal?                      @db.Decimal(5, 2)
+  laporan_infrastruktur_master laporan_infrastruktur_master? @relation(fields: [laporan_infrastruktur_id, tipe_infrastruktur], references: [id, tipe_infrastruktur], onDelete: Cascade, onUpdate: NoAction, map: "fk_infra_memory_app")
+}
+
+enum Role {
+  ADMIN
+  USER
 }

@@ -136,6 +136,13 @@ const mockOverallData = {
       { label: 'Utilisasi (%)', data: [30, 20], backgroundColor: '#f59e0b' }
     ]
   },
+  utilisasiMemApp: {
+    labels: ['CISEA', 'Ellipse'],
+    datasets: [
+      { label: 'Free (%)', data: [75, 85], backgroundColor: '#0f2e60' },
+      { label: 'Utilisasi (%)', data: [25, 15], backgroundColor: '#f59e0b' }
+    ]
+  },
   utilisasiCpuDb: {
     labels: ['CISEA', 'Ellipse'],
     datasets: [
@@ -260,6 +267,13 @@ const zeroOverallData = {
       { label: 'Utilisasi (%)', data: [0, 0], backgroundColor: '#f59e0b' }
     ]
   },
+  utilisasiMemApp: {
+    labels: ['CISEA', 'Ellipse'],
+    datasets: [
+      { label: 'Free (%)', data: [0, 0], backgroundColor: '#0f2e60' },
+      { label: 'Utilisasi (%)', data: [0, 0], backgroundColor: '#f59e0b' }
+    ]
+  },
   utilisasiCpuDb: {
     labels: ['CISEA', 'Ellipse'],
     datasets: [
@@ -353,6 +367,7 @@ export const OverallPage: React.FC = () => {
           'http://localhost:5000/api/utilisasi/memory',
           'http://localhost:5000/api/utilisasi/storage',
           'http://localhost:5000/api/utilisasi/cpu-app',
+          'http://localhost:5000/api/utilisasi/memory-app',
           'http://localhost:5000/api/utilisasi/cpu-database',
           'http://localhost:5000/api/utilisasi/memory-database',
           'http://localhost:5000/api/utilisasi/storage-database',
@@ -376,6 +391,7 @@ export const OverallPage: React.FC = () => {
           resMem,
           resStor,
           resCpuApp,
+          resMemApp,
           resCpuDb,
           resMemDb,
           resStorDb,
@@ -397,7 +413,7 @@ export const OverallPage: React.FC = () => {
         // Check if all calls suffered a network error
         const isNetworkOffline = [
           resProg, resRkap, resSdm, resLic, resScmc, resSist, resCpu, resMem, resStor,
-          resCpuApp, resCpuDb, resMemDb, resStorDb, resBand, resWan, resKeam,
+          resCpuApp, resMemApp, resCpuDb, resMemDb, resStorDb, resBand, resWan, resKeam,
           resPc, resApp, resOper, resRest
         ].every((r: any) => r.networkError);
 
@@ -633,6 +649,7 @@ export const OverallPage: React.FC = () => {
         };
 
         const utilisasiCpu = mapHorizontalStacked(resCpuApp, zeroOverallData.utilisasiCpu, mockOverallData.utilisasiCpu, 'detail_cpu_aplikasi');
+        const utilisasiMemApp = mapHorizontalStacked(resMemApp, zeroOverallData.utilisasiMemApp, mockOverallData.utilisasiMemApp, 'detail_memory_aplikasi');
         const utilisasiCpuDb = mapHorizontalStacked(resCpuDb, zeroOverallData.utilisasiCpuDb, mockOverallData.utilisasiCpuDb, 'detail_cpu_db_aplikasi');
         const utilisasiMemDb = mapHorizontalStacked(resMemDb, zeroOverallData.utilisasiMemDb, mockOverallData.utilisasiMemDb, 'detail_memory_db_aplikasi');
         const utilisasiStorageDb = mapHorizontalStacked(resStorDb, zeroOverallData.utilisasiStorageDb, mockOverallData.utilisasiStorageDb, 'detail_storage_db_aplikasi');
@@ -750,6 +767,7 @@ export const OverallPage: React.FC = () => {
           memoryServer,
           storageServer,
           utilisasiCpu,
+          utilisasiMemApp,
           utilisasiCpuDb,
           utilisasiMemDb,
           utilisasiStorageDb,
@@ -1062,13 +1080,21 @@ export const OverallPage: React.FC = () => {
           </div>
 
           {/* Sub-grid of Horizontal Stacked Charts */}
-          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <div className="h-[240px]">
               <KpiChartCard 
                 title="Visualisasi Utilisasi CPU" 
                 options={horizontalStackedOptions} 
                 data={data.utilisasiCpu} 
                 onClick={() => window.location.href = '/utilisasi-cpu-aplikasi-ellipse-dan-cisea'}
+              />
+            </div>
+            <div className="h-[240px]">
+              <KpiChartCard 
+                title="Visualisasi Utilisasi Memory" 
+                options={horizontalStackedOptions} 
+                data={data.utilisasiMemApp} 
+                onClick={() => window.location.href = '/utilisasi-memory-aplikasi-ellipse-dan-cisea'}
               />
             </div>
             <div className="h-[240px]">

@@ -25,6 +25,7 @@ const breadcrumbMapping: Record<string, string> = {
   '/utilisasi-memory-server': 'IT Operation / Utilisasi Memori Server',
   '/utilisasi-storage-server': 'IT Operation / Utilisasi Storage Server',
   '/utilisasi-cpu-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi CPU Aplikasi Ellipse dan CISEA',
+  '/utilisasi-memory-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi Memory Aplikasi Ellipse dan CISEA',
   '/utilisasi-cpu-database-aplikasi-ellipse-dan-cisea': 'IT Operation / Utilisasi CPU Database Aplikasi Ellipse dan CISEA',
   '/utilisasi-memory-database-ellipse-dan-cisea': 'IT Operation / Utilisasi Memori Database Ellipse dan CISEA',
   '/utilisasi-storage-database-ellipse-dan-cisea': 'IT Operation / Utilisasi Storage Database Ellipse dan CISEA',

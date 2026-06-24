@@ -148,6 +148,7 @@ const itOperationItems = [
   "utilisasi memory server",
   "utilisasi storage server",
   "utilisasi CPU aplikasi Ellipse dan CISEA",
+  "utilisasi memory aplikasi Ellipse dan CISEA",
   "utilisasi CPU database aplikasi ellipse dan CISEA",
   "utilisasi memory database Ellipse dan CISEA",
   "utilisasi storage database Ellipse dan CISEA",
@@ -297,10 +298,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed }) => {
             <SidebarSubCategory 
               label="Utilisasi CPU & Memory Aplikasi Ellipse, Eproc (Cisea-Spend) & Minemarket"
               active={[
-                '/utilisasi-cpu-aplikasi-ellipse-dan-cisea'
+                '/utilisasi-cpu-aplikasi-ellipse-dan-cisea',
+                '/utilisasi-memory-aplikasi-ellipse-dan-cisea'
               ].includes(currentPath)}
             >
               <SidebarSubItem label="CPU" currentPath={currentPath} to="/utilisasi-cpu-aplikasi-ellipse-dan-cisea" isNested />
+              <SidebarSubItem label="Memory" currentPath={currentPath} to="/utilisasi-memory-aplikasi-ellipse-dan-cisea" isNested />
             </SidebarSubCategory>
             
             {/* Sub-Category: Database */}
