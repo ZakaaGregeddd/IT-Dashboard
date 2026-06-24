@@ -665,7 +665,7 @@ export const UtilisasiBandwidthPage: React.FC = () => {
                       {totalUtilisasi.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {(totalBandwidth - totalUtilisasi > 0 ? totalBandwidth - totalUtilisasi : 0).toFixed(2)} ({(100 - avgUtilisasiPercent).toFixed(1)}%)
+                      {(totalBandwidth - totalUtilisasi > 0 ? totalBandwidth - totalUtilisasi : 0).toFixed(2)} ({(totalBandwidth > 0 ? 100 - avgUtilisasiPercent : 0).toFixed(1)}%)
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                       {avgUtilisasiPercent}%

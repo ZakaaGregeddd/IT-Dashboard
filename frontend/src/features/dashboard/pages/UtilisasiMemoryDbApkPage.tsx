@@ -127,13 +127,16 @@ export const UtilisasiMemoryDbApkPage: React.FC = () => {
         const response = await fetch(`http://localhost:5000/api/utilisasi/memory-database?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
         if (result.success && result.data && Array.isArray(result.data.detail_memory_db_aplikasi) && result.data.detail_memory_db_aplikasi.length > 0) {
-          const parsed = result.data.detail_memory_db_aplikasi.map((item: any) => ({
-            ...item,
-            memory_gb: parseFloat(item.memory_gb) || 0,
-            utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
-            free_persen: parseFloat(item.free_persen) || 0,
-            utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-          }));
+          const parsed = result.data.detail_memory_db_aplikasi.map((item: any) => {
+            const memory = parseFloat(item.memory_gb) || 0;
+            return {
+              ...item,
+              memory_gb: memory,
+              utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
+              free_persen: memory > 0 ? (parseFloat(item.free_persen) || 0) : 0,
+              utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
+            };
+          });
           setSystemRows(parsed);
         } else {
           setSystemRows(DEFAULT_ROWS);
@@ -156,10 +159,11 @@ export const UtilisasiMemoryDbApkPage: React.FC = () => {
       const currentUtil = field === 'utilisasi_gb' ? parsed : (updated[index].utilisasi_gb || 0);
 
       let calculatedUtilPercent = 0;
+      let calculatedFreePercent = 0;
       if (currentMemory > 0) {
         calculatedUtilPercent = parseFloat(((currentUtil / currentMemory) * 100).toFixed(2));
+        calculatedFreePercent = parseFloat((100 - calculatedUtilPercent).toFixed(2));
       }
-      const calculatedFreePercent = parseFloat((100 - calculatedUtilPercent).toFixed(2));
 
       updated[index] = {
         ...updated[index],
@@ -611,7 +615,7 @@ export const UtilisasiMemoryDbApkPage: React.FC = () => {
                       {totalUtilGb.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {(100 - avgUtilisasiPercent).toFixed(1)}%
+                      {(totalMemoryGb > 0 ? 100 - avgUtilisasiPercent : 0).toFixed(1)}%
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                       {avgUtilisasiPercent}%
@@ -632,13 +636,16 @@ export const UtilisasiMemoryDbApkPage: React.FC = () => {
                     .then(res => res.json())
                     .then(result => {
                       if (result.success && result.data && Array.isArray(result.data.detail_memory_db_aplikasi) && result.data.detail_memory_db_aplikasi.length > 0) {
-                        const parsed = result.data.detail_memory_db_aplikasi.map((item: any) => ({
-                          ...item,
-                          memory_gb: parseFloat(item.memory_gb) || 0,
-                          utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
-                          free_persen: parseFloat(item.free_persen) || 0,
-                          utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-                        }));
+                        const parsed = result.data.detail_memory_db_aplikasi.map((item: any) => {
+                           const memory = parseFloat(item.memory_gb) || 0;
+                           return {
+                             ...item,
+                             memory_gb: memory,
+                             utilisasi_gb: parseFloat(item.utilisasi_gb) || 0,
+                             free_persen: memory > 0 ? (parseFloat(item.free_persen) || 0) : 0,
+                             utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
+                           };
+                         });
                         setSystemRows(parsed);
                       } else {
                         setSystemRows(DEFAULT_ROWS);

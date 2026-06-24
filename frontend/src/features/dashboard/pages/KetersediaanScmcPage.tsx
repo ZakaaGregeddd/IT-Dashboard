@@ -229,7 +229,15 @@ export const KetersediaanScmcPage: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { font: { family: 'Inter', size: 10 } },
+        ticks: { 
+          font: { family: 'Inter', size: 10 },
+          callback: function(value) {
+            if (Number.isInteger(value)) {
+              return value;
+            }
+            return null;
+          }
+        },
         grid: { color: '#f1f5f9' }
       },
       x: {
@@ -323,7 +331,15 @@ export const KetersediaanScmcPage: React.FC = () => {
     scales: {
       y: {
         beginAtZero: true,
-        ticks: { font: { family: 'Inter', size: 10 } },
+        ticks: { 
+          font: { family: 'Inter', size: 10 },
+          callback: function(value) {
+            if (Number.isInteger(value)) {
+              return value;
+            }
+            return null;
+          }
+        },
         grid: { color: '#f1f5f9' }
       },
       x: {

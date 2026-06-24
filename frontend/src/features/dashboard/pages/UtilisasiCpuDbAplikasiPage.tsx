@@ -127,13 +127,16 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
         const response = await fetch(`http://localhost:5000/api/utilisasi/cpu-database?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
         if (result.success && result.data && Array.isArray(result.data.detail_cpu_db_aplikasi) && result.data.detail_cpu_db_aplikasi.length > 0) {
-          const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => ({
-            ...item,
-            cpu_ghz: parseFloat(item.cpu_ghz) || 0,
-            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
-            free_persen: parseFloat(item.free_persen) || 0,
-            utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-          }));
+          const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => {
+            const cpu = parseFloat(item.cpu_ghz) || 0;
+            return {
+              ...item,
+              cpu_ghz: cpu,
+              utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
+              free_persen: cpu > 0 ? (parseFloat(item.free_persen) || 0) : 0,
+              utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
+            };
+          });
           setSystemRows(parsed);
         } else {
           setSystemRows(DEFAULT_ROWS);
@@ -156,10 +159,11 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
       const currentUtil = field === 'utilisasi_ghz' ? parsed : (updated[index].utilisasi_ghz || 0);
 
       let calculatedUtilPercent = 0;
+      let calculatedFreePercent = 0;
       if (currentCpu > 0) {
         calculatedUtilPercent = parseFloat(((currentUtil / currentCpu) * 100).toFixed(2));
+        calculatedFreePercent = parseFloat((100 - calculatedUtilPercent).toFixed(2));
       }
-      const calculatedFreePercent = parseFloat((100 - calculatedUtilPercent).toFixed(2));
 
       updated[index] = {
         ...updated[index],
@@ -611,7 +615,7 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
                       {totalUtilGhz.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {(100 - avgUtilisasiPercent).toFixed(1)}%
+                      {(totalCpuGhz > 0 ? 100 - avgUtilisasiPercent : 0).toFixed(1)}%
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                       {avgUtilisasiPercent}%
@@ -632,13 +636,16 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
                     .then(res => res.json())
                     .then(result => {
                       if (result.success && result.data && Array.isArray(result.data.detail_cpu_db_aplikasi) && result.data.detail_cpu_db_aplikasi.length > 0) {
-                        const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => ({
-                          ...item,
-                          cpu_ghz: parseFloat(item.cpu_ghz) || 0,
-                          utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
-                          free_persen: parseFloat(item.free_persen) || 0,
-                          utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
-                        }));
+                        const parsed = result.data.detail_cpu_db_aplikasi.map((item: any) => {
+                          const cpu = parseFloat(item.cpu_ghz) || 0;
+                          return {
+                            ...item,
+                            cpu_ghz: cpu,
+                            utilisasi_ghz: parseFloat(item.utilisasi_ghz) || 0,
+                            free_persen: cpu > 0 ? (parseFloat(item.free_persen) || 0) : 0,
+                            utilisasi_persen: parseFloat(item.utilisasi_persen) || 0
+                          };
+                        });
                         setSystemRows(parsed);
                       } else {
                         setSystemRows(DEFAULT_ROWS);

@@ -11,26 +11,30 @@ interface MemoryDetailInput {
 
 export class UtilisasiMemoryService {
   private static DEFAULT_SERVERS = [
-    { urutan: 1, nama_server: 'steppl-esxi1', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 2, nama_server: 'steppl-esxi2', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 3, nama_server: 'steppl-esxi3', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 4, nama_server: 'steppl-esxi4', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 5, nama_server: 'tjevmerp1', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 6, nama_server: 'tjevmerp2', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 7, nama_server: 'tjevmerp3', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
-    { urutan: 8, nama_server: 'tjevmerp4', memory_gb: 1024, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 1, nama_server: 'steppl-esxi1', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 2, nama_server: 'steppl-esxi2', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 3, nama_server: 'steppl-esxi3', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 4, nama_server: 'steppl-esxi4', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 5, nama_server: 'tjevmerp1', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 6, nama_server: 'tjevmerp2', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 7, nama_server: 'tjevmerp3', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+    { urutan: 8, nama_server: 'tjevmerp4', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
   ];
 
   /**
    * Fetch master and details for memory server utilization by month & year.
+   * Always retrieves the server names from the latest month, but values from the selected month.
    */
   static async getKetersediaan(bulan: number, tahun: number) {
-    const currentMaster = await prisma.laporan_utilisasi_server_master.findFirst({
+    // 1. Get the absolute latest record to define the list of server names
+    const latestMaster = await prisma.laporan_utilisasi_server_master.findFirst({
       where: {
-        bulan,
-        tahun,
         tipe_utilisasi: 'SERVER_MEMORY',
       },
+      orderBy: [
+        { tahun: 'desc' },
+        { bulan: 'desc' },
+      ],
       include: {
         detail_utilisasi_memory: {
           orderBy: {
@@ -40,11 +44,24 @@ export class UtilisasiMemoryService {
       },
     });
 
+    // 2. Get the record for the current selected month & year
+    const currentMaster = await prisma.laporan_utilisasi_server_master.findFirst({
+      where: {
+        bulan,
+        tahun,
+        tipe_utilisasi: 'SERVER_MEMORY',
+      },
+      include: {
+        detail_utilisasi_memory: true,
+      },
+    });
+
     const target_utilisasi_persen = currentMaster?.target_utilisasi_persen 
       ? Number(currentMaster.target_utilisasi_persen)
-      : 90;
+      : (latestMaster?.target_utilisasi_persen ? Number(latestMaster.target_utilisasi_persen) : 90);
 
-    if (!currentMaster) {
+    // If there are no records at all in the database, return hardcoded default
+    if (!latestMaster) {
       return {
         bulan,
         tahun,
@@ -54,25 +71,33 @@ export class UtilisasiMemoryService {
         total_utilisasi: 0,
         total_free: 0,
         target_utilisasi_persen,
-        detail_utilisasi_memory: [],
+        detail_utilisasi_memory: this.DEFAULT_SERVERS,
       };
     }
 
-    const detail_utilisasi_memory = currentMaster.detail_utilisasi_memory.map((item) => ({
-      id: item.id,
-      urutan: item.urutan,
-      nama_server: item.nama_server,
-      memory_gb: Number(item.memory_gb) ?? 0,
-      utilisasi_gb: Number(item.utilisasi_gb) ?? 0,
-      utilisasi_persen: Number(item.utilisasi_persen) ?? 0,
-    }));
+    // Build the details list based on the latest servers list
+    const detail_utilisasi_memory = latestMaster.detail_utilisasi_memory.map((latestServer) => {
+      // Find matching server in current period
+      const matchingCurrent = currentMaster?.detail_utilisasi_memory.find(
+        (c) => c.nama_server.toLowerCase() === latestServer.nama_server.toLowerCase()
+      );
+
+      return {
+        id: matchingCurrent?.id, // include ID if exists so frontend can update it
+        urutan: latestServer.urutan,
+        nama_server: latestServer.nama_server,
+        memory_gb: matchingCurrent ? (Number(matchingCurrent.memory_gb) ?? 0) : 0,
+        utilisasi_gb: matchingCurrent ? (Number(matchingCurrent.utilisasi_gb) ?? 0) : 0,
+        utilisasi_persen: matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0,
+      };
+    });
 
     const totalMemory = detail_utilisasi_memory.reduce((acc, cur) => acc + cur.memory_gb, 0);
     const totalUtilMemory = detail_utilisasi_memory.reduce((acc, cur) => acc + cur.utilisasi_gb, 0);
     const avgUtil = totalMemory > 0 ? (totalUtilMemory / totalMemory) * 100 : 0;
 
     return {
-      id: currentMaster.id,
+      id: currentMaster?.id,
       bulan,
       tahun,
       tipe_utilisasi: 'SERVER_MEMORY',

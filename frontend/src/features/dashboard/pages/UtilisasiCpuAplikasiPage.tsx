@@ -139,7 +139,7 @@ export const UtilisasiCpuAplikasiPage: React.FC = () => {
               ...item,
               cpu_ghz: cpu,
               utilisasi_ghz: util,
-              free_persen: 100 - p,
+              free_persen: cpu > 0 ? 100 - p : 0,
               utilisasi_persen: p
             };
           });
@@ -174,7 +174,7 @@ export const UtilisasiCpuAplikasiPage: React.FC = () => {
       updated[index] = {
         ...updated[index],
         [field]: parsed,
-        free_persen: 100 - calculatedPercent,
+        free_persen: currentCpu > 0 ? 100 - calculatedPercent : 0,
         utilisasi_persen: calculatedPercent
       };
       return updated;
@@ -624,7 +624,7 @@ export const UtilisasiCpuAplikasiPage: React.FC = () => {
                       {totalUtilGhz.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
-                      {(100 - avgUtilisasiPercent).toFixed(1)}%
+                      {(totalCpuGhz > 0 ? 100 - avgUtilisasiPercent : 0).toFixed(1)}%
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                       {avgUtilisasiPercent}%
@@ -654,7 +654,7 @@ export const UtilisasiCpuAplikasiPage: React.FC = () => {
                             ...item,
                             cpu_ghz: cpu,
                             utilisasi_ghz: util,
-                            free_persen: 100 - p,
+                            free_persen: cpu > 0 ? 100 - p : 0,
                             utilisasi_persen: p
                           };
                         });
