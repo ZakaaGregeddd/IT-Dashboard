@@ -916,125 +916,172 @@ export const LisensiPage: React.FC = () => {
 
         {/* Entry Table Checklist Filters Bar */}
         <div className="flex flex-col gap-3 bg-slate-50/50 p-4 border-b border-slate-150">
-          {/* Checklist Row */}
-          <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
-            <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={entryEnableNameFilter}
-                onChange={(e) => {
-                  setEntryEnableNameFilter(e.target.checked);
-                  if (!e.target.checked) {
+          {/* Checklist & Sorting Row */}
+          <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-semibold text-slate-700">
+            {/* Left: Filters */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={entryEnableNameFilter}
+                  onChange={(e) => {
+                    setEntryEnableNameFilter(e.target.checked);
+                    if (!e.target.checked) {
+                      setEntrySearchName('');
+                    }
+                  }}
+                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                />
+                <span>Nama</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={entryEnableDateFilter}
+                  onChange={(e) => {
+                    setEntryEnableDateFilter(e.target.checked);
+                    if (!e.target.checked) {
+                      setEntryStartDate('');
+                      setEntryEndDate('');
+                    }
+                  }}
+                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                />
+                <span>Exp Date</span>
+              </label>
+              <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={entryEnableStatusFilter}
+                  onChange={(e) => {
+                    setEntryEnableStatusFilter(e.target.checked);
+                    if (!e.target.checked) {
+                      setEntrySearchStatus('Semua');
+                    }
+                  }}
+                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                />
+                <span>Status</span>
+              </label>
+
+              {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEntryEnableNameFilter(false);
+                    setEntryEnableDateFilter(false);
+                    setEntryEnableStatusFilter(false);
                     setEntrySearchName('');
-                    setEntryNameSortOrder(null);
-                  }
-                }}
-                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
-              />
-              <span>Nama</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={entryEnableDateFilter}
-                onChange={(e) => {
-                  setEntryEnableDateFilter(e.target.checked);
-                  if (!e.target.checked) {
                     setEntryStartDate('');
                     setEntryEndDate('');
-                    setEntryDateSortOrder(null);
-                  }
-                }}
-                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
-              />
-              <span>Exp Date</span>
-            </label>
-            <label className="flex items-center gap-1.5 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                checked={entryEnableStatusFilter}
-                onChange={(e) => {
-                  setEntryEnableStatusFilter(e.target.checked);
-                  if (!e.target.checked) {
                     setEntrySearchStatus('Semua');
-                  }
-                }}
-                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
-              />
-              <span>Status</span>
-            </label>
+                  }}
+                  className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-2"
+                >
+                  Clear Filter
+                </button>
+              )}
+            </div>
 
-            {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
-              <button
-                type="button"
-                onClick={() => {
-                  setEntryEnableNameFilter(false);
-                  setEntryEnableDateFilter(false);
-                  setEntryEnableStatusFilter(false);
-                  setEntrySearchName('');
-                  setEntryStartDate('');
-                  setEntryEndDate('');
-                  setEntrySearchStatus('Semua');
-                  setEntryNameSortOrder(null);
-                  setEntryDateSortOrder(null);
-                }}
-                className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-auto"
-              >
-                Reset Semua Filter
-              </button>
-            )}
+            {/* Right: Sorting (Always Visible!) */}
+            <div className="flex items-center gap-4 flex-wrap">
+              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
+              
+              {/* Sort Nama */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
+                <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[28px] items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'asc' ? null : 'asc')}
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                      entryNameSortOrder === 'asc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                    title="Urutkan A-Z"
+                  >
+                    A-Z
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'desc' ? null : 'desc')}
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                      entryNameSortOrder === 'desc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                    title="Urutkan Z-A"
+                  >
+                    Z-A
+                  </button>
+                </div>
+              </div>
+
+              {/* Sort Exp Date */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] font-bold text-slate-500 uppercase">Exp Date</span>
+                <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[28px] items-center">
+                  <button
+                    type="button"
+                    onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'asc' ? null : 'asc')}
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                      entryDateSortOrder === 'asc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                    title="Urutkan Exp Date Terdekat"
+                  >
+                    Terdekat
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'desc' ? null : 'desc')}
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                      entryDateSortOrder === 'desc'
+                        ? 'bg-[#0f2e60] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                    }`}
+                    title="Urutkan Exp Date Terjauh"
+                  >
+                    Terjauh
+                  </button>
+                </div>
+              </div>
+
+              {(entryNameSortOrder || entryDateSortOrder) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEntryNameSortOrder(null);
+                    setEntryDateSortOrder(null);
+                  }}
+                  className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors"
+                >
+                  Reset Sort
+                </button>
+              )}
+            </div>
           </div>
-
+ 
           {/* Conditionally Rendered Inputs Row */}
           {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
             <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
               {/* Name Filter Input */}
               {entryEnableNameFilter && (
-                <div className="flex-1 min-w-[280px] flex items-end gap-2">
-                  <div className="flex-1 flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
-                    <input
-                      type="text"
-                      value={entrySearchName}
-                      onChange={(e) => setEntrySearchName(e.target.value)}
-                      placeholder="Cari nama produk / principle..."
-                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
-                    />
-                  </div>
-                  {/* Urutan Abjad */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
-                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
-                      <button
-                        type="button"
-                        onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'asc' ? null : 'asc')}
-                        className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                          entryNameSortOrder === 'asc'
-                            ? 'bg-[#0f2e60] text-white shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                        }`}
-                        title="Urutkan A-Z"
-                      >
-                        A-Z
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'desc' ? null : 'desc')}
-                        className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                          entryNameSortOrder === 'desc'
-                            ? 'bg-[#0f2e60] text-white shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                        }`}
-                        title="Urutkan Z-A"
-                      >
-                        Z-A
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex-1 min-w-[280px] flex flex-col gap-1">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
+                  <input
+                    type="text"
+                    value={entrySearchName}
+                    onChange={(e) => setEntrySearchName(e.target.value)}
+                    placeholder="Cari nama produk / principle..."
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                  />
                 </div>
               )}
-
+ 
               {/* Date Range Filter Inputs */}
               {entryEnableDateFilter && (
                 <div className="flex items-end gap-2 flex-wrap">
@@ -1059,39 +1106,9 @@ export const LisensiPage: React.FC = () => {
                       />
                     </div>
                   </div>
-                  {/* Urutan Waktu */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
-                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
-                      <button
-                        type="button"
-                        onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'asc' ? null : 'asc')}
-                        className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                          entryDateSortOrder === 'asc'
-                            ? 'bg-[#0f2e60] text-white shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                        }`}
-                        title="Urutkan Exp Date Terdekat"
-                      >
-                        Terdekat
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'desc' ? null : 'desc')}
-                        className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                          entryDateSortOrder === 'desc'
-                            ? 'bg-[#0f2e60] text-white shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                        }`}
-                        title="Urutkan Exp Date Terjauh"
-                      >
-                        Terjauh
-                      </button>
-                    </div>
-                  </div>
                 </div>
               )}
-
+ 
               {/* Status Filter Dropdown */}
               {entryEnableStatusFilter && (
                 <div className="flex flex-col gap-1 min-w-[160px]">
