@@ -24,7 +24,6 @@ interface LicenseDetail {
   satuan?: string;
   tanggal_expired: string; // YYYY-MM-DD
   status: string;
-  keterangan?: string;
   catatan?: string;
 }
 
@@ -192,7 +191,6 @@ export const LisensiPage: React.FC = () => {
           const formatted = result.data.detail_lisensi.map((d: any) => ({
             ...d,
             satuan: d.satuan || 'Unit',
-            keterangan: d.keterangan || '',
             catatan: d.catatan || '',
             tanggal_expired: formatDateForInput(d.tanggal_expired)
           }));
@@ -268,7 +266,6 @@ export const LisensiPage: React.FC = () => {
           satuan: 'Unit',
           tanggal_expired: '',
           status: 'Aktif',
-          keterangan: '',
           catatan: ''
         }
       ];
@@ -337,7 +334,6 @@ export const LisensiPage: React.FC = () => {
           const formatted = (result.data.detail_lisensi || []).map((d: any) => ({
             ...d,
             satuan: d.satuan || 'Unit',
-            keterangan: d.keterangan || '',
             catatan: d.catatan || '',
             tanggal_expired: formatDateForInput(d.tanggal_expired)
           }));
@@ -1117,7 +1113,7 @@ export const LisensiPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto h-auto p-4">
-          <table className="w-full min-w-[2100px] text-left border-collapse border border-slate-200">
+          <table className="w-full min-w-[1650px] text-left border-collapse border border-slate-200">
             <thead>
               <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
                 <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-20 text-center">NO. URUTAN</th>
@@ -1127,7 +1123,6 @@ export const LisensiPage: React.FC = () => {
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-24">Satuan</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-36">Exp Date</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-[280px]">Status</th>
-                <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-[500px]">Keterangan</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-[500px]">Catatan</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-16">AKSI</th>
               </tr>
@@ -1194,14 +1189,6 @@ export const LisensiPage: React.FC = () => {
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
                     <AutoResizeTextarea
-                      value={row.keterangan || ''}
-                      onChange={(val) => handleRowChangeByUrutan(row.urutan, 'keterangan', val)}
-                      placeholder="Keterangan..."
-                      className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
-                    />
-                  </td>
-                  <td className="py-1 px-2 border border-slate-200">
-                    <AutoResizeTextarea
                       value={row.catatan || ''}
                       onChange={(val) => handleRowChangeByUrutan(row.urutan, 'catatan', val)}
                       placeholder="Catatan..."
@@ -1222,7 +1209,7 @@ export const LisensiPage: React.FC = () => {
               ))}
               {paginatedEntryRows.length === 0 && (
                 <tr>
-                  <td colSpan={10} className="py-8 text-center text-xs text-slate-400">
+                  <td colSpan={9} className="py-8 text-center text-xs text-slate-400">
                     {entrySearchName || entryStartDate || entryEndDate || entrySearchStatus !== 'Semua'
                       ? 'Tidak ada data entri yang cocok dengan filter Anda.'
                       : 'Belum ada data entri. Silakan tambah baris baru.'}
@@ -1238,7 +1225,7 @@ export const LisensiPage: React.FC = () => {
                 <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
                   {totalJumlah}
                 </td>
-                <td colSpan={7} className="py-2.5 px-4 border border-slate-200"></td>
+                <td colSpan={6} className="py-2.5 px-4 border border-slate-200"></td>
               </tr>
             </tbody>
           </table>
