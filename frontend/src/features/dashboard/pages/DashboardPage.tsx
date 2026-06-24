@@ -7,6 +7,12 @@ const monthsList = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
 ];
 
+const getRelativeDate = (days: number): string => {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return date.toISOString().split('T')[0];
+};
+
 // Fallback aggregated dashboard response mock payload (only used if API fetches FAIL/network down)
 const mockDashboardPayload: DashboardData = {
   programKerja: {
@@ -23,7 +29,14 @@ const mockDashboardPayload: DashboardData = {
   licenses: {
     under2: 5,
     between2and4: 3,
-    over4: 12
+    over4: 12,
+    rawList: [
+      { nama_aplikasi: 'Microsoft Office 365 Enterprise', expiry_date: getRelativeDate(15) },
+      { nama_aplikasi: 'VMware vSphere Suite', expiry_date: getRelativeDate(35) },
+      { nama_aplikasi: 'Kaspersky Endpoint Security', expiry_date: getRelativeDate(75) },
+      { nama_aplikasi: 'Adobe Creative Cloud Pro', expiry_date: getRelativeDate(120) },
+      { nama_aplikasi: 'Oracle Database Enterprise', expiry_date: getRelativeDate(210) }
+    ]
   },
   reportScmc: {
     labels: ['JUN 2024', 'OKT 2024'],
@@ -92,7 +105,8 @@ const zeroDashboardPayload: DashboardData = {
   licenses: {
     under2: 0,
     between2and4: 0,
-    over4: 0
+    over4: 0,
+    rawList: []
   },
   reportScmc: {
     labels: ['-'],
@@ -270,7 +284,15 @@ export const DashboardPage: React.FC = () => {
           });
 
           if (details.length > 0) {
-            licenses = { under2, between2and4, over4 };
+            licenses = { 
+              under2, 
+              between2and4, 
+              over4,
+              rawList: details.map((d: any) => ({
+                nama_aplikasi: d.nama_produk,
+                expiry_date: d.tanggal_expired
+              }))
+            };
           }
         } else if (!resLic.success && resLic.networkError) {
           licenses = mockDashboardPayload.licenses;

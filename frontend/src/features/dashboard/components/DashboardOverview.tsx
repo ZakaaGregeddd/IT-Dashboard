@@ -52,7 +52,12 @@ const angledLabelsOptions: ChartOptions<'bar'> = {
 export interface DashboardData {
   programKerja: any;
   rkap: { title: string; percentage: number };
-  licenses: { under2: number; between2and4: number; over4: number };
+  licenses: { 
+    under2: number; 
+    between2and4: number; 
+    over4: number;
+    rawList?: Array<{ nama_aplikasi: string; expiry_date: string }>;
+  };
   reportScmc: any;
   ketersediaanSistem: any;
   bandwidthJaringan: any;
