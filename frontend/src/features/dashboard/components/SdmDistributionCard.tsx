@@ -40,7 +40,7 @@ export const SdmDistributionCard: React.FC<SdmDistributionCardProps> = ({ data, 
     >
       <CardTitle>Distribusi SDM IT (Outsource &amp; Pegawai)</CardTitle>
       
-      <div className="flex-1 min-h-0 w-full relative flex items-center justify-center animate-fade-in" style={{ maxHeight: '125px' }}>
+      <div className="flex-1 min-h-0 w-full relative flex items-center justify-center animate-fade-in" style={{ maxHeight: '150px' }}>
         <BaseDoughnutChart data={chartData} options={chartOptions} />
       </div>
 

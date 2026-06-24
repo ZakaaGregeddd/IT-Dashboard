@@ -68,7 +68,7 @@ export const KeamananSistemCard: React.FC<KeamananSistemCardProps> = ({ data, on
     >
       <CardTitle className="flex-none">Visualisasi Tingkat Ketersediaan Sistem Keamanan TI</CardTitle>
       
-      <div className="flex-1 min-h-0 w-full relative" style={{ maxHeight: '125px' }}>
+      <div className="flex-1 min-h-0 w-full relative" style={{ maxHeight: '150px' }}>
         <BaseBarChart data={chartData} options={chartOptions} />
       </div>
 
