@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { setIsDirtyCheck } from '@/utils/navigation';
 import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -108,6 +109,26 @@ export const UtilisasiStorageServerPage: React.FC = () => {
   const [bulan, setBulan] = useState<string>(getCurrentMonthName());
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'Ada perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    setIsDirtyCheck(() => isDirty);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      setIsDirtyCheck(null);
+    };
+  }, [isDirty]);
+
   // Input states
   const [serverRows, setServerRows] = useState<StorageDetail[]>(DEFAULT_ROWS);
   const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
@@ -179,12 +200,15 @@ export const UtilisasiStorageServerPage: React.FC = () => {
           });
           setServerRows(parsed);
           setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
+          setIsDirty(false);
         } else {
           setServerRows(DEFAULT_ROWS);
+          setIsDirty(false);
         }
       } catch (error) {
         console.error('Failed to fetch Storage active data:', error);
         setServerRows(DEFAULT_ROWS);
+        setIsDirty(false);
       } finally {
         setIsLoading(false);
       }
@@ -200,6 +224,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
 
   // Handle edit row inputs
   const handleInputChange = (index: number, field: 'capacity_tb' | 'utilisasi_tb', val: string) => {
+    setIsDirty(true);
     setServerRows((prev) => {
       const updated = [...prev];
       const parsed = parseFloat(val) || 0;
@@ -252,6 +277,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
       const result = await response.json();
       if (result.success) {
         setShowToast(true);
+        setIsDirty(false);
         setTimeout(() => setShowToast(false), 3000);
         fetchAllHistoricalData();
         if (result.data && result.data.detail_utilisasi_storage) {
@@ -467,7 +493,10 @@ export const UtilisasiStorageServerPage: React.FC = () => {
             <input 
               type="number"
               value={targetUtilisasi}
-              onChange={(e) => setTargetUtilisasi(parseFloat(e.target.value) || 0)}
+              onChange={(e) => {
+                setTargetUtilisasi(parseFloat(e.target.value) || 0);
+                setIsDirty(true);
+              }}
               className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none max-w-[120px]"
             />
           </div>
@@ -725,9 +754,11 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                         });
                         setServerRows(parsed);
                         setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
+                        setIsDirty(false);
                         setCurrentPage(1);
                       } else {
                         setServerRows(DEFAULT_ROWS);
+                        setIsDirty(false);
                       }
                     });
                 }}
