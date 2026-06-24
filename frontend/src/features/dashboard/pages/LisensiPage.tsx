@@ -118,6 +118,8 @@ export const LisensiPage: React.FC = () => {
   const [detailSearchName, setDetailSearchName] = useState('');
   const [detailStartDate, setDetailStartDate] = useState('');
   const [detailEndDate, setDetailEndDate] = useState('');
+  const [nameSortOrder, setNameSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [dateSortOrder, setDateSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Reset detail filters when active detail view changes
@@ -127,6 +129,8 @@ export const LisensiPage: React.FC = () => {
     setDetailSearchName('');
     setDetailStartDate('');
     setDetailEndDate('');
+    setNameSortOrder(null);
+    setDateSortOrder(null);
   }, [activeDetailView]);
 
   // Helper to format ISO Date strings for HTML date input
@@ -408,6 +412,33 @@ export const LisensiPage: React.FC = () => {
         });
       }
     }
+    // 3. Apply sorting
+    const sorted = [...rows];
+    if (nameSortOrder || dateSortOrder) {
+      sorted.sort((a, b) => {
+        if (dateSortOrder && nameSortOrder) {
+          // Primary: Date, Secondary: Name
+          const dateA = a.tanggal_expired ? new Date(a.tanggal_expired).getTime() : 0;
+          const dateB = b.tanggal_expired ? new Date(b.tanggal_expired).getTime() : 0;
+          if (dateA !== dateB) {
+            return dateSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+          }
+          const nameA = (a.nama_produk || '').toLowerCase();
+          const nameB = (b.nama_produk || '').toLowerCase();
+          return nameSortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        } else if (dateSortOrder) {
+          const dateA = a.tanggal_expired ? new Date(a.tanggal_expired).getTime() : 0;
+          const dateB = b.tanggal_expired ? new Date(b.tanggal_expired).getTime() : 0;
+          return dateSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        } else if (nameSortOrder) {
+          const nameA = (a.nama_produk || '').toLowerCase();
+          const nameB = (b.nama_produk || '').toLowerCase();
+          return nameSortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        }
+        return 0;
+      });
+      return sorted;
+    }
     return rows;
   };
 
@@ -538,7 +569,10 @@ export const LisensiPage: React.FC = () => {
                   checked={enableNameFilter}
                   onChange={(e) => {
                     setEnableNameFilter(e.target.checked);
-                    if (!e.target.checked) setDetailSearchName('');
+                    if (!e.target.checked) {
+                      setDetailSearchName('');
+                      setNameSortOrder(null);
+                    }
                   }}
                   className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
                 />
@@ -553,6 +587,7 @@ export const LisensiPage: React.FC = () => {
                     if (!e.target.checked) {
                       setDetailStartDate('');
                       setDetailEndDate('');
+                      setDateSortOrder(null);
                     }
                   }}
                   className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
@@ -569,6 +604,8 @@ export const LisensiPage: React.FC = () => {
                     setDetailSearchName('');
                     setDetailStartDate('');
                     setDetailEndDate('');
+                    setNameSortOrder(null);
+                    setDateSortOrder(null);
                   }}
                   className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-auto"
                 >
@@ -579,42 +616,106 @@ export const LisensiPage: React.FC = () => {
 
             {/* Conditionally Rendered Inputs Row */}
             {(enableNameFilter || enableDateFilter) && (
-              <div className="flex flex-wrap items-center gap-4 border-t border-slate-200/60 pt-3 mt-1">
+              <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
                 {/* Name Filter Input */}
                 {enableNameFilter && (
-                  <div className="flex-1 min-w-[240px] flex flex-col gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
-                    <input
-                      type="text"
-                      value={detailSearchName}
-                      onChange={(e) => setDetailSearchName(e.target.value)}
-                      placeholder="Cari nama produk / principle..."
-                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
-                    />
+                  <div className="flex-1 min-w-[280px] flex items-end gap-2">
+                    <div className="flex-1 flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
+                      <input
+                        type="text"
+                        value={detailSearchName}
+                        onChange={(e) => setDetailSearchName(e.target.value)}
+                        placeholder="Cari nama produk / principle..."
+                        className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                      />
+                    </div>
+                    {/* Urutan Abjad */}
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Abjad</span>
+                      <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
+                        <button
+                          type="button"
+                          onClick={() => setNameSortOrder(nameSortOrder === 'asc' ? null : 'asc')}
+                          className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                            nameSortOrder === 'asc'
+                              ? 'bg-[#0f2e60] text-white shadow-sm'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                          title="Urutkan A-Z"
+                        >
+                          A-Z
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setNameSortOrder(nameSortOrder === 'desc' ? null : 'desc')}
+                          className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                            nameSortOrder === 'desc'
+                              ? 'bg-[#0f2e60] text-white shadow-sm'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                          title="Urutkan Z-A"
+                        >
+                          Z-A
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
 
                 {/* Date Range Filter Inputs */}
                 {enableDateFilter && (
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mulai Tanggal</span>
-                      <input
-                        type="date"
-                        value={detailStartDate}
-                        onChange={(e) => setDetailStartDate(e.target.value)}
-                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
-                      />
+                  <div className="flex items-end gap-2 flex-wrap">
+                    <div className="flex items-center gap-2">
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mulai Tanggal</span>
+                        <input
+                          type="date"
+                          value={detailStartDate}
+                          onChange={(e) => setDetailStartDate(e.target.value)}
+                          className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                        />
+                      </div>
+                      <span className="text-slate-400 text-xs mt-4">s.d</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sampai Tanggal</span>
+                        <input
+                          type="date"
+                          value={detailEndDate}
+                          onChange={(e) => setDetailEndDate(e.target.value)}
+                          className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                        />
+                      </div>
                     </div>
-                    <span className="text-slate-400 text-xs mt-4">s.d</span>
+                    {/* Urutan Waktu */}
                     <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sampai Tanggal</span>
-                      <input
-                        type="date"
-                        value={detailEndDate}
-                        onChange={(e) => setDetailEndDate(e.target.value)}
-                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
-                      />
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Waktu</span>
+                      <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
+                        <button
+                          type="button"
+                          onClick={() => setDateSortOrder(dateSortOrder === 'asc' ? null : 'asc')}
+                          className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                            dateSortOrder === 'asc'
+                              ? 'bg-[#0f2e60] text-white shadow-sm'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                          title="Urutkan Exp Date Terdekat"
+                        >
+                          Terdekat
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDateSortOrder(dateSortOrder === 'desc' ? null : 'desc')}
+                          className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                            dateSortOrder === 'desc'
+                              ? 'bg-[#0f2e60] text-white shadow-sm'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                          }`}
+                          title="Urutkan Exp Date Terjauh"
+                        >
+                          Terjauh
+                        </button>
+                      </div>
                     </div>
                   </div>
                 )}
