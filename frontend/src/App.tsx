@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MainLayout } from './layouts/MainLayout';
 import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage, UtilisasiWanBackupPage, KetersediaanKeamananPage, PcSupportPage, RestorePage, OperasionalTiPage, LayananAppPage, UtilisasiMemoryAplikasiPage } from '@/pages';
 
-import { checkIsDirty, setIsDirtyCheck, navigateTo } from '@/utils/navigation';
+import { checkIsDirty, setIsDirtyCheck, navigateTo, setGlobalDirty } from '@/utils/navigation';
 import { AlertTriangle } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -25,6 +25,8 @@ const App: React.FC = () => {
       }
       lastPath = window.location.pathname;
       setCurrentPath(window.location.pathname);
+      // Reset global dirty state upon successful navigation
+      setGlobalDirty(false);
     };
 
     const handleShowWarning = (e: any) => {
@@ -35,20 +37,31 @@ const App: React.FC = () => {
       }
     };
 
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (checkIsDirty()) {
+        e.preventDefault();
+        e.returnValue = 'Ada perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
+        return e.returnValue;
+      }
+    };
+
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('navigate', handleLocationChange);
     window.addEventListener('show-unsaved-warning' as any, handleShowWarning);
+    window.addEventListener('beforeunload', handleBeforeUnload);
 
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('navigate', handleLocationChange);
       window.removeEventListener('show-unsaved-warning' as any, handleShowWarning);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, []);
 
   const handleConfirmLeave = () => {
     setIsWarningOpen(false);
     setIsDirtyCheck(null);
+    setGlobalDirty(false);
     navigateTo(pendingPath);
   };
 
