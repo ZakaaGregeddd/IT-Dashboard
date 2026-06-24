@@ -20,6 +20,7 @@ export { KetersediaanKeamananPage } from '../features/dashboard/pages/Ketersedia
 export { PcSupportPage } from '../features/dashboard/pages/PcSupportPage';
 export { RestorePage } from '../features/dashboard/pages/RestorePage';
 export { OperasionalTiPage } from '../features/dashboard/pages/OperasionalTiPage';
+export { LayananAppPage } from '../features/dashboard/pages/LayananAppPage';
 
 
 

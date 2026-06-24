@@ -21,6 +21,7 @@ import utilisasiBandwidthRoutes from './utilisasi-bandwidth.routes.js';
 import pcSupportRoutes from './pc-support.routes.js';
 import restoreRoutes from './restore.routes.js';
 import operasionalRoutes from './operasional.routes.js';
+import layananAppRoutes from './layanan-app.routes.js';
 
 const router = Router();
 
@@ -46,5 +47,6 @@ router.use('/utilisasi/bandwidth', utilisasiBandwidthRoutes);
 router.use('/work-order/pc-support', pcSupportRoutes);
 router.use('/work-order/restore', restoreRoutes);
 router.use('/work-order/operasional', operasionalRoutes);
+router.use('/work-order/layanan-app', layananAppRoutes);
 
 export default router;
