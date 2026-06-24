@@ -120,6 +120,22 @@ export const LisensiPage: React.FC = () => {
   const [detailEndDate, setDetailEndDate] = useState('');
   const [nameSortOrder, setNameSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [dateSortOrder, setDateSortOrder] = useState<'asc' | 'desc' | null>(null);
+
+  // Entry table checklist-based filtering states (Nama, Exp Date, Status)
+  const [entryEnableNameFilter, setEntryEnableNameFilter] = useState(false);
+  const [entryEnableDateFilter, setEntryEnableDateFilter] = useState(false);
+  const [entryEnableStatusFilter, setEntryEnableStatusFilter] = useState(false);
+  const [entrySearchName, setEntrySearchName] = useState('');
+  const [entryStartDate, setEntryStartDate] = useState('');
+  const [entryEndDate, setEntryEndDate] = useState('');
+  const [entrySearchStatus, setEntrySearchStatus] = useState('Semua');
+  const [entryNameSortOrder, setEntryNameSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [entryDateSortOrder, setEntryDateSortOrder] = useState<'asc' | 'desc' | null>(null);
+
+  // Entry table pagination states
+  const [entryCurrentPage, setEntryCurrentPage] = useState(1);
+  const entryRowsPerPage = 10;
+
   const [isLoading, setIsLoading] = useState(true);
 
   // Reset detail filters when active detail view changes
@@ -132,6 +148,11 @@ export const LisensiPage: React.FC = () => {
     setNameSortOrder(null);
     setDateSortOrder(null);
   }, [activeDetailView]);
+
+  // Reset entry pagination page to 1 when filters or sorting change
+  useEffect(() => {
+    setEntryCurrentPage(1);
+  }, [entrySearchName, entryStartDate, entryEndDate, entrySearchStatus, entryNameSortOrder, entryDateSortOrder, entryEnableNameFilter, entryEnableDateFilter, entryEnableStatusFilter]);
 
   // Helper to format ISO Date strings for HTML date input
   const formatDateForInput = (dateVal: string | Date) => {
@@ -209,37 +230,65 @@ export const LisensiPage: React.FC = () => {
   // Compute live total
   const totalJumlah = licenseRows.reduce((acc, row) => acc + (row.total_lisensi || 0), 0);
 
-  // Table row editing handlers
-  const handleRowChange = (index: number, field: keyof LicenseDetail, val: any) => {
+  // Table row editing handlers (using unique urutan identifier for paginated/filtered list)
+  const handleRowChangeByUrutan = (urutan: number, field: keyof LicenseDetail, val: any) => {
     setLicenseRows((prev) => {
-      const updated = [...prev];
-      updated[index] = { ...updated[index], [field]: val };
-      return updated;
+      return prev.map((row) => {
+        if (row.urutan === urutan) {
+          return { ...row, [field]: val };
+        }
+        return row;
+      });
     });
   };
 
   // Add row (initialize with empty/blank values to allow user typing)
+  // Resets filters and paginates to the last page so the new row is immediately visible
   const handleAddRow = () => {
-    setLicenseRows((prev) => [
-      ...prev,
-      {
-        urutan: prev.length + 1,
-        principle: '',
-        nama_produk: '',
-        total_lisensi: 0,
-        satuan: 'Unit',
-        tanggal_expired: '',
-        status: 'Aktif',
-        keterangan: ''
-      }
-    ]);
+    setEntryEnableNameFilter(false);
+    setEntryEnableDateFilter(false);
+    setEntryEnableStatusFilter(false);
+    setEntrySearchName('');
+    setEntryStartDate('');
+    setEntryEndDate('');
+    setEntrySearchStatus('Semua');
+    setEntryNameSortOrder(null);
+    setEntryDateSortOrder(null);
+
+    setLicenseRows((prev) => {
+      const updated = [
+        ...prev,
+        {
+          urutan: prev.length + 1,
+          principle: '',
+          nama_produk: '',
+          total_lisensi: 0,
+          satuan: 'Unit',
+          tanggal_expired: '',
+          status: 'Aktif',
+          keterangan: ''
+        }
+      ];
+      // Automatically navigate to the new last page
+      const lastPage = Math.ceil(updated.length / entryRowsPerPage);
+      setEntryCurrentPage(lastPage);
+      return updated;
+    });
   };
 
-  // Delete row
-  const handleDeleteRow = (index: number) => {
+  // Delete row by unique urutan identifier
+  const handleDeleteRowByUrutan = (urutan: number) => {
     setLicenseRows((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      return updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
+      const updated = prev.filter((row) => row.urutan !== urutan);
+      // Re-map the urutan sequential numbering
+      const remapped = updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
+      
+      // Ensure the current page does not exceed the new total pages
+      const totalPages = Math.ceil(remapped.length / entryRowsPerPage) || 1;
+      if (entryCurrentPage > totalPages) {
+        setEntryCurrentPage(totalPages);
+      }
+      return remapped;
     });
   };
 
@@ -443,6 +492,81 @@ export const LisensiPage: React.FC = () => {
   };
 
   const filteredDetailRows = getFilteredDetailRows();
+
+  // Helper to filter and sort the license entry table
+  const getFilteredEntryRows = () => {
+    let rows = [...licenseRows];
+
+    // 1. Filter by Name (if enabled and text entered)
+    if (entryEnableNameFilter && entrySearchName.trim() !== '') {
+      const q = entrySearchName.toLowerCase();
+      rows = rows.filter(
+        (r) =>
+          (r.nama_produk || '').toLowerCase().includes(q) ||
+          (r.principle || '').toLowerCase().includes(q)
+      );
+    }
+
+    // 2. Filter by Exp Date range (if enabled and dates entered)
+    if (entryEnableDateFilter) {
+      if (entryStartDate) {
+        const start = new Date(entryStartDate).getTime();
+        rows = rows.filter((r) => {
+          const exp = new Date(r.tanggal_expired).getTime();
+          return exp >= start;
+        });
+      }
+      if (entryEndDate) {
+        const end = new Date(entryEndDate).getTime();
+        rows = rows.filter((r) => {
+          const exp = new Date(r.tanggal_expired).getTime();
+          return exp <= end;
+        });
+      }
+    }
+
+    // 3. Filter by Status (if enabled)
+    if (entryEnableStatusFilter && entrySearchStatus !== 'Semua') {
+      rows = rows.filter((r) => r.status === entrySearchStatus);
+    }
+
+    // 4. Apply sorting
+    const sorted = [...rows];
+    if (entryNameSortOrder || entryDateSortOrder) {
+      sorted.sort((a, b) => {
+        if (entryDateSortOrder && entryNameSortOrder) {
+          // Primary: Date, Secondary: Name
+          const dateA = a.tanggal_expired ? new Date(a.tanggal_expired).getTime() : 0;
+          const dateB = b.tanggal_expired ? new Date(b.tanggal_expired).getTime() : 0;
+          if (dateA !== dateB) {
+            return entryDateSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+          }
+          const nameA = (a.nama_produk || '').toLowerCase();
+          const nameB = (b.nama_produk || '').toLowerCase();
+          return entryNameSortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        } else if (entryDateSortOrder) {
+          const dateA = a.tanggal_expired ? new Date(a.tanggal_expired).getTime() : 0;
+          const dateB = b.tanggal_expired ? new Date(b.tanggal_expired).getTime() : 0;
+          return entryDateSortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+        } else if (entryNameSortOrder) {
+          const nameA = (a.nama_produk || '').toLowerCase();
+          const nameB = (b.nama_produk || '').toLowerCase();
+          return entryNameSortOrder === 'asc' ? nameA.localeCompare(nameB) : nameB.localeCompare(nameA);
+        }
+        return 0;
+      });
+      return sorted;
+    }
+
+    return rows;
+  };
+
+  const filteredEntryRows = getFilteredEntryRows();
+  const totalEntryPages = Math.ceil(filteredEntryRows.length / entryRowsPerPage) || 1;
+  
+  // Slice to get the current page's rows
+  const entryStartIndex = (entryCurrentPage - 1) * entryRowsPerPage;
+  const paginatedEntryRows = filteredEntryRows.slice(entryStartIndex, entryStartIndex + entryRowsPerPage);
 
   return (
     <div className="w-full flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-y-auto bg-slate-50 relative">
@@ -775,7 +899,7 @@ export const LisensiPage: React.FC = () => {
         </div>
       )}
 
-      {/* Data Entry Card (Adaptive Height) */}
+      {/* Data Entry Card (Adaptive Height with Filters and Pagination) */}
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col h-auto">
         <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
           <h3 className="text-xs font-bold text-primary-900">Data Entri Lisensi</h3>
@@ -789,11 +913,209 @@ export const LisensiPage: React.FC = () => {
           </button>
         </div>
 
+        {/* Entry Table Checklist Filters Bar */}
+        <div className="flex flex-col gap-3 bg-slate-50/50 p-4 border-b border-slate-150">
+          {/* Checklist Row */}
+          <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
+            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={entryEnableNameFilter}
+                onChange={(e) => {
+                  setEntryEnableNameFilter(e.target.checked);
+                  if (!e.target.checked) {
+                    setEntrySearchName('');
+                    setEntryNameSortOrder(null);
+                  }
+                }}
+                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+              />
+              <span>Nama</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={entryEnableDateFilter}
+                onChange={(e) => {
+                  setEntryEnableDateFilter(e.target.checked);
+                  if (!e.target.checked) {
+                    setEntryStartDate('');
+                    setEntryEndDate('');
+                    setEntryDateSortOrder(null);
+                  }
+                }}
+                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+              />
+              <span>Exp Date</span>
+            </label>
+            <label className="flex items-center gap-1.5 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={entryEnableStatusFilter}
+                onChange={(e) => {
+                  setEntryEnableStatusFilter(e.target.checked);
+                  if (!e.target.checked) {
+                    setEntrySearchStatus('Semua');
+                  }
+                }}
+                className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+              />
+              <span>Status</span>
+            </label>
+
+            {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEntryEnableNameFilter(false);
+                  setEntryEnableDateFilter(false);
+                  setEntryEnableStatusFilter(false);
+                  setEntrySearchName('');
+                  setEntryStartDate('');
+                  setEntryEndDate('');
+                  setEntrySearchStatus('Semua');
+                  setEntryNameSortOrder(null);
+                  setEntryDateSortOrder(null);
+                }}
+                className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-auto"
+              >
+                Reset Semua Filter
+              </button>
+            )}
+          </div>
+
+          {/* Conditionally Rendered Inputs Row */}
+          {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
+            <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
+              {/* Name Filter Input */}
+              {entryEnableNameFilter && (
+                <div className="flex-1 min-w-[280px] flex items-end gap-2">
+                  <div className="flex-1 flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
+                    <input
+                      type="text"
+                      value={entrySearchName}
+                      onChange={(e) => setEntrySearchName(e.target.value)}
+                      placeholder="Cari nama produk / principle..."
+                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                    />
+                  </div>
+                  {/* Urutan Abjad */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Abjad</span>
+                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
+                      <button
+                        type="button"
+                        onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'asc' ? null : 'asc')}
+                        className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                          entryNameSortOrder === 'asc'
+                            ? 'bg-[#0f2e60] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                        title="Urutkan A-Z"
+                      >
+                        A-Z
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'desc' ? null : 'desc')}
+                        className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                          entryNameSortOrder === 'desc'
+                            ? 'bg-[#0f2e60] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                        title="Urutkan Z-A"
+                      >
+                        Z-A
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Date Range Filter Inputs */}
+              {entryEnableDateFilter && (
+                <div className="flex items-end gap-2 flex-wrap">
+                  <div className="flex items-center gap-2">
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Mulai Tanggal</span>
+                      <input
+                        type="date"
+                        value={entryStartDate}
+                        onChange={(e) => setEntryStartDate(e.target.value)}
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                      />
+                    </div>
+                    <span className="text-slate-400 text-xs mt-4">s.d</span>
+                    <div className="flex flex-col gap-1">
+                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sampai Tanggal</span>
+                      <input
+                        type="date"
+                        value={entryEndDate}
+                        onChange={(e) => setEntryEndDate(e.target.value)}
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono"
+                      />
+                    </div>
+                  </div>
+                  {/* Urutan Waktu */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Urutan Waktu</span>
+                    <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
+                      <button
+                        type="button"
+                        onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'asc' ? null : 'asc')}
+                        className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                          entryDateSortOrder === 'asc'
+                            ? 'bg-[#0f2e60] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                        title="Urutkan Exp Date Terdekat"
+                      >
+                        Terdekat
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'desc' ? null : 'desc')}
+                        className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
+                          entryDateSortOrder === 'desc'
+                            ? 'bg-[#0f2e60] text-white shadow-sm'
+                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                        }`}
+                        title="Urutkan Exp Date Terjauh"
+                      >
+                        Terjauh
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Status Filter Dropdown */}
+              {entryEnableStatusFilter && (
+                <div className="flex flex-col gap-1 min-w-[160px]">
+                  <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Filter Status</span>
+                  <select
+                    value={entrySearchStatus}
+                    onChange={(e) => setEntrySearchStatus(e.target.value)}
+                    className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                  >
+                    <option value="Semua">Semua Status</option>
+                    <option value="Aktif">Lisensi aktif</option>
+                    <option value="Proses Renewal">Lisensi aktif, Proses Renewal</option>
+                    <option value="Autodebet">Lisensi aktif, Autodebet</option>
+                  </select>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="overflow-x-auto h-auto p-4">
           <table className="w-full min-w-[1600px] text-left border-collapse border border-slate-200">
             <thead>
               <tr className="bg-slate-50 text-[10px] font-bold text-slate-500">
-                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-16 text-center">NO</th>
+                <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-20 text-center">NO. URUTAN</th>
                 <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-[320px]">Principle</th>
                 <th className="py-2.5 px-4 border border-slate-200 uppercase tracking-wider w-[400px]">Nama Produk</th>
                 <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-24">Total</th>
@@ -805,15 +1127,15 @@ export const LisensiPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-              {licenseRows.map((row, index) => (
-                <tr key={index} className="hover:bg-slate-50/30 transition-colors group">
+              {paginatedEntryRows.map((row) => (
+                <tr key={row.urutan} className="hover:bg-slate-50/30 transition-colors group">
                   <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
-                    {index + 1}
+                    {row.urutan}
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
                     <AutoResizeTextarea
                       value={row.principle}
-                      onChange={(val) => handleRowChange(index, 'principle', val)}
+                      onChange={(val) => handleRowChangeByUrutan(row.urutan, 'principle', val)}
                       placeholder="e.g. Check Point"
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
@@ -821,7 +1143,7 @@ export const LisensiPage: React.FC = () => {
                   <td className="py-1 px-2 border border-slate-200">
                     <AutoResizeTextarea
                       value={row.nama_produk}
-                      onChange={(val) => handleRowChange(index, 'nama_produk', val)}
+                      onChange={(val) => handleRowChangeByUrutan(row.urutan, 'nama_produk', val)}
                       placeholder="e.g. Insider Firewall"
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
@@ -830,7 +1152,7 @@ export const LisensiPage: React.FC = () => {
                     <input
                       type="number"
                       value={row.total_lisensi === 0 ? '' : row.total_lisensi}
-                      onChange={(e) => handleRowChange(index, 'total_lisensi', parseInt(e.target.value, 10) || 0)}
+                      onChange={(e) => handleRowChangeByUrutan(row.urutan, 'total_lisensi', parseInt(e.target.value, 10) || 0)}
                       placeholder="0"
                       min="0"
                       className="w-full px-2 py-1 text-right text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none font-mono"
@@ -840,7 +1162,7 @@ export const LisensiPage: React.FC = () => {
                     <input
                       type="text"
                       value={row.satuan || ''}
-                      onChange={(e) => handleRowChange(index, 'satuan', e.target.value)}
+                      onChange={(e) => handleRowChangeByUrutan(row.urutan, 'satuan', e.target.value)}
                       placeholder="Unit"
                       className="w-full px-2 py-1 text-center text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
@@ -849,14 +1171,14 @@ export const LisensiPage: React.FC = () => {
                     <input
                       type="date"
                       value={row.tanggal_expired}
-                      onChange={(e) => handleRowChange(index, 'tanggal_expired', e.target.value)}
+                      onChange={(e) => handleRowChangeByUrutan(row.urutan, 'tanggal_expired', e.target.value)}
                       className="w-full px-2 py-1 text-center text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none font-mono"
                     />
                   </td>
                   <td className="py-1 px-2 border border-slate-200">
                     <select
                       value={row.status}
-                      onChange={(e) => handleRowChange(index, 'status', e.target.value)}
+                      onChange={(e) => handleRowChangeByUrutan(row.urutan, 'status', e.target.value)}
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     >
                       <option value="Aktif">Lisensi aktif</option>
@@ -867,7 +1189,7 @@ export const LisensiPage: React.FC = () => {
                   <td className="py-1 px-2 border border-slate-200">
                     <AutoResizeTextarea
                       value={row.keterangan || ''}
-                      onChange={(val) => handleRowChange(index, 'keterangan', val)}
+                      onChange={(val) => handleRowChangeByUrutan(row.urutan, 'keterangan', val)}
                       placeholder="Catatan..."
                       className="w-full px-2 py-1 text-xs rounded border border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 bg-white outline-none"
                     />
@@ -875,7 +1197,7 @@ export const LisensiPage: React.FC = () => {
                   <td className="py-2.5 px-4 text-center border border-slate-200">
                     <button
                       type="button"
-                      onClick={() => handleDeleteRow(index)}
+                      onClick={() => handleDeleteRowByUrutan(row.urutan)}
                       className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
                       title="Hapus"
                     >
@@ -884,10 +1206,12 @@ export const LisensiPage: React.FC = () => {
                   </td>
                 </tr>
               ))}
-              {licenseRows.length === 0 && (
+              {paginatedEntryRows.length === 0 && (
                 <tr>
                   <td colSpan={9} className="py-8 text-center text-xs text-slate-400">
-                    Belum ada data entri. Silakan tambah baris baru.
+                    {entrySearchName || entryStartDate || entryEndDate || entrySearchStatus !== 'Semua'
+                      ? 'Tidak ada data entri yang cocok dengan filter Anda.'
+                      : 'Belum ada data entri. Silakan tambah baris baru.'}
                   </td>
                 </tr>
               )}
@@ -906,12 +1230,50 @@ export const LisensiPage: React.FC = () => {
           </table>
         </div>
 
-        {/* Form Actions */}
-        <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex justify-end items-center gap-2.5">
+        {/* Form Actions with Pagination */}
+        <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex flex-col md:flex-row justify-between items-center gap-4">
+          {/* Pagination Controls */}
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+            <button
+              type="button"
+              disabled={entryCurrentPage === 1}
+              onClick={() => setEntryCurrentPage((p) => Math.max(p - 1, 1))}
+              className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+            >
+              &larr; Prev
+            </button>
+            <span className="text-slate-600 font-bold">
+              Halaman {entryCurrentPage} dari {totalEntryPages}
+            </span>
+            <button
+              type="button"
+              disabled={entryCurrentPage === totalEntryPages}
+              onClick={() => setEntryCurrentPage((p) => Math.min(p + 1, totalEntryPages))}
+              className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+            >
+              Next &rarr;
+            </button>
+            <span className="text-[10px] font-normal text-slate-400 ml-2">
+              (Menampilkan {paginatedEntryRows.length} dari {filteredEntryRows.length} data entri)
+            </span>
+          </div>
+
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => {
+                // Clear filters
+                setEntryEnableNameFilter(false);
+                setEntryEnableDateFilter(false);
+                setEntryEnableStatusFilter(false);
+                setEntrySearchName('');
+                setEntryStartDate('');
+                setEntryEndDate('');
+                setEntrySearchStatus('Semua');
+                setEntryNameSortOrder(null);
+                setEntryDateSortOrder(null);
+                setEntryCurrentPage(1);
+
                 const monthNum = monthsNumMap[bulan] || 1;
                 fetch(`http://localhost:5000/api/licenses?bulan=${monthNum}&tahun=${tahun}`)
                   .then(res => res.json())
