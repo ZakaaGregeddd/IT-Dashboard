@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings, Upload, FileSpreadsheet, Info } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings, Upload, FileSpreadsheet, Info, RotateCcw } from 'lucide-react';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Line } from 'react-chartjs-2';
 import * as XLSX from 'xlsx';
@@ -27,6 +27,7 @@ interface LicenseDetail {
   tanggal_expired: string; // YYYY-MM-DD
   status: string;
   catatan?: string;
+  isDeleted?: boolean;
 }
 
 
@@ -285,15 +286,16 @@ export const LisensiPage: React.FC = () => {
   };
 
   // Categorize rows based on dynamic thresholds
-  const urgentLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) <= urgentLimit);
+  const urgentLicenses = licenseRows.filter((r) => !r.isDeleted && getMonthDifference(r.tanggal_expired) <= urgentLimit);
   const warningLicenses = licenseRows.filter((r) => {
+    if (r.isDeleted) return false;
     const diff = getMonthDifference(r.tanggal_expired);
     return diff > urgentLimit && diff <= warningLimit;
   });
-  const safeLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) > warningLimit);
+  const safeLicenses = licenseRows.filter((r) => !r.isDeleted && getMonthDifference(r.tanggal_expired) > warningLimit);
 
   // Compute live total
-  const totalJumlah = licenseRows.reduce((acc, row) => acc + (row.total_lisensi || 0), 0);
+  const totalJumlah = licenseRows.filter((row) => !row.isDeleted).reduce((acc, row) => acc + (row.total_lisensi || 0), 0);
 
   // Table row editing handlers (using unique urutan identifier for paginated/filtered list)
   const handleRowChangeByUrutan = (urutan: number, field: keyof LicenseDetail, val: any) => {
@@ -478,20 +480,16 @@ export const LisensiPage: React.FC = () => {
     });
   };
 
-  // Delete row by unique urutan identifier
+  // Delete row by unique urutan identifier (Soft delete toggle)
   const handleDeleteRowByUrutan = (urutan: number) => {
     setIsDirty(true);
     setLicenseRows((prev) => {
-      const updated = prev.filter((row) => row.urutan !== urutan);
-      // Re-map the urutan sequential numbering
-      const remapped = updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
-
-      // Ensure the current page does not exceed the new total pages
-      const totalPages = Math.ceil(remapped.length / entryRowsPerPage) || 1;
-      if (entryCurrentPage > totalPages) {
-        setEntryCurrentPage(totalPages);
-      }
-      return remapped;
+      return prev.map((row) => {
+        if (row.urutan === urutan) {
+          return { ...row, isDeleted: !row.isDeleted };
+        }
+        return row;
+      });
     });
   };
 
@@ -508,16 +506,18 @@ export const LisensiPage: React.FC = () => {
       bulan: monthNum,
       tahun: parseInt(tahun, 10),
       total_keseluruhan_lisensi: totalJumlah,
-      details: licenseRows.map((row) => ({
-        id: row.id,
-        urutan: row.urutan,
-        principle: row.principle,
-        nama_produk: row.nama_produk,
-        total_lisensi: parseInt(row.total_lisensi as any, 10) || 0,
-        tanggal_expired: row.tanggal_expired || formatDateForInput(new Date()),
-        status: row.status,
-        catatan: row.catatan || ''
-      }))
+      details: licenseRows
+        .filter((row) => !row.isDeleted)
+        .map((row, idx) => ({
+          id: row.id,
+          urutan: idx + 1,
+          principle: row.principle,
+          nama_produk: row.nama_produk,
+          total_lisensi: parseInt(row.total_lisensi as any, 10) || 0,
+          tanggal_expired: row.tanggal_expired || formatDateForInput(new Date()),
+          status: row.status,
+          catatan: row.catatan || ''
+        }))
     };
 
     try {
@@ -1465,7 +1465,7 @@ export const LisensiPage: React.FC = () => {
             </thead>
             <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
               {paginatedEntryRows.map((row) => (
-                <tr key={row.urutan} className="hover:bg-slate-50/30 transition-colors group">
+                <tr key={row.urutan} className={`transition-colors group ${row.isDeleted ? 'bg-red-50 hover:bg-red-100/70 text-red-900/60' : 'hover:bg-slate-50/30'}`}>
                   <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                     {row.urutan}
                   </td>
@@ -1535,10 +1535,14 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteRowByUrutan(row.urutan)}
-                      className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                      title="Hapus"
+                      className={`transition-colors ${row.isDeleted ? 'text-emerald-600 hover:text-emerald-800' : 'text-slate-400 hover:text-red-600'} opacity-100 sm:opacity-0 group-hover:opacity-100`}
+                      title={row.isDeleted ? "Batal Hapus" : "Hapus"}
                     >
-                      <Trash2 className="w-3.5 h-3.5 mx-auto" />
+                      {row.isDeleted ? (
+                        <RotateCcw className="w-3.5 h-3.5 mx-auto" />
+                      ) : (
+                        <Trash2 className="w-3.5 h-3.5 mx-auto" />
+                      )}
                     </button>
                   </td>
                 </tr>

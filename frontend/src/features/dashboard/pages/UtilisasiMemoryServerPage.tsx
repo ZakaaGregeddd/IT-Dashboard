@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, X } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, X, RotateCcw } from 'lucide-react';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -34,6 +34,7 @@ interface MemoryDetail {
   memory_gb: number;
   utilisasi_gb: number;
   utilisasi_persen: number;
+  isDeleted?: boolean;
 }
 
 interface MemoryData {
@@ -194,9 +195,9 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
     fetchActiveData();
   }, [tahun, bulan]);
 
-  // Compute live totals
-  const totalMemory = serverRows.reduce((acc, row) => acc + (row.memory_gb || 0), 0);
-  const totalUtilMemory = serverRows.reduce((acc, row) => acc + (row.utilisasi_gb || 0), 0);
+  // Compute live totals (only for non-deleted rows)
+  const totalMemory = serverRows.filter((row) => !row.isDeleted).reduce((acc, row) => acc + (row.memory_gb || 0), 0);
+  const totalUtilMemory = serverRows.filter((row) => !row.isDeleted).reduce((acc, row) => acc + (row.utilisasi_gb || 0), 0);
   const avgUtilisasiPercent = totalMemory > 0 ? Math.round((totalUtilMemory / totalMemory) * 100) : 0;
 
   // Handle edit row inputs
@@ -237,12 +238,16 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
     ]);
   };
 
-  // Delete row
+  // Delete row (Soft delete toggle)
   const handleDeleteRow = (index: number) => {
     setIsDirty(true);
     setServerRows((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
-      return updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
+      return prev.map((row, i) => {
+        if (i === index) {
+          return { ...row, isDeleted: !row.isDeleted };
+        }
+        return row;
+      });
     });
   };
 
@@ -259,14 +264,16 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
       bulan: monthNum,
       tahun: parseInt(tahun, 10),
       target_utilisasi_persen: targetUtilisasi,
-      details: serverRows.map((row) => ({
-        id: row.id,
-        urutan: row.urutan,
-        nama_server: row.nama_server,
-        memory_gb: row.memory_gb,
-        utilisasi_gb: row.utilisasi_gb,
-        utilisasi_persen: row.utilisasi_persen
-      }))
+      details: serverRows
+        .filter((row) => !row.isDeleted)
+        .map((row, idx) => ({
+          id: row.id,
+          urutan: idx + 1,
+          nama_server: row.nama_server,
+          memory_gb: row.memory_gb,
+          utilisasi_gb: row.utilisasi_gb,
+          utilisasi_persen: row.utilisasi_persen
+        }))
     };
 
     try {
@@ -302,19 +309,20 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
     }
   };
 
-  // Prepare Bar Chart data
+  // Prepare Bar Chart data (only for non-deleted rows)
+  const activeServerRows = serverRows.filter((r) => !r.isDeleted);
   const barData: ChartData<'bar'> = {
-    labels: serverRows.map(r => r.nama_server || `Server ${r.urutan}`),
+    labels: activeServerRows.map(r => r.nama_server || `Server ${r.urutan}`),
     datasets: [
       {
         label: 'Memory (GB)',
-        data: serverRows.map(r => r.memory_gb),
+        data: activeServerRows.map(r => r.memory_gb),
         backgroundColor: '#0f2e60',
         borderRadius: 4
       },
       {
         label: 'Utilisasi (GB)',
-        data: serverRows.map(r => r.utilisasi_gb),
+        data: activeServerRows.map(r => r.utilisasi_gb),
         backgroundColor: '#f59e0b',
         borderRadius: 4
       }
@@ -623,14 +631,15 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                 {paginatedRows.map((row, index) => {
                   const actualIndex = startIndex + index;
                   return (
-                    <tr key={actualIndex} className="hover:bg-slate-50/30 transition-colors group">
+                    <tr key={actualIndex} className={`transition-colors group ${row.isDeleted ? 'bg-red-50 hover:bg-red-100/70 text-red-900/60' : 'hover:bg-slate-50/30'}`}>
                       <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
-                        {actualIndex + 1}
+                        {row.urutan}
                       </td>
                       <td className="py-1 px-3 border border-slate-200">
                         <input 
                           type="text"
                           value={row.nama_server}
+                          disabled={row.isDeleted}
                           onChange={(e) => handleInputChange(actualIndex, 'nama_server', e.target.value)}
                           placeholder="Nama Server"
                           className="w-full px-2 py-1 text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-semibold"
@@ -640,6 +649,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                         <input 
                           type="number"
                           value={row.memory_gb === 0 ? '' : row.memory_gb}
+                          disabled={row.isDeleted}
                           onChange={(e) => handleInputChange(actualIndex, 'memory_gb', e.target.value)}
                           placeholder="0"
                           min="0"
@@ -651,10 +661,11 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                           type="number"
                           step="0.01"
                           value={row.utilisasi_gb === 0 ? '' : row.utilisasi_gb}
+                          disabled={row.isDeleted}
                           onChange={(e) => handleInputChange(actualIndex, 'utilisasi_gb', e.target.value)}
                           placeholder="0.00"
                           min="0"
-                          className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
+                          className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-950 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
                         />
                       </td>
                       <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
@@ -664,10 +675,14 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                         <button 
                           type="button" 
                           onClick={() => handleDeleteRow(actualIndex)}
-                          className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                          title="Hapus"
+                          className={`transition-colors ${row.isDeleted ? 'text-emerald-600 hover:text-emerald-800' : 'text-slate-400 hover:text-red-600'} opacity-100 sm:opacity-0 group-hover:opacity-100`}
+                          title={row.isDeleted ? "Batal Hapus" : "Hapus"}
                         >
-                          <X className="w-3.5 h-3.5 mx-auto" />
+                          {row.isDeleted ? (
+                            <RotateCcw className="w-3.5 h-3.5 mx-auto" />
+                          ) : (
+                            <X className="w-3.5 h-3.5 mx-auto" />
+                          )}
                         </button>
                       </td>
                     </tr>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, X, ArrowUpDown } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, X, ArrowUpDown, RotateCcw } from 'lucide-react';
 import { Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -21,6 +21,7 @@ interface SDMDetail {
   urutan: number;
   role_divisi: string;
   jumlah: number;
+  isDeleted?: boolean;
 }
 
 interface SDMData {
@@ -139,7 +140,7 @@ export const SdmItPage: React.FC = () => {
   }, [tahun, bulan]);
 
   // Compute live total
-  const totalJumlah = sdmRows.reduce((acc, row) => acc + (row.jumlah || 0), 0);
+  const totalJumlah = sdmRows.filter((row) => !row.isDeleted).reduce((acc, row) => acc + (row.jumlah || 0), 0);
 
   // Handle edit row input value by unique urutan identifier
   const handleJumlahChangeByUrutan = (urutan: number, val: string) => {
@@ -154,12 +155,15 @@ export const SdmItPage: React.FC = () => {
     });
   };
 
-  // Handle delete row by unique urutan identifier
+  // Handle delete row by unique urutan identifier (Soft delete toggle)
   const handleDeleteRowByUrutan = (urutan: number) => {
     setSdmRows((prev) => {
-      const updated = prev.filter((row) => row.urutan !== urutan);
-      // Re-assign order (urutan)
-      return updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
+      return prev.map((row) => {
+        if (row.urutan === urutan) {
+          return { ...row, isDeleted: !row.isDeleted };
+        }
+        return row;
+      });
     });
   };
 
@@ -191,12 +195,14 @@ export const SdmItPage: React.FC = () => {
       bulan: monthNum,
       tahun: parseInt(tahun, 10),
       total_keseluruhan_sdm: totalJumlah,
-      details: sdmRows.map((row) => ({
-        id: row.id,
-        urutan: row.urutan,
-        role_divisi: row.role_divisi,
-        jumlah: row.jumlah
-      }))
+      details: sdmRows
+        .filter((row) => !row.isDeleted)
+        .map((row, idx) => ({
+          id: row.id,
+          urutan: idx + 1,
+          role_divisi: row.role_divisi,
+          jumlah: row.jumlah
+        }))
     };
 
     try {
@@ -226,12 +232,13 @@ export const SdmItPage: React.FC = () => {
     }
   };
 
-  // Prepare Doughnut Chart data
+  // Prepare Doughnut Chart data (only for non-deleted rows)
+  const activeSdmRows = sdmRows.filter((r) => !r.isDeleted);
   const doughnutData: ChartData<'doughnut'> = {
-    labels: sdmRows.map((r) => r.role_divisi),
+    labels: activeSdmRows.map((r) => r.role_divisi),
     datasets: [{
-      data: sdmRows.map((r) => r.jumlah),
-      backgroundColor: colors.slice(0, sdmRows.length).concat(Array(Math.max(0, sdmRows.length - colors.length)).fill('#cbd5e1')),
+      data: activeSdmRows.map((r) => r.jumlah),
+      backgroundColor: colors.slice(0, activeSdmRows.length).concat(Array(Math.max(0, activeSdmRows.length - colors.length)).fill('#cbd5e1')),
       borderWidth: 2,
       borderColor: '#ffffff'
     }]
@@ -442,10 +449,10 @@ export const SdmItPage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-                  {sortedSdmRows.map((row, index) => (
-                    <tr key={row.urutan} className="hover:bg-slate-50/30 transition-colors group">
+                  {sortedSdmRows.map((row) => (
+                    <tr key={row.urutan} className={`transition-colors group ${row.isDeleted ? 'bg-red-50 hover:bg-red-100/70 text-red-900/60' : 'hover:bg-slate-50/30'}`}>
                       <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
-                        {index + 1}
+                        {row.urutan}
                       </td>
                       <td className="py-2.5 px-4 font-semibold border border-slate-200">
                         {row.role_divisi}
@@ -454,6 +461,7 @@ export const SdmItPage: React.FC = () => {
                         <input 
                           type="number"
                           value={row.jumlah === 0 ? '' : row.jumlah}
+                          disabled={row.isDeleted}
                           onChange={(e) => handleJumlahChangeByUrutan(row.urutan, e.target.value)}
                           placeholder="0"
                           min="0"
@@ -464,10 +472,14 @@ export const SdmItPage: React.FC = () => {
                         <button 
                           type="button" 
                           onClick={() => handleDeleteRowByUrutan(row.urutan)}
-                          className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
-                          title="Hapus"
+                          className={`transition-colors ${row.isDeleted ? 'text-emerald-600 hover:text-emerald-800' : 'text-slate-400 hover:text-red-600'} opacity-100 sm:opacity-0 group-hover:opacity-100`}
+                          title={row.isDeleted ? "Batal Hapus" : "Hapus"}
                         >
-                          <X className="w-3.5 h-3.5 mx-auto" />
+                          {row.isDeleted ? (
+                            <RotateCcw className="w-3.5 h-3.5 mx-auto" />
+                          ) : (
+                            <X className="w-3.5 h-3.5 mx-auto" />
+                          )}
                         </button>
                       </td>
                     </tr>
