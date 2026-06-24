@@ -151,23 +151,33 @@ export const LisensiPage: React.FC = () => {
     const saved = localStorage.getItem('lisensi_warningLimit');
     return saved ? parseInt(saved, 10) : 4;
   });
-  const [detailRowsPerPage, setDetailRowsPerPage] = useState<number>(() => {
+  const detailRowsPerPage = (() => {
     const saved = localStorage.getItem('lisensi_detailRowsPerPage');
     return saved ? parseInt(saved, 10) : 10;
-  });
-  const [entryRowsPerPage, setEntryRowsPerPage] = useState<number>(() => {
+  })();
+  const entryRowsPerPage = (() => {
     const saved = localStorage.getItem('lisensi_entryRowsPerPage');
     return saved ? parseInt(saved, 10) : 10;
-  });
+  })();
   const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
 
   // Entry table pagination states
   const [entryCurrentPage, setEntryCurrentPage] = useState(1);
+  const [entryPageInput, setEntryPageInput] = useState(entryCurrentPage.toString());
 
   const [isLoading, setIsLoading] = useState(true);
 
   // Detail table pagination state
   const [detailCurrentPage, setDetailCurrentPage] = useState(1);
+  const [detailPageInput, setDetailPageInput] = useState(detailCurrentPage.toString());
+
+  useEffect(() => {
+    setEntryPageInput(entryCurrentPage.toString());
+  }, [entryCurrentPage]);
+
+  useEffect(() => {
+    setDetailPageInput(detailCurrentPage.toString());
+  }, [detailCurrentPage]);
 
   // Entry table checklist-based filtering states (Nama, Exp Date, Status)
   const [entryEnableNameFilter, setEntryEnableNameFilter] = useState(false);
@@ -992,9 +1002,28 @@ export const LisensiPage: React.FC = () => {
               >
                 &larr; Prev
               </button>
-              <span className="text-slate-600 font-bold">
-                Halaman {detailCurrentPage} dari {totalDetailPages}
-              </span>
+              <div className="flex items-center gap-1 text-slate-600 font-bold">
+                <span>Halaman</span>
+                <input
+                  type="number"
+                  min={1}
+                  max={totalDetailPages}
+                  value={detailPageInput}
+                  onChange={(e) => {
+                    const valStr = e.target.value;
+                    setDetailPageInput(valStr);
+                    const val = parseInt(valStr, 10);
+                    if (!isNaN(val) && val >= 1 && val <= totalDetailPages) {
+                      setDetailCurrentPage(val);
+                    }
+                  }}
+                  onBlur={() => {
+                    setDetailPageInput(detailCurrentPage.toString());
+                  }}
+                  className="w-12 text-center bg-white border border-slate-200 rounded py-1 px-1.5 font-bold focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <span>dari {totalDetailPages}</span>
+              </div>
               <button
                 type="button"
                 disabled={detailCurrentPage === totalDetailPages}
@@ -1371,9 +1400,28 @@ export const LisensiPage: React.FC = () => {
             >
               &larr; Prev
             </button>
-            <span className="text-slate-600 font-bold">
-              Halaman {entryCurrentPage} dari {totalEntryPages}
-            </span>
+            <div className="flex items-center gap-1 text-slate-600 font-bold">
+              <span>Halaman</span>
+              <input
+                type="number"
+                min={1}
+                max={totalEntryPages}
+                value={entryPageInput}
+                onChange={(e) => {
+                  const valStr = e.target.value;
+                  setEntryPageInput(valStr);
+                  const val = parseInt(valStr, 10);
+                  if (!isNaN(val) && val >= 1 && val <= totalEntryPages) {
+                    setEntryCurrentPage(val);
+                  }
+                }}
+                onBlur={() => {
+                  setEntryPageInput(entryCurrentPage.toString());
+                }}
+                className="w-12 text-center bg-white border border-slate-200 rounded py-1 px-1.5 font-bold focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span>dari {totalEntryPages}</span>
+            </div>
             <button
               type="button"
               disabled={entryCurrentPage === totalEntryPages}
@@ -1484,18 +1532,12 @@ export const LisensiPage: React.FC = () => {
         onClose={() => setIsConfigModalOpen(false)}
         urgentLimit={urgentLimit}
         warningLimit={warningLimit}
-        detailRowsPerPage={detailRowsPerPage}
-        entryRowsPerPage={entryRowsPerPage}
-        onSave={(urgent, warning, detailRows, entryRows) => {
+        onSave={(urgent, warning) => {
           setUrgentLimit(urgent);
           setWarningLimit(warning);
-          setDetailRowsPerPage(detailRows);
-          setEntryRowsPerPage(entryRows);
           
           localStorage.setItem('lisensi_urgentLimit', urgent.toString());
           localStorage.setItem('lisensi_warningLimit', warning.toString());
-          localStorage.setItem('lisensi_detailRowsPerPage', detailRows.toString());
-          localStorage.setItem('lisensi_entryRowsPerPage', entryRows.toString());
           
           setIsConfigModalOpen(false);
         }}
@@ -1510,9 +1552,7 @@ interface ConfigurationModalProps {
   onClose: () => void;
   urgentLimit: number;
   warningLimit: number;
-  detailRowsPerPage: number;
-  entryRowsPerPage: number;
-  onSave: (urgent: number, warning: number, detailRows: number, entryRows: number) => void;
+  onSave: (urgent: number, warning: number) => void;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
@@ -1520,31 +1560,25 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   onClose,
   urgentLimit,
   warningLimit,
-  detailRowsPerPage,
-  entryRowsPerPage,
   onSave,
 }) => {
   const [tempUrgent, setTempUrgent] = useState(urgentLimit);
   const [tempWarning, setTempWarning] = useState(warningLimit);
-  const [tempDetailRows, setTempDetailRows] = useState(detailRowsPerPage);
-  const [tempEntryRows, setTempEntryRows] = useState(entryRowsPerPage);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
       setTempUrgent(urgentLimit);
       setTempWarning(warningLimit);
-      setTempDetailRows(detailRowsPerPage);
-      setTempEntryRows(entryRowsPerPage);
       setError('');
     }
-  }, [isOpen, urgentLimit, warningLimit, detailRowsPerPage, entryRowsPerPage]);
+  }, [isOpen, urgentLimit, warningLimit]);
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (tempUrgent <= 0 || tempWarning <= 0 || tempDetailRows <= 0 || tempEntryRows <= 0) {
+    if (tempUrgent <= 0 || tempWarning <= 0) {
       setError('Semua nilai harus berupa angka positif lebih besar dari 0.');
       return;
     }
@@ -1553,7 +1587,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       return;
     }
     setError('');
-    onSave(tempUrgent, tempWarning, tempDetailRows, tempEntryRows);
+    onSave(tempUrgent, tempWarning);
   };
 
   return (
@@ -1562,7 +1596,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         <div className="flex justify-between items-center border-b border-slate-150 pb-3">
           <div className="flex items-center gap-2 text-primary-900">
             <Settings className="w-5 h-5" />
-            <h4 className="font-bold text-sm">Pengaturan Parameter &amp; Tabel</h4>
+            <h4 className="font-bold text-sm">Pengaturan Parameter Kategori</h4>
           </div>
           <button
             type="button"
@@ -1618,41 +1652,6 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             <p className="text-[10px] text-slate-400 italic">
               * Kategori Aman otomatis diset jika masa berlaku lebih dari batas Peringatan (&gt; {tempWarning} bulan).
             </p>
-          </div>
-
-          <div className="flex flex-col gap-3 mt-1">
-            <h5 className="font-bold text-slate-800 border-b border-slate-100 pb-1 uppercase tracking-wide text-[10px] text-slate-500">
-              Tampilan Jumlah Baris per Halaman
-            </h5>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-semibold text-slate-600">Tabel Detail Kategori</label>
-                <select
-                  value={tempDetailRows}
-                  onChange={(e) => setTempDetailRows(parseInt(e.target.value, 10))}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-bold text-slate-700"
-                >
-                  <option value={5}>5 Baris</option>
-                  <option value={10}>10 Baris</option>
-                  <option value={20}>20 Baris</option>
-                  <option value={50}>50 Baris</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="font-semibold text-slate-600">Tabel Data Entri</label>
-                <select
-                  value={tempEntryRows}
-                  onChange={(e) => setTempEntryRows(parseInt(e.target.value, 10))}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-bold text-slate-700"
-                >
-                  <option value={5}>5 Baris</option>
-                  <option value={10}>10 Baris</option>
-                  <option value={20}>20 Baris</option>
-                  <option value={50}>50 Baris</option>
-                </select>
-              </div>
-            </div>
           </div>
 
           <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-slate-100">
