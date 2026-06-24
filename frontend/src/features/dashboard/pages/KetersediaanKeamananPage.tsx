@@ -75,38 +75,7 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 10 }, (_, i) => (2020 + i).toString());
 
-const ytdMockData = [
-  {
-    tahun: '2020',
-    'Proxy Tanjung Enim': 92.0,
-    'Security Jaringan': 91.0,
-    'Antivirus': 93.5
-  },
-  {
-    tahun: '2021',
-    'Proxy Tanjung Enim': 94.5,
-    'Security Jaringan': 93.5,
-    'Antivirus': 95.5
-  },
-  {
-    tahun: '2022',
-    'Proxy Tanjung Enim': 96.2,
-    'Security Jaringan': 95.1,
-    'Antivirus': 97.0
-  },
-  {
-    tahun: '2023',
-    'Proxy Tanjung Enim': 97.0,
-    'Security Jaringan': 96.0,
-    'Antivirus': 97.5
-  },
-  {
-    tahun: '2024',
-    'Proxy Tanjung Enim': 97.5,
-    'Security Jaringan': 96.5,
-    'Antivirus': 97.5
-  }
-];
+
 
 export const KetersediaanKeamananPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
@@ -286,9 +255,7 @@ export const KetersediaanKeamananPage: React.FC = () => {
     }
   };
 
-  // YTD Line Chart Data preparation
-  const start = parseInt(startYear, 10);
-  const end = parseInt(endYear, 10);
+
   
   const locations = [
     { name: 'Proxy Tanjung Enim', color: '#0f2e60' },
@@ -297,14 +264,18 @@ export const KetersediaanKeamananPage: React.FC = () => {
   ];
 
   const getDynamicMockData = () => {
-    return ytdMockData.map(mockYear => {
-      const yrStr = mockYear.tahun;
-      const yrNum = parseInt(yrStr, 10);
-      
+    const start = parseInt(startYear, 10);
+    const end = parseInt(endYear, 10);
+    const data = [];
+    
+    for (let yrNum = start; yrNum <= end; yrNum++) {
+      const yrStr = yrNum.toString();
       const dbRecs = allDbRecords.filter(rec => rec.tahun === yrNum);
-      if (dbRecs.length > 0) {
-        const updatedYear = { ...mockYear };
-        locations.forEach(loc => {
+      
+      const yearObj: Record<string, any> = { tahun: yrStr };
+      
+      locations.forEach(loc => {
+        if (dbRecs.length > 0) {
           let sum = 0;
           let count = 0;
           dbRecs.forEach(rec => {
@@ -316,32 +287,23 @@ export const KetersediaanKeamananPage: React.FC = () => {
               count++;
             }
           });
-          if (count > 0) {
-            (updatedYear as any)[loc.name] = parseFloat((sum / count).toFixed(2));
-          }
-        });
-        return updatedYear;
-      } else if (yrNum === parseInt(tahun, 10)) {
-        const updatedYear = { ...mockYear };
-        locations.forEach(loc => {
+          yearObj[loc.name] = count > 0 ? parseFloat((sum / count).toFixed(2)) : 0;
+        } else if (yrNum === parseInt(tahun, 10) && systemRows.length > 0) {
           const currentMatch = systemRows.find(
             s => s.nama_sistem.toLowerCase() === loc.name.toLowerCase()
           );
-          if (currentMatch) {
-            (updatedYear as any)[loc.name] = currentMatch.realisasi_persen;
-          }
-        });
-        return updatedYear;
-      }
-      return mockYear;
-    });
+          yearObj[loc.name] = currentMatch ? currentMatch.realisasi_persen : 0;
+        } else {
+          yearObj[loc.name] = 0;
+        }
+      });
+      data.push(yearObj);
+    }
+    return data;
   };
 
   const dynamicMockData = getDynamicMockData();
-  const filteredMockData = dynamicMockData.filter(d => {
-    const yr = parseInt(d.tahun, 10);
-    return yr >= start && yr <= end;
-  });
+  const filteredMockData = dynamicMockData;
 
   const lineChartData: ChartData<'line'> = {
     labels: filteredMockData.map(d => d.tahun),

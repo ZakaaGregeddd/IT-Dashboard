@@ -259,24 +259,14 @@ export const PcSupportPage: React.FC = () => {
         if (dbRecord) {
           const detail = dbRecord.detail_pc_support.find(d => d.bulan_teks.toLowerCase() === mLong.toLowerCase());
           masuk.push(detail ? detail.wo_masuk : 0);
-          selcor: selesai.push(detail ? detail.wo_selesai : 0);
-        } else if (y === 2024) {
-          const defaultVal = {
-            1: 46, 2: 22, 3: 219, 4: 61, 5: 221, 6: 282, 7: 312, 8: 288, 9: 290, 10: 302, 11: 903, 12: 312
-          }[mIdx + 1] || 0;
-          const activeMatch = y === parseInt(tahun, 10) ? systemRows[mIdx] : null;
-          masuk.push(activeMatch ? activeMatch.wo_masuk : defaultVal);
-          selesai.push(activeMatch ? activeMatch.wo_selesai : defaultVal);
-        } else if (y === parseInt(tahun, 10)) {
+          selesai.push(detail ? detail.wo_selesai : 0);
+        } else if (y === parseInt(tahun, 10) && systemRows.length > 0) {
           const activeMatch = systemRows[mIdx];
           masuk.push(activeMatch ? activeMatch.wo_masuk : 0);
           selesai.push(activeMatch ? activeMatch.wo_selesai : 0);
         } else {
-          const seed = (y * 12) + mIdx;
-          const mockMasuk = Math.floor(((seed * 73) % 200) + 100);
-          const mockSelesai = Math.floor(((seed * 37) % 180) + 90);
-          masuk.push(mockMasuk);
-          selesai.push(mockSelesai);
+          masuk.push(0);
+          selesai.push(0);
         }
       });
     }
