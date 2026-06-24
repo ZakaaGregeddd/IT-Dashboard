@@ -124,6 +124,22 @@ export const UtilisasiStorageServerPage: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(() => {
+    const saved = localStorage.getItem('storage_server_rowsPerPage');
+    return saved ? parseInt(saved, 10) : 10;
+  });
+
+  // Reset page to 1 when filters or rowsPerPage change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [bulan, tahun, rowsPerPage]);
+
+  const totalPages = Math.ceil(serverRows.length / rowsPerPage) || 1;
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const paginatedRows = serverRows.slice(startIndex, startIndex + rowsPerPage);
+
   // Fetch all historical records on mount for YTD Chart
   const fetchAllHistoricalData = async () => {
     try {
@@ -569,44 +585,47 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
-                {serverRows.map((row, index) => (
-                  <tr key={index} className="hover:bg-slate-50/30 transition-colors group">
-                    <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
-                      {index + 1}
-                    </td>
-                    <td className="py-2.5 px-4 font-semibold border border-slate-200 text-slate-800">
-                      {row.nama_storage}
-                    </td>
-                    <td className="py-1.5 px-3 border border-slate-200">
-                      <input 
-                        type="number"
-                        step="0.01"
-                        value={row.capacity_tb === 0 ? '' : row.capacity_tb}
-                        onChange={(e) => handleInputChange(index, 'capacity_tb', e.target.value)}
-                        placeholder="0.00"
-                        min="0"
-                        className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
-                      />
-                    </td>
-                    <td className="py-1.5 px-3 border border-slate-200">
-                      <input 
-                        type="number"
-                        step="0.01"
-                        value={row.utilisasi_tb === 0 ? '' : row.utilisasi_tb}
-                        onChange={(e) => handleInputChange(index, 'utilisasi_tb', e.target.value)}
-                        placeholder="0.00"
-                        min="0"
-                        className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
-                      />
-                    </td>
-                    <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
-                      {row.utilisasi_persen}%
-                    </td>
-                    <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
-                      {row.free_tb.toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
+                {paginatedRows.map((row, index) => {
+                  const actualIndex = startIndex + index;
+                  return (
+                    <tr key={actualIndex} className="hover:bg-slate-50/30 transition-colors group">
+                      <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
+                        {actualIndex + 1}
+                      </td>
+                      <td className="py-2.5 px-4 font-semibold border border-slate-200 text-slate-800">
+                        {row.nama_storage}
+                      </td>
+                      <td className="py-1.5 px-3 border border-slate-200">
+                        <input 
+                          type="number"
+                          step="0.01"
+                          value={row.capacity_tb === 0 ? '' : row.capacity_tb}
+                          onChange={(e) => handleInputChange(actualIndex, 'capacity_tb', e.target.value)}
+                          placeholder="0.00"
+                          min="0"
+                          className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
+                        />
+                      </td>
+                      <td className="py-1.5 px-3 border border-slate-200">
+                        <input 
+                          type="number"
+                          step="0.01"
+                          value={row.utilisasi_tb === 0 ? '' : row.utilisasi_tb}
+                          onChange={(e) => handleInputChange(actualIndex, 'utilisasi_tb', e.target.value)}
+                          placeholder="0.00"
+                          min="0"
+                          className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
+                        />
+                      </td>
+                      <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
+                        {row.utilisasi_persen}%
+                      </td>
+                      <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
+                        {row.free_tb.toFixed(2)}
+                      </td>
+                    </tr>
+                  );
+                })}
                 
                 {/* Total / Average Row */}
                 {serverRows.length > 0 && (
@@ -639,8 +658,51 @@ export const UtilisasiStorageServerPage: React.FC = () => {
             </table>
           </div>
 
-          {/* Form Actions */}
-          <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex justify-end items-center gap-2.5">
+          {/* Form Actions with Pagination */}
+          <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex flex-col sm:flex-row justify-between items-center gap-4">
+            {/* Pagination Controls */}
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+              >
+                &larr; Prev
+              </button>
+              <span className="text-slate-600 font-bold">
+                Halaman {currentPage} dari {totalPages}
+              </span>
+              <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+              >
+                Next &rarr;
+              </button>
+              
+              <span className="text-slate-400 font-normal ml-2">Tampilkan:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  const val = parseInt(e.target.value, 10);
+                  setRowsPerPage(val);
+                  localStorage.setItem('storage_server_rowsPerPage', val.toString());
+                }}
+                className="bg-white border border-slate-200 rounded px-2 py-1 text-xs font-bold focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none cursor-pointer"
+              >
+                <option value={5}>5 Baris</option>
+                <option value={10}>10 Baris</option>
+                <option value={20}>20 Baris</option>
+                <option value={50}>50 Baris</option>
+                <option value={9999}>Semua</option>
+              </select>
+              <span className="text-[10px] font-normal text-slate-400 ml-2">
+                (Menampilkan {paginatedRows.length} dari {serverRows.length} baris)
+              </span>
+            </div>
+
             <div className="flex gap-2">
               <button 
                 type="button"
@@ -663,6 +725,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                         });
                         setServerRows(parsed);
                         setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
+                        setCurrentPage(1);
                       } else {
                         setServerRows(DEFAULT_ROWS);
                       }

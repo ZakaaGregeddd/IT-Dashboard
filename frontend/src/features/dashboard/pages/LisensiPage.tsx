@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, Trash2, X, AlertCircle, Settings } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -121,6 +121,33 @@ export const LisensiPage: React.FC = () => {
   const [nameSortOrder, setNameSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [dateSortOrder, setDateSortOrder] = useState<'asc' | 'desc' | null>(null);
 
+  // Configuration state variables with localStorage persistence
+  const [urgentLimit, setUrgentLimit] = useState<number>(() => {
+    const saved = localStorage.getItem('lisensi_urgentLimit');
+    return saved ? parseInt(saved, 10) : 2;
+  });
+  const [warningLimit, setWarningLimit] = useState<number>(() => {
+    const saved = localStorage.getItem('lisensi_warningLimit');
+    return saved ? parseInt(saved, 10) : 4;
+  });
+  const [detailRowsPerPage, setDetailRowsPerPage] = useState<number>(() => {
+    const saved = localStorage.getItem('lisensi_detailRowsPerPage');
+    return saved ? parseInt(saved, 10) : 10;
+  });
+  const [entryRowsPerPage, setEntryRowsPerPage] = useState<number>(() => {
+    const saved = localStorage.getItem('lisensi_entryRowsPerPage');
+    return saved ? parseInt(saved, 10) : 10;
+  });
+  const [isConfigModalOpen, setIsConfigModalOpen] = useState(false);
+
+  // Entry table pagination states
+  const [entryCurrentPage, setEntryCurrentPage] = useState(1);
+
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Detail table pagination state
+  const [detailCurrentPage, setDetailCurrentPage] = useState(1);
+
   // Entry table checklist-based filtering states (Nama, Exp Date, Status)
   const [entryEnableNameFilter, setEntryEnableNameFilter] = useState(false);
   const [entryEnableDateFilter, setEntryEnableDateFilter] = useState(false);
@@ -132,12 +159,6 @@ export const LisensiPage: React.FC = () => {
   const [entryNameSortOrder, setEntryNameSortOrder] = useState<'asc' | 'desc' | null>(null);
   const [entryDateSortOrder, setEntryDateSortOrder] = useState<'asc' | 'desc' | null>(null);
 
-  // Entry table pagination states
-  const [entryCurrentPage, setEntryCurrentPage] = useState(1);
-  const entryRowsPerPage = 10;
-
-  const [isLoading, setIsLoading] = useState(true);
-
   // Reset detail filters when active detail view changes
   useEffect(() => {
     setEnableNameFilter(false);
@@ -147,7 +168,13 @@ export const LisensiPage: React.FC = () => {
     setDetailEndDate('');
     setNameSortOrder(null);
     setDateSortOrder(null);
+    setDetailCurrentPage(1);
   }, [activeDetailView]);
+
+  // Reset detail page to 1 when filters, sorting or limits change
+  useEffect(() => {
+    setDetailCurrentPage(1);
+  }, [detailSearchName, detailStartDate, detailEndDate, nameSortOrder, dateSortOrder, detailRowsPerPage]);
 
   // Reset entry pagination page to 1 when filters or sorting change
   useEffect(() => {
@@ -219,13 +246,13 @@ export const LisensiPage: React.FC = () => {
     return (expDate.getFullYear() - selectedYear) * 12 + (expDate.getMonth() + 1 - selectedMonth);
   };
 
-  // Categorize rows
-  const urgentLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) <= 2);
+  // Categorize rows based on dynamic thresholds
+  const urgentLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) <= urgentLimit);
   const warningLicenses = licenseRows.filter((r) => {
     const diff = getMonthDifference(r.tanggal_expired);
-    return diff > 2 && diff <= 4;
+    return diff > urgentLimit && diff <= warningLimit;
   });
-  const safeLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) > 4);
+  const safeLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) > warningLimit);
 
   // Compute live total
   const totalJumlah = licenseRows.reduce((acc, row) => acc + (row.total_lisensi || 0), 0);
@@ -493,6 +520,9 @@ export const LisensiPage: React.FC = () => {
   };
 
   const filteredDetailRows = getFilteredDetailRows();
+  const totalDetailPages = Math.ceil(filteredDetailRows.length / detailRowsPerPage) || 1;
+  const detailStartIndex = (detailCurrentPage - 1) * detailRowsPerPage;
+  const paginatedDetailRows = filteredDetailRows.slice(detailStartIndex, detailStartIndex + detailRowsPerPage);
 
   // Helper to filter and sort the license entry table
   const getFilteredEntryRows = () => {
@@ -582,8 +612,17 @@ export const LisensiPage: React.FC = () => {
 
       {/* Page Title & Controls */}
       <div className="flex flex-col gap-4">
-        <div>
+        <div className="flex justify-between items-center">
           <h2 className="text-xl font-bold text-slate-800">Lisensi</h2>
+          <button
+            type="button"
+            onClick={() => setIsConfigModalOpen(true)}
+            className="flex items-center gap-1.5 bg-white border border-slate-250 text-slate-700 px-3.5 py-2 rounded-lg font-semibold text-xs hover:bg-slate-50 hover:text-slate-900 transition-all shadow-sm"
+            title="Pengaturan Parameter & Tabel"
+          >
+            <Settings className="w-4 h-4 text-slate-500" />
+            <span>Pengaturan</span>
+          </button>
         </div>
 
         {/* Dropdowns */}
@@ -610,7 +649,7 @@ export const LisensiPage: React.FC = () => {
           onClick={() => setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent')}
           className="bg-red-50 hover:bg-red-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-red-200 transition-all shadow-sm"
         >
-          <div className="text-red-700 font-bold text-xs uppercase tracking-wider">Urgent (&lt;= 2 Bulan)</div>
+          <div className="text-red-700 font-bold text-xs uppercase tracking-wider">Urgent (&lt;= {urgentLimit} Bulan)</div>
           <div className="text-3xl font-extrabold text-red-800 mt-2">{urgentLicenses.length}</div>
           <button
             onClick={(e) => {
@@ -628,7 +667,7 @@ export const LisensiPage: React.FC = () => {
           onClick={() => setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan')}
           className="bg-amber-50 hover:bg-amber-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-amber-200 transition-all shadow-sm"
         >
-          <div className="text-amber-700 font-bold text-xs uppercase tracking-wider">Peringatan (&gt; 2 - 4 Bulan)</div>
+          <div className="text-amber-700 font-bold text-xs uppercase tracking-wider">Peringatan (&gt; {urgentLimit} - {warningLimit} Bulan)</div>
           <div className="text-3xl font-extrabold text-amber-800 mt-2">{warningLicenses.length}</div>
           <button
             onClick={(e) => {
@@ -646,7 +685,7 @@ export const LisensiPage: React.FC = () => {
           onClick={() => setActiveDetailView(activeDetailView === 'aman' ? null : 'aman')}
           className="bg-[#0f2e60] hover:bg-[#0c244c] cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-[#0f2e60] transition-all shadow-sm"
         >
-          <div className="text-white font-bold text-xs uppercase tracking-wider">Aman (&gt; 4 Bulan)</div>
+          <div className="text-white font-bold text-xs uppercase tracking-wider">Aman (&gt; {warningLimit} Bulan)</div>
           <div className="text-3xl font-extrabold text-white mt-2">{safeLicenses.length}</div>
           <button
             onClick={(e) => {
@@ -669,10 +708,10 @@ export const LisensiPage: React.FC = () => {
               <h4 className="font-bold text-sm text-primary-900">
                 Detail Kategori:{' '}
                 {activeDetailView === 'urgent'
-                  ? 'Urgent (<= 2 Bulan)'
+                  ? `Urgent (<= ${urgentLimit} Bulan)`
                   : activeDetailView === 'peringatan'
-                    ? 'Peringatan (> 2 - 4 Bulan)'
-                    : 'Aman (> 4 Bulan)'}
+                    ? `Peringatan (> ${urgentLimit} - ${warningLimit} Bulan)`
+                    : `Aman (> ${warningLimit} Bulan)`}
               </h4>
             </div>
             <button
@@ -685,58 +724,137 @@ export const LisensiPage: React.FC = () => {
 
           {/* Table Filters Checklist Bar */}
           <div className="flex flex-col gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
-            {/* Checklist Row */}
-            <div className="flex items-center gap-4 text-xs font-semibold text-slate-700">
-              <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
-              <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={enableNameFilter}
-                  onChange={(e) => {
-                    setEnableNameFilter(e.target.checked);
-                    if (!e.target.checked) {
+            {/* Checklist & Sorting Row */}
+            <div className="flex flex-wrap items-center justify-between gap-4 text-xs font-semibold text-slate-700">
+              {/* Left: Filters */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Filter:</span>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={enableNameFilter}
+                    onChange={(e) => {
+                      setEnableNameFilter(e.target.checked);
+                      if (!e.target.checked) {
+                        setDetailSearchName('');
+                      }
+                    }}
+                    className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                  />
+                  <span>Nama</span>
+                </label>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={enableDateFilter}
+                    onChange={(e) => {
+                      setEnableDateFilter(e.target.checked);
+                      if (!e.target.checked) {
+                        setDetailStartDate('');
+                        setDetailEndDate('');
+                      }
+                    }}
+                    className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
+                  />
+                  <span>Exp Date</span>
+                </label>
+
+                {(enableNameFilter || enableDateFilter) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEnableNameFilter(false);
+                      setEnableDateFilter(false);
                       setDetailSearchName('');
-                      setNameSortOrder(null);
-                    }
-                  }}
-                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
-                />
-                <span>Nama</span>
-              </label>
-              <label className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={enableDateFilter}
-                  onChange={(e) => {
-                    setEnableDateFilter(e.target.checked);
-                    if (!e.target.checked) {
                       setDetailStartDate('');
                       setDetailEndDate('');
-                      setDateSortOrder(null);
-                    }
-                  }}
-                  className="rounded border-slate-300 text-primary-900 focus:ring-primary-900 w-4 h-4"
-                />
-                <span>Exp Date</span>
-              </label>
+                    }}
+                    className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-2"
+                  >
+                    Clear Filter
+                  </button>
+                )}
+              </div>
 
-              {(enableNameFilter || enableDateFilter) && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setEnableNameFilter(false);
-                    setEnableDateFilter(false);
-                    setDetailSearchName('');
-                    setDetailStartDate('');
-                    setDetailEndDate('');
-                    setNameSortOrder(null);
-                    setDateSortOrder(null);
-                  }}
-                  className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors ml-auto"
-                >
-                  Reset Semua
-                </button>
-              )}
+              {/* Right: Sorting (Always Visible!) */}
+              <div className="flex items-center gap-4 flex-wrap">
+                <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
+                
+                {/* Sort Nama */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
+                  <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[28px] items-center">
+                    <button
+                      type="button"
+                      onClick={() => setNameSortOrder(nameSortOrder === 'asc' ? null : 'asc')}
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                        nameSortOrder === 'asc'
+                          ? 'bg-[#0f2e60] text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                      title="Urutkan A-Z"
+                    >
+                      A-Z
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNameSortOrder(nameSortOrder === 'desc' ? null : 'desc')}
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                        nameSortOrder === 'desc'
+                          ? 'bg-[#0f2e60] text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                      title="Urutkan Z-A"
+                    >
+                      Z-A
+                    </button>
+                  </div>
+                </div>
+
+                {/* Sort Exp Date */}
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-bold text-slate-500 uppercase">Exp Date</span>
+                  <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[28px] items-center">
+                    <button
+                      type="button"
+                      onClick={() => setDateSortOrder(dateSortOrder === 'asc' ? null : 'asc')}
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                        dateSortOrder === 'asc'
+                          ? 'bg-[#0f2e60] text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                      title="Urutkan Exp Date Terdekat"
+                    >
+                      Terdekat
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDateSortOrder(dateSortOrder === 'desc' ? null : 'desc')}
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
+                        dateSortOrder === 'desc'
+                          ? 'bg-[#0f2e60] text-white shadow-sm'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                      }`}
+                      title="Urutkan Exp Date Terjauh"
+                    >
+                      Terjauh
+                    </button>
+                  </div>
+                </div>
+
+                {(nameSortOrder || dateSortOrder) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNameSortOrder(null);
+                      setDateSortOrder(null);
+                    }}
+                    className="text-[10px] font-bold text-red-600 hover:text-red-800 transition-colors"
+                  >
+                    Reset Sort
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Conditionally Rendered Inputs Row */}
@@ -744,47 +862,15 @@ export const LisensiPage: React.FC = () => {
               <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
                 {/* Name Filter Input */}
                 {enableNameFilter && (
-                  <div className="flex-1 min-w-[280px] flex items-end gap-2">
-                    <div className="flex-1 flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
-                      <input
-                        type="text"
-                        value={detailSearchName}
-                        onChange={(e) => setDetailSearchName(e.target.value)}
-                        placeholder="Cari nama produk / principle..."
-                        className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
-                      />
-                    </div>
-                    {/* Urutan Abjad */}
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
-                      <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
-                        <button
-                          type="button"
-                          onClick={() => setNameSortOrder(nameSortOrder === 'asc' ? null : 'asc')}
-                          className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                            nameSortOrder === 'asc'
-                              ? 'bg-[#0f2e60] text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
-                          title="Urutkan A-Z"
-                        >
-                          A-Z
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setNameSortOrder(nameSortOrder === 'desc' ? null : 'desc')}
-                          className={`px-2 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                            nameSortOrder === 'desc'
-                              ? 'bg-[#0f2e60] text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
-                          title="Urutkan Z-A"
-                        >
-                          Z-A
-                        </button>
-                      </div>
-                    </div>
+                  <div className="flex-1 min-w-[280px] flex flex-col gap-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Pencarian Nama</span>
+                    <input
+                      type="text"
+                      value={detailSearchName}
+                      onChange={(e) => setDetailSearchName(e.target.value)}
+                      placeholder="Cari nama produk / principle..."
+                      className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full transition-all"
+                    />
                   </div>
                 )}
 
@@ -812,36 +898,6 @@ export const LisensiPage: React.FC = () => {
                         />
                       </div>
                     </div>
-                    {/* Urutan Waktu */}
-                    <div className="flex flex-col gap-1">
-                      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Sort by</span>
-                      <div className="flex bg-white border border-slate-200 rounded-lg p-0.5 h-[30px] items-center">
-                        <button
-                          type="button"
-                          onClick={() => setDateSortOrder(dateSortOrder === 'asc' ? null : 'asc')}
-                          className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                            dateSortOrder === 'asc'
-                              ? 'bg-[#0f2e60] text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
-                          title="Urutkan Exp Date Terdekat"
-                        >
-                          Terdekat
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDateSortOrder(dateSortOrder === 'desc' ? null : 'desc')}
-                          className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all h-full flex items-center ${
-                            dateSortOrder === 'desc'
-                              ? 'bg-[#0f2e60] text-white shadow-sm'
-                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                          }`}
-                          title="Urutkan Exp Date Terjauh"
-                        >
-                          Terjauh
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 )}
               </div>
@@ -861,10 +917,10 @@ export const LisensiPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-150 bg-white">
-                {filteredDetailRows.map((row, index) => (
+                {paginatedDetailRows.map((row, index) => (
                   <tr key={index} className="hover:bg-slate-50/50 transition-colors">
                     <td className="py-2.5 px-4 text-center border-r border-slate-200 text-slate-400 font-medium">
-                      {index + 1}
+                      {detailStartIndex + index + 1}
                     </td>
                     <td className="py-2.5 px-4 font-bold border-r border-slate-200">
                       {row.principle}
@@ -887,7 +943,7 @@ export const LisensiPage: React.FC = () => {
                     </td>
                   </tr>
                 ))}
-                {filteredDetailRows.length === 0 && (
+                {paginatedDetailRows.length === 0 && (
                   <tr>
                     <td colSpan={5} className="py-10 text-center text-xs text-slate-400 font-medium">
                       {detailSearchName ? 'Tidak ada data lisensi yang cocok dengan pencarian Anda.' : 'Tidak ada data lisensi dalam kategori ini.'}
@@ -896,6 +952,34 @@ export const LisensiPage: React.FC = () => {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* Detail Table Pagination Controls */}
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 text-xs font-semibold text-slate-600">
+              <button
+                type="button"
+                disabled={detailCurrentPage === 1}
+                onClick={() => setDetailCurrentPage((p) => Math.max(p - 1, 1))}
+                className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+              >
+                &larr; Prev
+              </button>
+              <span className="text-slate-600 font-bold">
+                Halaman {detailCurrentPage} dari {totalDetailPages}
+              </span>
+              <button
+                type="button"
+                disabled={detailCurrentPage === totalDetailPages}
+                onClick={() => setDetailCurrentPage((p) => Math.min(p + 1, totalDetailPages))}
+                className="px-3 py-1.5 rounded border border-slate-250 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shadow-sm text-[11px]"
+              >
+                Next &rarr;
+              </button>
+              <span className="text-[10px] font-normal text-slate-400 ml-2">
+                (Menampilkan {paginatedDetailRows.length} dari {filteredDetailRows.length} data detail)
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -1365,6 +1449,200 @@ export const LisensiPage: React.FC = () => {
         message={`Apakah Anda yakin ingin menyimpan perubahan data lisensi untuk periode ${bulan} ${tahun}?`}
       />
 
+      {/* Configuration Settings Modal */}
+      <ConfigurationModal
+        isOpen={isConfigModalOpen}
+        onClose={() => setIsConfigModalOpen(false)}
+        urgentLimit={urgentLimit}
+        warningLimit={warningLimit}
+        detailRowsPerPage={detailRowsPerPage}
+        entryRowsPerPage={entryRowsPerPage}
+        onSave={(urgent, warning, detailRows, entryRows) => {
+          setUrgentLimit(urgent);
+          setWarningLimit(warning);
+          setDetailRowsPerPage(detailRows);
+          setEntryRowsPerPage(entryRows);
+          
+          localStorage.setItem('lisensi_urgentLimit', urgent.toString());
+          localStorage.setItem('lisensi_warningLimit', warning.toString());
+          localStorage.setItem('lisensi_detailRowsPerPage', detailRows.toString());
+          localStorage.setItem('lisensi_entryRowsPerPage', entryRows.toString());
+          
+          setIsConfigModalOpen(false);
+        }}
+      />
+
+    </div>
+  );
+};
+
+interface ConfigurationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  urgentLimit: number;
+  warningLimit: number;
+  detailRowsPerPage: number;
+  entryRowsPerPage: number;
+  onSave: (urgent: number, warning: number, detailRows: number, entryRows: number) => void;
+}
+
+const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
+  isOpen,
+  onClose,
+  urgentLimit,
+  warningLimit,
+  detailRowsPerPage,
+  entryRowsPerPage,
+  onSave,
+}) => {
+  const [tempUrgent, setTempUrgent] = useState(urgentLimit);
+  const [tempWarning, setTempWarning] = useState(warningLimit);
+  const [tempDetailRows, setTempDetailRows] = useState(detailRowsPerPage);
+  const [tempEntryRows, setTempEntryRows] = useState(entryRowsPerPage);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (isOpen) {
+      setTempUrgent(urgentLimit);
+      setTempWarning(warningLimit);
+      setTempDetailRows(detailRowsPerPage);
+      setTempEntryRows(entryRowsPerPage);
+      setError('');
+    }
+  }, [isOpen, urgentLimit, warningLimit, detailRowsPerPage, entryRowsPerPage]);
+
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (tempUrgent <= 0 || tempWarning <= 0 || tempDetailRows <= 0 || tempEntryRows <= 0) {
+      setError('Semua nilai harus berupa angka positif lebih besar dari 0.');
+      return;
+    }
+    if (tempWarning <= tempUrgent) {
+      setError('Batas Peringatan harus lebih besar dari Batas Urgent.');
+      return;
+    }
+    setError('');
+    onSave(tempUrgent, tempWarning, tempDetailRows, tempEntryRows);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex justify-between items-center border-b border-slate-150 pb-3">
+          <div className="flex items-center gap-2 text-primary-900">
+            <Settings className="w-5 h-5" />
+            <h4 className="font-bold text-sm">Pengaturan Parameter &amp; Tabel</h4>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600 p-1 rounded-full hover:bg-slate-100 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 text-xs">
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg font-medium">
+              {error}
+            </div>
+          )}
+
+          <div className="flex flex-col gap-3">
+            <h5 className="font-bold text-slate-800 border-b border-slate-100 pb-1 uppercase tracking-wide text-[10px] text-slate-500">
+              Masa Berlaku Kategori (Bulan)
+            </h5>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="font-semibold text-slate-600">Batas Kategori Urgent</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-mono">&lt;=</span>
+                  <input
+                    type="number"
+                    value={tempUrgent}
+                    onChange={(e) => setTempUrgent(parseInt(e.target.value, 10) || 0)}
+                    min="1"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono font-bold text-slate-700"
+                  />
+                  <span className="text-slate-500">Bln</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="font-semibold text-slate-600">Batas Kategori Peringatan</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-slate-400 font-mono">&lt;=</span>
+                  <input
+                    type="number"
+                    value={tempWarning}
+                    onChange={(e) => setTempWarning(parseInt(e.target.value, 10) || 0)}
+                    min="1"
+                    className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-mono font-bold text-slate-700"
+                  />
+                  <span className="text-slate-500">Bln</span>
+                </div>
+              </div>
+            </div>
+            <p className="text-[10px] text-slate-400 italic">
+              * Kategori Aman otomatis diset jika masa berlaku lebih dari batas Peringatan (&gt; {tempWarning} bulan).
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-3 mt-1">
+            <h5 className="font-bold text-slate-800 border-b border-slate-100 pb-1 uppercase tracking-wide text-[10px] text-slate-500">
+              Tampilan Jumlah Baris per Halaman
+            </h5>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1.5">
+                <label className="font-semibold text-slate-600">Tabel Detail Kategori</label>
+                <select
+                  value={tempDetailRows}
+                  onChange={(e) => setTempDetailRows(parseInt(e.target.value, 10))}
+                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-bold text-slate-700"
+                >
+                  <option value={5}>5 Baris</option>
+                  <option value={10}>10 Baris</option>
+                  <option value={20}>20 Baris</option>
+                  <option value={50}>50 Baris</option>
+                </select>
+              </div>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="font-semibold text-slate-600">Tabel Data Entri</label>
+                <select
+                  value={tempEntryRows}
+                  onChange={(e) => setTempEntryRows(parseInt(e.target.value, 10))}
+                  className="w-full bg-white border border-slate-200 rounded-lg px-3 py-2 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none font-bold text-slate-700"
+                >
+                  <option value={5}>5 Baris</option>
+                  <option value={10}>10 Baris</option>
+                  <option value={20}>20 Baris</option>
+                  <option value={50}>50 Baris</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-2.5 mt-4 pt-3 border-t border-slate-100">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition-colors uppercase tracking-wider text-[10px]"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              className="bg-primary-900 text-white px-5 py-2 rounded font-semibold hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider text-[10px]"
+            >
+              Simpan Perubahan
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
@@ -1395,14 +1673,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           <button
             type="button"
             onClick={onClose}
-            className="px-3.5 py-1.5 rounded border border-slate-300 text-slate-700 text-[10px] font-bold uppercase tracking-wider hover:bg-slate-50"
+            className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold hover:bg-slate-100 transition-colors uppercase tracking-wider text-[10px]"
           >
-            Tidak
+            Batal
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
+            className="bg-primary-900 text-white px-5 py-2 rounded font-semibold hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider text-[10px]"
           >
             Ya, Simpan
           </button>
