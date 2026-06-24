@@ -147,6 +147,36 @@ Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang
 3.  **Batas Skala Tetap (Fixed Bound)**:
     * Pada grafik persentase (seperti RKAP, Program Kerja, WAN, Keamanan), sumbu Y dikunci dengan batas tetap `0%` hingga `100%` agar visualisasi tren grafik tidak melebihi area visual standar.
 
+### F. Fitur Hapus Baris Lembut (Soft-Delete) dengan Feedback Visual & Undo
+Alur penghapusan baris pada tabel input ditingkatkan menggunakan pola **Soft-Delete** untuk meningkatkan keselamatan data sebelum disimpan:
+1.  **Status `isDeleted` pada State**:
+    * Setiap baris data memiliki properti opsional `isDeleted?: boolean`.
+    * Fungsi penghapusan baris (`handleDeleteRow` atau `handleDeleteRowByUrutan`) men-toggle properti `isDeleted` ini alih-alih langsung menyaring/menghapus baris dari array state.
+2.  **Visual Feedback & Penonaktifan Input**:
+    * Elemen baris `<tr>` yang memiliki `row.isDeleted === true` secara dinamis ditambahkan kelas latar belakang merah kontras (`bg-red-100 hover:bg-red-200/70 text-red-950/70`).
+    * Kolom input/textarea pada baris tersebut diberikan atribut `disabled={row.isDeleted}` untuk mencegah modifikasi data secara tidak sengaja.
+3.  **Tombol Batal Hapus (Undo)**:
+    * Tombol aksi hapus diubah menjadi tombol pemulihan hijau (ikon `RotateCcw` dari `lucide-react`) saat status `isDeleted` aktif. Mengkliknya akan mengembalikan status baris ke keadaan aktif semula secara instan.
+4.  **Pembaruan Live Kalkulasi & Grafik**:
+    * Perhitungan jumlah total (seperti `totalJumlah`, `totalMemory`, `totalCores`) secara dinamis menyaring keluar baris-baris bertanda `isDeleted`.
+    * Sumber data visualisasi grafik (seperti grafik Doughnut SDM atau grafik batang Utilisasi Server) menyaring keluar baris `isDeleted` secara real-time agar mencerminkan kondisi data sebelum disimpan.
+5.  **Pembersihan Permanen Saat Simpan**:
+    * Sebelum payload dikirim ke API backend pada fungsi `handleConfirmSave`, baris-baris bertanda `isDeleted` disaring keluar (`.filter(row => !row.isDeleted)`).
+    * Nomor sequential numbering (`urutan`) dari baris yang tersisa dihitung ulang (re-indexed) secara dinamis sebelum dikirim ke backend untuk menjaga konsistensi urutan nomor di database.
+
+Diterapkan secara konsisten di 4 halaman entri data: `LisensiPage.tsx`, `SdmItPage.tsx`, `UtilisasiMemoryServerPage.tsx`, dan `UtilisasiCpuServerPage.tsx`.
+
+### G. Fitur Pengurutan Dinamis (Sorting by Total) pada Tabel Lisensi
+Tabel "Data Lisensi Terdaftar" di `LisensiPage.tsx` dilengkapi dengan fitur pengurutan dinamis berdasarkan jumlah total lisensi:
+1.  **State `entryTotalSortOrder`**:
+    * Menyimpan status pengurutan aktif dengan tipe data `'asc' | 'desc' | null`.
+2.  **Integrasi di `getFilteredEntryRows`**:
+    * Ketika `entryTotalSortOrder` aktif, array diurutkan berdasarkan properti `total_lisensi`.
+    * Pengurutan ini mendukung skema fallback (cadangan). Jika terdapat nilai total yang sama (tie), baris akan otomatis diurutkan berdasarkan filter tanggal kedaluwarsa atau nama produk jika salah satu dari filter tersebut juga sedang aktif.
+3.  **UI Kontrol & Reset**:
+    * Menambahkan elemen kontrol tombol "Total" dengan pilihan "Terkecil" (asc) dan "Terbesar" (desc) pada baris navigasi pengurutan di atas tabel.
+    * Terintegrasi secara penuh dengan tombol "Reset Sort" untuk mengembalikan data ke susunan default awal.
+
 ---
 
 ## 5. Panduan Menambah Halaman Baru
