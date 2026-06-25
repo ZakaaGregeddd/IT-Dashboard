@@ -282,7 +282,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#0f2e60',
         backgroundColor: 'rgba(15, 46, 96, 0.1)',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         fill: true,
         pointRadius: 2
       },
@@ -292,7 +292,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#f59e0b',
         backgroundColor: 'transparent',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         fill: false,
         pointRadius: 2
       }

@@ -301,7 +301,7 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -312,7 +312,7 @@ export const TingkatKetersediaanSistemPage: React.FC = () => {
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false

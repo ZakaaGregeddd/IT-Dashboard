@@ -309,7 +309,7 @@ export const SdmItPage: React.FC = () => {
       borderColor: colors[idx % colors.length],
       backgroundColor: colors[idx % colors.length],
       tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
       borderWidth: 2,
       pointRadius: 3,
       fill: false

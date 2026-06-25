@@ -314,7 +314,7 @@ export const KetersediaanKeamananPage: React.FC = () => {
         borderColor: loc.color,
         backgroundColor: loc.color,
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         pointHoverRadius: 6,

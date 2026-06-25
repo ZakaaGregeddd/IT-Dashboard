@@ -393,7 +393,7 @@ export const RealisasiRkapPage: React.FC = () => {
         pointRadius: 4.5,
         fill: false,
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
       }
     ]
   };

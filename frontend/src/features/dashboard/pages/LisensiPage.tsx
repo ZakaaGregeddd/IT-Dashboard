@@ -448,7 +448,7 @@ export const LisensiPage: React.FC = () => {
         borderColor: '#f59e0b',
         backgroundColor: '#0f2e60',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 3.5,
         pointRadius: 4.5,
         fill: false
