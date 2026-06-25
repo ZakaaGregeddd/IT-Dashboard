@@ -809,9 +809,11 @@ export const UploadFilePage: React.FC = () => {
         }))
       };
     } else if (sheet.category === 'LISENSI') {
+      const totalLisensi = sheet.mappedData.reduce((sum, r) => sum + (parseInt(r.total_lisensi, 10) || 0), 0);
       payload = {
         bulan: monthNum,
         tahun: yearNum,
+        total_keseluruhan_lisensi: totalLisensi,
         details: sheet.mappedData.map((r, i) => ({
           urutan: i + 1,
           principle: String(r.principle || '').trim(),
@@ -1096,6 +1098,27 @@ export const UploadFilePage: React.FC = () => {
           {activeSheetIdx !== null && parsedSheets[activeSheetIdx] && (
             <div className="lg:col-span-2 flex flex-col gap-6">
               
+              {/* Status & Results */}
+              {importResults.some(r => r.category === parsedSheets[activeSheetIdx].category) && (
+                <div className={`p-4 rounded-xl border flex items-start gap-3 shadow-sm ${
+                  importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.success
+                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
+                    : 'bg-rose-50 border-rose-200 text-rose-800'
+                }`}>
+                  {importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.success ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  ) : (
+                    <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
+                  )}
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-xs font-bold">Status Impor</span>
+                    <p className="text-xs font-medium">
+                      {importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.message}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Alert Banner for Warning/Error */}
               {parsedSheets[activeSheetIdx].status !== 'success' && parsedSheets[activeSheetIdx].errorMessage && (
                 <div className={`p-4 rounded-xl border flex items-start gap-3 shadow-sm ${
@@ -1278,26 +1301,7 @@ export const UploadFilePage: React.FC = () => {
                 </Card>
               )}
 
-              {/* Status & Results */}
-              {importResults.some(r => r.category === parsedSheets[activeSheetIdx].category) && (
-                <div className={`p-4 rounded-xl border flex items-start gap-3 shadow-sm ${
-                  importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.success
-                    ? 'bg-emerald-50 border-emerald-200 text-emerald-800'
-                    : 'bg-rose-50 border-rose-200 text-rose-800'
-                }`}>
-                  {importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.success ? (
-                    <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
-                  ) : (
-                    <AlertTriangle className="w-5 h-5 text-rose-500 shrink-0 mt-0.5" />
-                  )}
-                  <div className="flex flex-col gap-0.5">
-                    <span className="text-xs font-bold">Status Impor</span>
-                    <p className="text-xs font-medium">
-                      {importResults.find(r => r.category === parsedSheets[activeSheetIdx].category)?.message}
-                    </p>
-                  </div>
-                </div>
-              )}
+
 
             </div>
           )}
