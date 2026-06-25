@@ -13,7 +13,6 @@ Platform ini menggantikan sistem pelaporan lama yang masih menggunakan excel men
 * **Sistem Proteksi Data (Peringatan Data Belum Disimpan)**: Mencegah kehilangan data dengan mendeteksi perubahan inputan. Perpindahan halaman SPA akan diintersepsi oleh modal dialog peringatan kustom yang indah (glassmorphism blur) lengkap dengan efek suara chime buatan **Web Audio API** yang 100% bebas lisensi komersial.
 * **Layout Responsif & Laci Sidebar Mobile**: Antarmuka adaptif yang dioptimalkan untuk smartphone dan tablet dengan sidebar menu bermodel drawer overlay yang menutup otomatis saat berpindah halaman.
 * **Pagination Interaktif**: Kontrol tabel data entri yang mendukung pembatasan baris (rows per page) serta input angka halaman langsung untuk berpindah lembar secara instan.
-* **Ekspor Grafik Berkinerja Tinggi**: Fitur download instan grafik visualisasi ke format gambar PNG secara langsung di sisi client (client-side canvas export) tanpa membebani server.
 * **Sistem Auto-Prefill Data Terakhir (Draf Pintar)**: Ketika memilih periode baru yang belum memiliki data di database, sistem secara otomatis menduplikasi data dari periode terakhir yang disimpan sebagai draf tanpa ID database. Hal ini mempercepat pengisian data baru yang serupa tanpa risiko menimpa data lama.
 * **Filter Kronologis Multi-Tahun (YTD)**: Menyajikan analisis tren performa Year to Date (YTD) dengan rentang waktu historis 5 tahun secara dinamis.
 
