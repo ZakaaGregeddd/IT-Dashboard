@@ -56,8 +56,8 @@ const doubleStackedOptions: ChartOptions<'bar'> = {
   responsive: true,
   maintainAspectRatio: false,
   scales: {
-    x: { stacked: true, ticks: { font: { size: 9 } } },
-    y: { stacked: true, ticks: { font: { size: 9 } } }
+    x: { stacked: false, ticks: { font: { size: 9 } } },
+    y: { stacked: false, ticks: { font: { size: 9 } } }
   },
   plugins: {
     legend: {
@@ -167,8 +167,8 @@ const mockOverallData = {
   bandwidth: {
     labels: ['Unit. TE - PLG', 'Unit. TRH - TE', 'Unit. KPT - TE', 'Unit. KPT - PLG', 'Unit. LPG - TE', 'Unit. LPG - PLG'],
     datasets: [
-      { label: 'Bandwidth (Mbps)', data: [35, 18, 5, 2, 8, 2], backgroundColor: '#0f2e60' },
-      { label: 'Rata-rata Utilisasi (Mbps)', data: [5, 2, 1, 0.5, 1, 0.2], backgroundColor: '#f59e0b' }
+      { label: 'Bandwidth (Mbps)', data: [35, 18, 5, 2, 8, 2], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Rata-rata Utilisasi (Mbps)', data: [5, 2, 1, 0.5, 1, 0.2], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
     ]
   },
   wan: {
@@ -298,8 +298,8 @@ const zeroOverallData = {
   bandwidth: {
     labels: ['M.Kadin', 'Tarahan', 'Kertapati', 'Griya Puncak', 'Bukit Kecil', 'UPO'],
     datasets: [
-      { label: 'Bandwidth (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#0f2e60' },
-      { label: 'Rata-rata Utilisasi (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#f59e0b' }
+      { label: 'Bandwidth (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Rata-rata Utilisasi (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
     ]
   },
   wan: {
@@ -667,8 +667,8 @@ export const OverallPage: React.FC = () => {
             bandwidth = {
               labels: details.map((d: any) => d.lokasi.replace(' - Tanjung Enim', '')),
               datasets: [
-                { label: 'Bandwidth (Mbps)', data: details.map((d: any) => parseFloat(d.bandwidth_mbps) || 0), backgroundColor: '#0f2e60' },
-                { label: 'Rata-rata Utilisasi (Mbps)', data: details.map((d: any) => parseFloat(d.rata_utilisasi_mbps) || 0), backgroundColor: '#f59e0b' }
+                { label: 'Bandwidth (Mbps)', data: details.map((d: any) => parseFloat(d.bandwidth_mbps) || 0), backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+                { label: 'Rata-rata Utilisasi (Mbps)', data: details.map((d: any) => parseFloat(d.utilisasi_mbps) || 0), backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
               ]
             };
           }

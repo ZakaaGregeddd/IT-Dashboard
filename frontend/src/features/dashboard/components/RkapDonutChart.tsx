@@ -38,7 +38,7 @@ export const RkapDonutChart: React.FC<RkapDonutChartProps> = ({
       className={onClick ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" : ""}
     >
       <CardTitle>{title}</CardTitle>
-      <div className="relative flex-1 min-h-0 w-full flex items-center justify-center" style={{ maxHeight: '140px' }}>
+      <div className="relative flex-1 min-h-0 w-full flex items-center justify-center">
         <BaseDoughnutChart data={data} />
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span className="text-xl font-bold text-primary-900">{percentage}%</span>
