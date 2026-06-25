@@ -1,8 +1,8 @@
-# Dashboard Performa IT Perusahaan
+# Sistem Pelaporan Bulanan Terpusat
 
 Sebuah platform dashboard analitik terpusat (**Single Source of Truth**) untuk memantau, mengelola, dan memvisualisasikan Key Performance Indicators (KPI) di seluruh divisi teknologi informasi perusahaan secara real-time.
 
-Platform ini menggantikan sistem pelaporan lama berbasis static HTML iframes menjadi sebuah aplikasi web modern satu halaman (**Single Page Application**) berkinerja tinggi, responsif, dan terintegrasi penuh dengan database relasional PostgreSQL.
+Platform ini menggantikan sistem pelaporan lama yang masih menggunakan excel menjadi sebuah aplikasi web modern satu halaman (**Single Page Application**) berkinerja tinggi, responsif, dan terintegrasi penuh dengan database relasional PostgreSQL.
 
 ---
 
