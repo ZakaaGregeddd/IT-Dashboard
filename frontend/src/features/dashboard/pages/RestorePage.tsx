@@ -76,8 +76,8 @@ export const RestorePage: React.FC = () => {
   const [allDbRecords, setAllDbRecords] = useState<RestoreData[]>([]);
 
   // YTD filters
-  const [startYear, setStartYear] = useState<string>('2021');
-  const [endYear, setEndYear] = useState<string>('2024');
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
+  const [endYear, setEndYear] = useState<string>(new Date().getFullYear().toString());
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -238,7 +238,7 @@ export const RestorePage: React.FC = () => {
     }
   };
 
-    // YTD trend datasets: displays the yearly average completion
+  // YTD trend datasets: displays the yearly total completion
   const getYearlyTrendData = () => {
     const labels: string[] = [];
     const masuk: number[] = [];
@@ -253,7 +253,6 @@ export const RestorePage: React.FC = () => {
       
       let totalMasuk = 0;
       let totalSelesai = 0;
-      let count = 0;
       
       if (dbRecord) {
         const details = (dbRecord as any).detail_pc_support || (dbRecord as any).detail_layanan_aplikasi || (dbRecord as any).detail_layanan_operasional || (dbRecord as any).detail_realisasi_restore;
@@ -261,22 +260,17 @@ export const RestorePage: React.FC = () => {
           details.forEach(d => {
             totalMasuk += Number(d.wo_masuk) || 0;
             totalSelesai += Number(d.wo_selesai) || 0;
-            count++;
           });
         }
       } else if (y === parseInt(tahun, 10) && systemRows.length > 0) {
         systemRows.forEach(d => {
           totalMasuk += Number(d.wo_masuk) || 0;
           totalSelesai += Number(d.wo_selesai) || 0;
-          count++;
         });
       }
       
-      const avgMasuk = count > 0 ? parseFloat((totalMasuk / count).toFixed(2)) : 0;
-      const avgSelesai = count > 0 ? parseFloat((totalSelesai / count).toFixed(2)) : 0;
-      
-      masuk.push(avgMasuk);
-      selesai.push(avgSelesai);
+      masuk.push(totalMasuk);
+      selesai.push(totalSelesai);
     }
     
     return { labels, masuk, selesai };
@@ -499,7 +493,7 @@ export const RestorePage: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Tahunan WO Masuk vs WO Selesai (Hanya menampilkan data dari database)</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Tahunan WO Masuk vs WO Selesai (Hanya menampilkan data dari database)</p>
             
             <div className="flex items-center gap-2 mt-1">
               <FilterSelect 

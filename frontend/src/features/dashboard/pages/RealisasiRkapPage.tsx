@@ -143,7 +143,7 @@ export const RealisasiRkapPage: React.FC = () => {
   const [dataMap, setDataMap] = useState<Record<string, DataPoint>>(initialRkapDataMap);
 
   // YTD Line Chart filters
-  const [startYear, setStartYear] = useState<string>('2022');
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
   const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // Input states (Controlled Components)

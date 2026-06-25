@@ -95,7 +95,7 @@ export const UtilisasiMemoryDbApkPage: React.FC = () => {
   const [allDbRecords, setAllDbRecords] = useState<MemoryDatabaseData[]>([]);
 
   // YTD filters
-  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 3).toString());
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
   const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // UI state

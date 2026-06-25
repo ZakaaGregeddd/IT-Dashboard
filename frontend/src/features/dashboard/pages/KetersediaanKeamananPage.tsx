@@ -89,8 +89,8 @@ export const KetersediaanKeamananPage: React.FC = () => {
   const [allDbRecords, setAllDbRecords] = useState<KeamananData[]>([]);
 
   // YTD filters
-  const [startYear, setStartYear] = useState<string>('2020');
-  const [endYear, setEndYear] = useState<string>('2024');
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
+  const [endYear, setEndYear] = useState<string>(new Date().getFullYear().toString());
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -341,7 +341,9 @@ export const KetersediaanKeamananPage: React.FC = () => {
     },
     scales: {
       y: {
-        beginAtZero: false,
+        beginAtZero: true,
+        min: 0,
+        max: 100,
         ticks: { font: { family: 'Inter', size: 10 } },
         grid: { color: '#f1f5f9' },
         title: {

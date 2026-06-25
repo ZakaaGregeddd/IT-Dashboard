@@ -134,7 +134,7 @@ export const RealisasiProgramKerjaPage: React.FC = () => {
   const [dataMap, setDataMap] = useState<Record<string, DataPoint>>(initialDataMap);
 
   // Year to Date filters range
-  const [startYear, setStartYear] = useState<string>('2022');
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
   const [endYear, setEndYear] = useState<string>(getCurrentYear());
 
   // Form input state

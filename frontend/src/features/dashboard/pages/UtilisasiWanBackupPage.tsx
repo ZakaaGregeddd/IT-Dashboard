@@ -88,8 +88,8 @@ export const UtilisasiWanBackupPage: React.FC = () => {
   const [allDbRecords, setAllDbRecords] = useState<WanBackupData[]>([]);
 
   // YTD filters
-  const [startYear, setStartYear] = useState<string>('2021');
-  const [endYear, setEndYear] = useState<string>('2024');
+  const [startYear, setStartYear] = useState<string>((new Date().getFullYear() - 4).toString());
+  const [endYear, setEndYear] = useState<string>(new Date().getFullYear().toString());
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
