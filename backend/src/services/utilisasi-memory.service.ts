@@ -86,9 +86,15 @@ export class UtilisasiMemoryService {
         id: matchingCurrent?.id, // include ID if exists so frontend can update it
         urutan: latestServer.urutan,
         nama_server: latestServer.nama_server,
-        memory_gb: matchingCurrent ? (Number(matchingCurrent.memory_gb) ?? 0) : 0,
-        utilisasi_gb: matchingCurrent ? (Number(matchingCurrent.utilisasi_gb) ?? 0) : 0,
-        utilisasi_persen: matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0,
+        memory_gb: currentMaster
+          ? (matchingCurrent ? (Number(matchingCurrent.memory_gb) ?? 0) : 0)
+          : (Number(latestServer.memory_gb) ?? 0),
+        utilisasi_gb: currentMaster
+          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_gb) ?? 0) : 0)
+          : (Number(latestServer.utilisasi_gb) ?? 0),
+        utilisasi_persen: currentMaster
+          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
+          : (Number(latestServer.utilisasi_persen) ?? 0),
       };
     });
 

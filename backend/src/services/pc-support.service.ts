@@ -40,6 +40,40 @@ export class PcSupportService {
     });
 
     if (!master) {
+      // Find the most recent record in the database for this service
+      const latestMaster = await prisma.laporan_work_order.findFirst({
+        where: {
+          kategori_layanan: 'PC_SUPPORT',
+        },
+        orderBy: {
+          tahun: 'desc',
+        },
+        include: {
+          detail_pc_support: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_pc_support.map(d => ({
+          urutan: d.urutan,
+          bulan_teks: d.bulan_teks,
+          wo_masuk: Number(d.wo_masuk) || 0,
+          wo_selesai: Number(d.wo_selesai) || 0
+        }));
+
+        return {
+          tahun,
+          kategori_layanan: 'PC_SUPPORT',
+          total_wo_masuk: latestMaster.total_wo_masuk,
+          total_wo_selesai: latestMaster.total_wo_selesai,
+          detail_pc_support: details,
+        };
+      }
+
       // Seed with default data for 2024, or empty (0) for other years
       const isDefaultYear = tahun === 2024;
       const details = this.DEFAULT_MONTHS.map(m => ({

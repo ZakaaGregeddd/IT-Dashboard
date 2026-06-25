@@ -26,6 +26,36 @@ export class RKAPService {
       },
     });
 
+    if (!master) {
+      const latestMaster = await prisma.laporan_rkap_ti.findFirst({
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_rkap_ti: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        return {
+          bulan,
+          tahun,
+          kalkulasi_cost_reduction_rp: Number(latestMaster.kalkulasi_cost_reduction_rp) || 0,
+          kalkulasi_persentase_realisasi: Number(latestMaster.kalkulasi_persentase_realisasi) || 0,
+          detail_rkap_ti: latestMaster.detail_rkap_ti.map(d => ({
+            urutan: d.urutan,
+            nama_metrik: d.nama_metrik,
+            nilai_nominal: Number(d.nilai_nominal) || 0,
+          })),
+        };
+      }
+    }
+
     return master;
   }
 

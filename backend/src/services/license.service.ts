@@ -28,6 +28,35 @@ export class LicenseService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_lisensi.findFirst({
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_lisensi: true,
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_lisensi.map(d => ({
+          urutan: d.urutan,
+          principle: d.principle,
+          nama_produk: d.nama_produk,
+          total_lisensi: Number(d.total_lisensi) || 0,
+          tanggal_expired: d.tanggal_expired,
+          status: d.status,
+          catatan: d.catatan,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          total_keseluruhan_lisensi: latestMaster.total_keseluruhan_lisensi,
+          detail_lisensi: details.sort((a, b) => a.urutan - b.urutan),
+        };
+      }
+
       return {
         bulan,
         tahun,
