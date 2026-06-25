@@ -42,7 +42,14 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
         <div className={cn("w-4 h-4", active ? "text-amber-500" : "text-slate-300")}>
           {icon}
         </div>
-        <span className="font-medium text-[11px] uppercase tracking-wide">{label}</span>
+        <span className="font-medium text-[11px] uppercase tracking-wide flex items-center gap-1.5">
+          {label}
+          {label === "Upload File" && (
+            <span className="bg-amber-500 text-primary-900 text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-normal">
+              Beta
+            </span>
+          )}
+        </span>
       </a>
     );
   }

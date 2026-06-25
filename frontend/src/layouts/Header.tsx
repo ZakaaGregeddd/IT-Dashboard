@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 const breadcrumbMapping: Record<string, string> = {
-  '/upload-file': 'Upload File Excel',
+  '/upload-file': 'Upload File Excel (Beta)',
   '/': 'Dashboard Utama',
   '/dashboard': 'Dashboard Utama',
   '/data-overall': 'Data Overall',

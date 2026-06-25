@@ -17,15 +17,27 @@ interface ParsedSheet {
 }
 
 const CATEGORIES = [
-  { id: 'PROGRAM_KERJA', name: 'Realisasi Program Kerja TI', api: 'http://localhost:5000/api/program-kerja' },
-  { id: 'RKAP', name: 'Realisasi RKAP TI', api: 'http://localhost:5000/api/rkap' },
-  { id: 'SDM', name: 'SDM IT (Outsource & Pegawai)', api: 'http://localhost:5000/api/sdm' },
-  { id: 'LISENSI', name: 'Lisensi', api: 'http://localhost:5000/api/licenses' },
-  { id: 'PC_SUPPORT', name: 'Penyelesaian Pekerjaan PC Support', api: 'http://localhost:5000/api/work-order/pc-support' },
-  { id: 'LAYANAN_APLIKASI', name: 'Penyelesaian Permintaan Layanan Aplikasi TI', api: 'http://localhost:5000/api/work-order/pc-support' }, // Shared API with category query
-  { id: 'LAYANAN_OPERASIONAL', name: 'Penyelesaian Permintaan Layanan TI di Operasional TI', api: 'http://localhost:5000/api/work-order/pc-support' },
-  { id: 'RESTORE', name: 'Realisasi Restore Ellipse dan Email', api: 'http://localhost:5000/api/work-order/pc-support' },
-  { id: 'BANDWIDTH', name: 'Rata-rata Utilisasi Bandwidth Jaringan', api: 'http://localhost:5000/api/utilisasi/bandwidth' }
+  { id: 'PROGRAM_KERJA', name: 'Realisasi Program Kerja TI', api: 'http://localhost:5000/api/program-kerja', periodType: 'MONTH_YEAR' },
+  { id: 'RKAP', name: 'Realisasi RKAP TI', api: 'http://localhost:5000/api/rkap', periodType: 'MONTH_YEAR' },
+  { id: 'SDM', name: 'SDM IT (Outsource & Pegawai)', api: 'http://localhost:5000/api/sdm', periodType: 'MONTH_YEAR' },
+  { id: 'LISENSI', name: 'Lisensi', api: 'http://localhost:5000/api/licenses', periodType: 'MONTH_YEAR' },
+  { id: 'KETERSEDIAAN_SCMC', name: 'Ketersediaan SCMC', api: 'http://localhost:5000/api/ketersediaan/scmc', periodType: 'MONTH_YEAR' },
+  { id: 'KETERSEDIAAN_KEAMANAN', name: 'Ketersediaan Keamanan Informasi', api: 'http://localhost:5000/api/ketersediaan/keamanan', periodType: 'MONTH_YEAR' },
+  { id: 'KETERSEDIAAN_SISTEM', name: 'Tingkat Ketersediaan Sistem', api: 'http://localhost:5000/api/ketersediaan/sistem', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_BANDWIDTH', name: 'Rata-rata Utilisasi Bandwidth Jaringan', api: 'http://localhost:5000/api/utilisasi/bandwidth', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_CPU_SERVER', name: 'Utilisasi CPU Server', api: 'http://localhost:5000/api/utilisasi/cpu', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_MEMORY_SERVER', name: 'Utilisasi Memory Server', api: 'http://localhost:5000/api/utilisasi/memory', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_STORAGE_SERVER', name: 'Utilisasi Storage Server', api: 'http://localhost:5000/api/utilisasi/storage', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_CPU_APP', name: 'Utilisasi CPU Aplikasi', api: 'http://localhost:5000/api/utilisasi/cpu-app', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_MEMORY_APP', name: 'Utilisasi Memory Aplikasi', api: 'http://localhost:5000/api/utilisasi/memory-app', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_CPU_DB', name: 'Utilisasi CPU Database Aplikasi', api: 'http://localhost:5000/api/utilisasi/cpu-database', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_MEMORY_DB', name: 'Utilisasi Memory Database Aplikasi', api: 'http://localhost:5000/api/utilisasi/memory-database', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_STORAGE_DB', name: 'Utilisasi Storage Database Aplikasi', api: 'http://localhost:5000/api/utilisasi/storage-database', periodType: 'MONTH_YEAR' },
+  { id: 'UTILISASI_WAN_BACKUP', name: 'Utilisasi WAN Backup', api: 'http://localhost:5000/api/utilisasi/wan-backup', periodType: 'MONTH_YEAR' },
+  { id: 'PC_SUPPORT', name: 'Penyelesaian Pekerjaan PC Support', api: 'http://localhost:5000/api/work-order/pc-support', periodType: 'YEAR_ONLY' },
+  { id: 'LAYANAN_APLIKASI', name: 'Penyelesaian Permintaan Layanan Aplikasi TI', api: 'http://localhost:5000/api/work-order/layanan-app', periodType: 'YEAR_ONLY' },
+  { id: 'LAYANAN_OPERASIONAL', name: 'Penyelesaian Permintaan Layanan TI di Operasional TI', api: 'http://localhost:5000/api/work-order/operasional', periodType: 'YEAR_ONLY' },
+  { id: 'RESTORE', name: 'Realisasi Restore Ellipse dan Email', api: 'http://localhost:5000/api/work-order/restore', periodType: 'YEAR_ONLY' }
 ];
 
 const MONTHS = [
@@ -34,23 +46,45 @@ const MONTHS = [
 ];
 
 const FIELD_ALIASES: Record<string, { label: string; aliases: string[] }> = {
-  // Program Kerja
+  nama_program: { label: 'Nama Program', aliases: ['nama program', 'program', 'nama_program'] },
   target_persen: { label: 'Target (%)', aliases: ['target', 'target (%)', 'target_persen', 'rencana', 'plan'] },
   realisasi_persen: { label: 'Realisasi (%)', aliases: ['realisasi', 'realisasi (%)', 'realisasi_persen', 'aktual', 'actual'] },
-  // RKAP
   realisasi_nominal: { label: 'Realisasi (Rp)', aliases: ['realisasi', 'realisasi (rp)', 'nominal', 'nilai', 'realisasi nominal'] },
   cost_reduction: { label: 'Cost Reduction (Rp)', aliases: ['cost reduction', 'cost reduction (rp)', 'saving', 'penghematan'] },
-  // SDM
   role_divisi: { label: 'Role/Divisi', aliases: ['role/divisi', 'role', 'divisi', 'jabatan', 'bagian', 'role_divisi'] },
   jumlah_sdm: { label: 'Jumlah SDM', aliases: ['jumlah', 'qty', 'total', 'jumlah sdm', 'count', 'sdm'] },
-  // Lisensi
   principle: { label: 'Principle/Vendor', aliases: ['principle', 'vendor', 'pembuat', 'brand'] },
   nama_produk: { label: 'Nama Produk', aliases: ['nama produk', 'nama_produk', 'produk', 'product name', 'aplikasi'] },
   total_lisensi: { label: 'Total Lisensi', aliases: ['total', 'jumlah', 'total_lisensi', 'qty', 'volume'] },
   tanggal_expired: { label: 'Tanggal Expired', aliases: ['exp date', 'tanggal expired', 'expired date', 'tanggal_expired', 'exp_date', 'expired'] },
   status_lisensi: { label: 'Status Lisensi', aliases: ['status', 'keterangan status', 'status_lisensi'] },
-  catatan_lisensi: { label: 'Catatan', aliases: ['catatan', 'keterangan', 'note', 'catatan_lisensi'] }
+  catatan_lisensi: { label: 'Catatan', aliases: ['catatan', 'keterangan', 'note', 'catatan_lisensi'] },
+  nama_sistem: { label: 'Nama Sistem/Aplikasi', aliases: ['nama sistem', 'nama aplikasi', 'sistem', 'aplikasi', 'nama_sistem', 'system', 'nama server', 'server', 'nama_server', 'site', 'lokasi', 'keterangan', 'layanan'] },
+  rencana_persen: { label: 'Rencana (%)', aliases: ['rencana', 'target', 'rencana (%)', 'rencana_persen'] },
+  keterangan: { label: 'Keterangan', aliases: ['keterangan', 'deskripsi', 'detail', 'keterangan_scmc'] },
+  jumlah: { label: 'Jumlah', aliases: ['jumlah', 'qty', 'total', 'count'] },
+  lokasi: { label: 'Lokasi/Site', aliases: ['lokasi', 'site', 'cabang', 'kantor', 'lokasi_site'] },
+  bandwidth_mbps: { label: 'Bandwidth (Mbps)', aliases: ['bandwidth', 'kapasitas', 'bandwidth (mbps)', 'bandwidth_mbps'] },
+  utilisasi_mbps: { label: 'Utilisasi (Mbps)', aliases: ['utilisasi', 'utilisasi (mbps)', 'utilisasi_mbps', 'rata-rata utilisasi', 'rata_utilisasi_mbps'] },
+  nama_server: { label: 'Nama Server', aliases: ['nama server', 'server', 'nama_server', 'hostname'] },
+  cpu_cores: { label: 'CPU Cores', aliases: ['cpu cores', 'cores', 'core', 'cpu_cores'] },
+  utilisasi_ghz: { label: 'Utilisasi Cores (GHz)', aliases: ['utilisasi cores', 'utilisasi (ghz)', 'utilisasi cores (ghz)', 'utilisasi_ghz'] },
+  utilisasi_persen: { label: 'Utilisasi (%)', aliases: ['utilisasi (%)', 'utilisasi_persen', 'persen', '%', 'rata-rata utilisasi (%)', 'rata_utilisasi_persen', 'utilisasi_persen'] },
+  memory_gb: { label: 'Kapasitas RAM (GB)', aliases: ['kapasitas', 'ram', 'memory (gb)', 'memory_gb', 'kapasitas ram', 'memory_gb'] },
+  utilisasi_gb: { label: 'Utilisasi RAM (GB)', aliases: ['utilisasi ram', 'utilisasi (gb)', 'utilisasi_gb', 'ram terpakai', 'utilisasi_gb'] },
+  nama_storage: { label: 'Nama Storage', aliases: ['nama storage', 'storage', 'nama_storage', 'disk'] },
+  capacity_tb: { label: 'Kapasitas (TB)', aliases: ['kapasitas', 'kapasitas (tb)', 'capacity (tb)', 'capacity_tb', 'size'] },
+  utilisasi_tb: { label: 'Utilisasi (TB)', aliases: ['utilisasi', 'utilisasi (tb)', 'utilisasi_tb', 'storage terpakai'] },
+  free_persen: { label: 'Free (%)', aliases: ['free (%)', 'free_persen', 'sisa (%)', 'free'] },
+  storage_tb: { label: 'Kapasitas Storage (TB)', aliases: ['kapasitas storage', 'storage (tb)', 'storage_tb'] },
+  ketersediaan_persen: { label: 'Ketersediaan (%)', aliases: ['ketersediaan', 'ketersediaan (%)', 'ketersediaan_persen', 'availability'] },
+  bulan_teks: { label: 'Bulan', aliases: ['bulan', 'periode', 'month', 'bulan_teks'] },
+  wo_masuk: { label: 'WO Masuk', aliases: ['wo masuk', 'masuk', 'wo_masuk', 'order masuk'] },
+  wo_selesai: { label: 'WO Selesai', aliases: ['wo selesai', 'selesai', 'wo_selesai', 'order selesai'] }
 };
+
+// Track last play time to prevent double-triggering in React 18 Strict Mode
+let lastPlayedBetaWarningTime = 0;
 
 export const UploadFilePage: React.FC = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -58,7 +92,114 @@ export const UploadFilePage: React.FC = () => {
   const [activeSheetIdx, setActiveSheetIdx] = useState<number | null>(null);
   const [isImporting, setIsImporting] = useState(false);
   const [importResults, setImportResults] = useState<{ category: string; success: boolean; message: string }[]>([]);
-  
+  const [showBetaModal, setShowBetaModal] = useState(true);
+
+  // SFX Synth Engines (Web Audio API - License Free / Royalty Free)
+  const playSuccessSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+      
+      // Chime note 1 (C5 to A5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(523.25, now);
+      osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+      gain1.gain.setValueAtTime(0.12, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.35);
+      
+      // Chime note 2 (E5 to C6)
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(659.25, now + 0.08);
+      osc2.frequency.exponentialRampToValueAtTime(1046.50, now + 0.22);
+      gain2.gain.setValueAtTime(0.08, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.45);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.45);
+    } catch (e) {
+      console.error('SFX failed to play:', e);
+    }
+  };
+
+  const playErrorSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+      
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.linearRampToValueAtTime(110, now + 0.22);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.28);
+    } catch (e) {
+      console.error('SFX failed to play:', e);
+    }
+  };
+
+  const playWarningNotificationSound = () => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+      const now = ctx.currentTime;
+
+      // Soft elegant warning arpeggio (A4 -> C#5 -> E5)
+      const osc1 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      osc1.type = 'sine';
+      osc1.frequency.setValueAtTime(440, now);
+      osc1.frequency.linearRampToValueAtTime(554.37, now + 0.08);
+      gain1.gain.setValueAtTime(0.08, now);
+      gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc1.start(now);
+      osc1.stop(now + 0.25);
+
+      const osc2 = ctx.createOscillator();
+      const gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(554.37, now + 0.08);
+      osc2.frequency.linearRampToValueAtTime(659.25, now + 0.16);
+      gain2.gain.setValueAtTime(0.06, now + 0.08);
+      gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(now + 0.08);
+      osc2.stop(now + 0.35);
+    } catch (e) {
+      console.error('Warning SFX failed to play:', e);
+    }
+  };
+
+  React.useEffect(() => {
+    // Play warning sound when the page is loaded and the beta warning modal shows up
+    const now = Date.now();
+    if (now - lastPlayedBetaWarningTime > 1000) {
+      playWarningNotificationSound();
+      lastPlayedBetaWarningTime = now;
+    }
+  }, []);
+
   // Overwrite Warning Modal State
   const [overwriteModal, setOverwriteModal] = useState<{
     isOpen: boolean;
@@ -124,17 +265,63 @@ export const UploadFilePage: React.FC = () => {
             } else if (valLower.includes('rkap')) {
               matchedCategory = 'RKAP';
               break;
-            } else if (valLower.includes('sdm') || valLower.includes('sumber daya manusia')) {
+            } else if (valLower.includes('sdm') || valLower.includes('sumber daya manusia') || valLower.includes('tenaga kerja')) {
               matchedCategory = 'SDM';
               break;
             } else if (valLower.includes('lisensi') || valLower.includes('license')) {
               matchedCategory = 'LISENSI';
               break;
+            } else if (valLower.includes('scmc')) {
+              matchedCategory = 'KETERSEDIAAN_SCMC';
+              break;
+            } else if (valLower.includes('keamanan') || valLower.includes('security') || valLower.includes('firewall') || valLower.includes('antivirus')) {
+              matchedCategory = 'KETERSEDIAAN_KEAMANAN';
+              break;
+            } else if (valLower.includes('ketersediaan sistem') || valLower.includes('ketersediaan aplikasi') || valLower.includes('ketersediaan db') || valLower.includes('availability')) {
+              matchedCategory = 'KETERSEDIAAN_SISTEM';
+              break;
+            } else if (valLower.includes('wan backup') || valLower.includes('wan_backup') || valLower.includes('backup wan')) {
+              matchedCategory = 'UTILISASI_WAN_BACKUP';
+              break;
+            } else if (valLower.includes('bandwidth') || valLower.includes('utilisasi bandwidth') || valLower.includes('jaringan')) {
+              matchedCategory = 'UTILISASI_BANDWIDTH';
+              break;
+            } else if (valLower.includes('cpu')) {
+              if (valLower.includes('db') || valLower.includes('database')) {
+                matchedCategory = 'UTILISASI_CPU_DB';
+              } else if (valLower.includes('aplikasi') || valLower.includes('app')) {
+                matchedCategory = 'UTILISASI_CPU_APP';
+              } else {
+                matchedCategory = 'UTILISASI_CPU_SERVER';
+              }
+              break;
+            } else if (valLower.includes('memory') || valLower.includes('ram')) {
+              if (valLower.includes('db') || valLower.includes('database')) {
+                matchedCategory = 'UTILISASI_MEMORY_DB';
+              } else if (valLower.includes('aplikasi') || valLower.includes('app')) {
+                matchedCategory = 'UTILISASI_MEMORY_APP';
+              } else {
+                matchedCategory = 'UTILISASI_MEMORY_SERVER';
+              }
+              break;
+            } else if (valLower.includes('storage') || valLower.includes('disk') || valLower.includes('kapasitas') || valLower.includes('hdds')) {
+              if (valLower.includes('db') || valLower.includes('database')) {
+                matchedCategory = 'UTILISASI_STORAGE_DB';
+              } else {
+                matchedCategory = 'UTILISASI_STORAGE_SERVER';
+              }
+              break;
             } else if (valLower.includes('pc support') || valLower.includes('pc_support')) {
               matchedCategory = 'PC_SUPPORT';
               break;
-            } else if (valLower.includes('bandwidth') || valLower.includes('jaringan')) {
-              matchedCategory = 'BANDWIDTH';
+            } else if (valLower.includes('layanan aplikasi') || valLower.includes('layanan_app') || valLower.includes('permintaan layanan aplikasi')) {
+              matchedCategory = 'LAYANAN_APLIKASI';
+              break;
+            } else if (valLower.includes('operasional ti') || valLower.includes('operasional_ti') || valLower.includes('layanan operasional')) {
+              matchedCategory = 'LAYANAN_OPERASIONAL';
+              break;
+            } else if (valLower.includes('restore')) {
+              matchedCategory = 'RESTORE';
               break;
             }
           }
@@ -281,6 +468,7 @@ export const UploadFilePage: React.FC = () => {
       setParsedSheets(sheetsList);
       if (sheetsList.length > 0) {
         setActiveSheetIdx(0);
+        playSuccessSound();
       }
     };
     reader.readAsArrayBuffer(selectedFile);
@@ -296,6 +484,33 @@ export const UploadFilePage: React.FC = () => {
         return ['role_divisi', 'jumlah_sdm'];
       case 'LISENSI':
         return ['principle', 'nama_produk', 'total_lisensi', 'tanggal_expired', 'status_lisensi', 'catatan_lisensi'];
+      case 'KETERSEDIAAN_SCMC':
+        return ['keterangan', 'jumlah'];
+      case 'KETERSEDIAAN_KEAMANAN':
+      case 'KETERSEDIAAN_SISTEM':
+        return ['nama_sistem', 'rencana_persen', 'realisasi_persen'];
+      case 'UTILISASI_BANDWIDTH':
+        return ['lokasi', 'bandwidth_mbps', 'utilisasi_mbps'];
+      case 'UTILISASI_CPU_SERVER':
+        return ['nama_server', 'cpu_cores', 'utilisasi_ghz', 'utilisasi_persen'];
+      case 'UTILISASI_MEMORY_SERVER':
+        return ['nama_server', 'memory_gb', 'utilisasi_gb', 'utilisasi_persen'];
+      case 'UTILISASI_STORAGE_SERVER':
+        return ['nama_storage', 'capacity_tb', 'utilisasi_tb', 'utilisasi_persen'];
+      case 'UTILISASI_CPU_APP':
+      case 'UTILISASI_CPU_DB':
+      case 'UTILISASI_MEMORY_APP':
+      case 'UTILISASI_MEMORY_DB':
+        return ['nama_sistem', 'utilisasi_persen'];
+      case 'UTILISASI_STORAGE_DB':
+        return ['nama_sistem', 'storage_tb', 'utilisasi_tb', 'utilisasi_persen'];
+      case 'UTILISASI_WAN_BACKUP':
+        return ['lokasi', 'ketersediaan_persen'];
+      case 'PC_SUPPORT':
+      case 'LAYANAN_APLIKASI':
+      case 'LAYANAN_OPERASIONAL':
+      case 'RESTORE':
+        return ['bulan_teks', 'wo_masuk', 'wo_selesai'];
       default:
         return [];
     }
@@ -465,7 +680,13 @@ export const UploadFilePage: React.FC = () => {
           if (rIdx !== rowIdx) return row;
 
           const updatedRow = { ...row };
-          if (['target_persen', 'realisasi_persen', 'realisasi_nominal', 'cost_reduction', 'jumlah_sdm', 'total_lisensi'].includes(field)) {
+          const numericFields = [
+            'target_persen', 'realisasi_persen', 'realisasi_nominal', 'cost_reduction', 'jumlah_sdm', 'total_lisensi',
+            'jumlah', 'rencana_persen', 'bandwidth_mbps', 'utilisasi_mbps', 'cpu_cores', 'utilisasi_ghz',
+            'utilisasi_persen', 'memory_gb', 'utilisasi_gb', 'capacity_tb', 'utilisasi_tb', 'storage_tb',
+            'ketersediaan_persen', 'wo_masuk', 'wo_selesai'
+          ];
+          if (numericFields.includes(field)) {
             updatedRow[field] = value === '' ? '' : (parseFloat(value) || 0);
           } else {
             updatedRow[field] = value;
@@ -496,6 +717,8 @@ export const UploadFilePage: React.FC = () => {
     const catConfig = CATEGORIES.find(c => c.id === sheet.category);
     if (!catConfig) return;
 
+    const isYearOnly = catConfig.periodType === 'YEAR_ONLY';
+
     // Check if data already exists in database
     checkIfDataExists(sheet.category, sheet.month, sheet.year).then((exists) => {
       if (exists) {
@@ -504,7 +727,7 @@ export const UploadFilePage: React.FC = () => {
           isOpen: true,
           sheetIdx: idx,
           categoryName: catConfig.name,
-          periodText: `${MONTHS[sheet.month - 1]} ${sheet.year}`,
+          periodText: isYearOnly ? String(sheet.year) : `${MONTHS[sheet.month - 1]} ${sheet.year}`,
           onConfirm: () => {
             setOverwriteModal(null);
             saveSheetToBackend(idx);
@@ -521,17 +744,17 @@ export const UploadFilePage: React.FC = () => {
 
   const checkIfDataExists = async (category: string, month: number, year: number): Promise<boolean> => {
     try {
-      let url = '';
-      if (category === 'PROGRAM_KERJA') url = 'http://localhost:5000/api/program-kerja';
-      else if (category === 'RKAP') url = 'http://localhost:5000/api/rkap';
-      else if (category === 'SDM') url = 'http://localhost:5000/api/sdm';
-      else if (category === 'LISENSI') url = 'http://localhost:5000/api/licenses';
-      else return false;
+      const catConfig = CATEGORIES.find(c => c.id === category);
+      if (!catConfig) return false;
 
-      const response = await fetch(url);
+      const response = await fetch(catConfig.api);
       const result = await response.json();
       if (result.success && Array.isArray(result.data)) {
-        return result.data.some((rec: any) => rec.bulan === month && rec.tahun === year);
+        if (catConfig.periodType === 'YEAR_ONLY') {
+          return result.data.some((rec: any) => rec.tahun === year);
+        } else {
+          return result.data.some((rec: any) => rec.bulan === month && rec.tahun === year);
+        }
       }
       return false;
     } catch {
@@ -548,44 +771,36 @@ export const UploadFilePage: React.FC = () => {
 
     // Build specific payload based on category
     let payload: any = {};
+    const monthNum = sheet.month;
+    const yearNum = sheet.year;
+
     if (sheet.category === 'PROGRAM_KERJA') {
-      const firstRow = sheet.mappedData[0] || {};
       payload = {
-        tahun: sheet.year,
-        bulan: sheet.month,
-        details: [
-          {
-            urutan: 1,
-            nama_program: 'Program Kerja TI',
-            target_persen: parseFloat(firstRow.target_persen) || 0,
-            realisasi_persen: parseFloat(firstRow.realisasi_persen) || 0
-          }
-        ]
+        tahun: yearNum,
+        bulan: monthNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_program: String(r.nama_program || 'Program Kerja TI').trim(),
+          target_persen: parseFloat(r.target_persen) || 0,
+          realisasi_persen: parseFloat(r.realisasi_persen) || 0
+        }))
       };
     } else if (sheet.category === 'RKAP') {
       const rRow = sheet.mappedData.find(r => String(r.realisasi_nominal || '').toLowerCase().includes('realisasi') || true) || {};
       const cRow = sheet.mappedData.find(r => String(r.cost_reduction || '').toLowerCase().includes('cost') || true) || {};
       payload = {
-        tahun: sheet.year,
-        bulan: sheet.month,
+        tahun: yearNum,
+        bulan: monthNum,
         details: [
-          {
-            urutan: 1,
-            nama_metrik: 'Realisasi',
-            nilai_nominal: parseFloat(rRow.realisasi_nominal) || 0
-          },
-          {
-            urutan: 2,
-            nama_metrik: 'Cost Reduction',
-            nilai_nominal: parseFloat(cRow.cost_reduction) || 0
-          }
+          { urutan: 1, nama_metrik: 'Realisasi', nilai_nominal: parseFloat(rRow.realisasi_nominal) || 0 },
+          { urutan: 2, nama_metrik: 'Cost Reduction', nilai_nominal: parseFloat(cRow.cost_reduction) || 0 }
         ]
       };
     } else if (sheet.category === 'SDM') {
       const totalSdm = sheet.mappedData.reduce((sum, r) => sum + (parseInt(r.jumlah_sdm, 10) || 0), 0);
       payload = {
-        bulan: sheet.month,
-        tahun: sheet.year,
+        bulan: monthNum,
+        tahun: yearNum,
         total_keseluruhan_sdm: totalSdm,
         details: sheet.mappedData.map((r, i) => ({
           urutan: i + 1,
@@ -595,8 +810,8 @@ export const UploadFilePage: React.FC = () => {
       };
     } else if (sheet.category === 'LISENSI') {
       payload = {
-        bulan: sheet.month,
-        tahun: sheet.year,
+        bulan: monthNum,
+        tahun: yearNum,
         details: sheet.mappedData.map((r, i) => ({
           urutan: i + 1,
           principle: String(r.principle || '').trim(),
@@ -605,6 +820,128 @@ export const UploadFilePage: React.FC = () => {
           tanggal_expired: r.tanggal_expired || new Date().toISOString().split('T')[0],
           status: r.status_lisensi || 'Lisensi Aktif',
           catatan: r.catatan_lisensi || ''
+        }))
+      };
+    } else if (sheet.category === 'KETERSEDIAAN_SCMC') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          keterangan: String(r.keterangan || '').trim(),
+          jumlah: parseInt(r.jumlah, 10) || 0
+        }))
+      };
+    } else if (sheet.category === 'KETERSEDIAAN_KEAMANAN' || sheet.category === 'KETERSEDIAAN_SISTEM') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_sistem: String(r.nama_sistem || '').trim(),
+          rencana_persen: parseFloat(r.rencana_persen) || 0,
+          realisasi_persen: parseFloat(r.realisasi_persen) || 0
+        }))
+      };
+    } else if (sheet.category === 'UTILISASI_BANDWIDTH') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => {
+          const bw = parseFloat(r.bandwidth_mbps) || 0;
+          const ut = parseFloat(r.utilisasi_mbps) || 0;
+          const pct = bw > 0 ? Math.round((ut / bw) * 100) : 0;
+          return {
+            urutan: i + 1,
+            lokasi: String(r.lokasi || '').trim(),
+            bandwidth_mbps: bw,
+            utilisasi_mbps: ut,
+            sisa_persen: 100 - pct,
+            utilisasi_persen: pct
+          };
+        })
+      };
+    } else if (sheet.category === 'UTILISASI_CPU_SERVER') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_server: String(r.nama_server || '').trim(),
+          cpu_cores: parseInt(r.cpu_cores, 10) || 0,
+          utilisasi_ghz: parseFloat(r.utilisasi_ghz) || 0,
+          utilisasi_persen: parseFloat(r.utilisasi_persen) || 0
+        }))
+      };
+    } else if (sheet.category === 'UTILISASI_MEMORY_SERVER') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_server: String(r.nama_server || '').trim(),
+          memory_gb: parseFloat(r.memory_gb) || 0,
+          utilisasi_gb: parseFloat(r.utilisasi_gb) || 0,
+          utilisasi_persen: parseFloat(r.utilisasi_persen) || 0
+        }))
+      };
+    } else if (sheet.category === 'UTILISASI_STORAGE_SERVER') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => {
+          const cap = parseFloat(r.capacity_tb) || 0;
+          const ut = parseFloat(r.utilisasi_tb) || 0;
+          return {
+            urutan: i + 1,
+            nama_storage: String(r.nama_storage || r.nama_sistem || '').trim(),
+            capacity_tb: cap,
+            utilisasi_tb: ut,
+            free_tb: Math.max(0, cap - ut),
+            utilisasi_persen: parseFloat(r.utilisasi_persen) || (cap > 0 ? Math.round((ut / cap) * 100) : 0)
+          };
+        })
+      };
+    } else if (['UTILISASI_CPU_APP', 'UTILISASI_CPU_DB', 'UTILISASI_MEMORY_APP', 'UTILISASI_MEMORY_DB'].includes(sheet.category)) {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_sistem: String(r.nama_sistem || '').trim(),
+          utilisasi_persen: parseFloat(r.utilisasi_persen) || 0
+        }))
+      };
+    } else if (sheet.category === 'UTILISASI_STORAGE_DB') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          nama_sistem: String(r.nama_sistem || '').trim(),
+          storage_tb: parseFloat(r.storage_tb) || 0,
+          utilisasi_tb: parseFloat(r.utilisasi_tb) || 0,
+          utilisasi_persen: parseFloat(r.utilisasi_persen) || 0
+        }))
+      };
+    } else if (sheet.category === 'UTILISASI_WAN_BACKUP') {
+      payload = {
+        bulan: monthNum,
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          lokasi: String(r.lokasi || '').trim(),
+          ketersediaan_persen: parseFloat(r.ketersediaan_persen) || 0
+        }))
+      };
+    } else if (['PC_SUPPORT', 'LAYANAN_APLIKASI', 'LAYANAN_OPERASIONAL', 'RESTORE'].includes(sheet.category)) {
+      payload = {
+        tahun: yearNum,
+        details: sheet.mappedData.map((r, i) => ({
+          urutan: i + 1,
+          bulan_teks: String(r.bulan_teks || MONTHS[i] || '').trim(),
+          wo_masuk: parseInt(r.wo_masuk, 10) || 0,
+          wo_selesai: parseInt(r.wo_selesai, 10) || 0
         }))
       };
     }
@@ -619,17 +956,20 @@ export const UploadFilePage: React.FC = () => {
       });
       const result = await response.json();
       if (result.success) {
+        playSuccessSound();
         setImportResults(prev => [
           ...prev.filter(r => r.category !== sheet.category),
           { category: sheet.category, success: true, message: `Sheet '${sheet.sheetName}' berhasil di-import!` }
         ]);
       } else {
+        playErrorSound();
         setImportResults(prev => [
           ...prev.filter(r => r.category !== sheet.category),
           { category: sheet.category, success: false, message: `Gagal: ${result.message}` }
         ]);
       }
     } catch (err) {
+      playErrorSound();
       setImportResults(prev => [
         ...prev.filter(r => r.category !== sheet.category),
         { category: sheet.category, success: false, message: 'Gagal menghubungkan ke server.' }
@@ -656,7 +996,12 @@ export const UploadFilePage: React.FC = () => {
   return (
     <div className="w-full flex-1 p-4 md:p-6 flex flex-col gap-6 overflow-y-auto bg-slate-50 relative">
       <div className="flex flex-col gap-1">
-        <h2 className="text-xl font-bold text-slate-800">Upload & Import File Excel</h2>
+        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+          Upload & Import File Excel
+          <span className="bg-amber-500/10 text-amber-700 text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase border border-amber-300/30 tracking-wide">
+            Beta
+          </span>
+        </h2>
         <p className="text-xs text-slate-500">Impor data laporan bulanan secara massal melalui berbagai sheet Excel.</p>
       </div>
 
@@ -795,15 +1140,26 @@ export const UploadFilePage: React.FC = () => {
                   {/* Month Select */}
                   <div className="flex flex-col gap-1">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Periode Bulan</span>
-                    <select
-                      value={parsedSheets[activeSheetIdx].month}
-                      onChange={(e) => handlePeriodChange(activeSheetIdx, 'month', parseInt(e.target.value, 10))}
-                      className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full font-medium"
-                    >
-                      {MONTHS.map((m, idx) => (
-                        <option key={idx} value={idx + 1}>{m}</option>
-                      ))}
-                    </select>
+                    {(() => {
+                      const catConfig = CATEGORIES.find(c => c.id === parsedSheets[activeSheetIdx].category);
+                      const isYearOnly = catConfig?.periodType === 'YEAR_ONLY';
+                      return (
+                        <select
+                          value={isYearOnly ? 1 : parsedSheets[activeSheetIdx].month}
+                          disabled={isYearOnly}
+                          onChange={(e) => handlePeriodChange(activeSheetIdx, 'month', parseInt(e.target.value, 10))}
+                          className="bg-white border border-slate-200 rounded px-2.5 py-1.5 text-xs focus:border-primary-900 focus:ring-1 focus:ring-primary-900 outline-none w-full font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+                        >
+                          {isYearOnly ? (
+                            <option value={1}>Seluruh Bulan (Tahunan)</option>
+                          ) : (
+                            MONTHS.map((m, idx) => (
+                              <option key={idx} value={idx + 1}>{m}</option>
+                            ))
+                          )}
+                        </select>
+                      );
+                    })()}
                   </div>
 
                   {/* Year Select */}
@@ -884,7 +1240,12 @@ export const UploadFilePage: React.FC = () => {
                               {idx + 1}
                             </td>
                             {getFieldsForCategory(parsedSheets[activeSheetIdx].category).map(field => {
-                              const isNumeric = ['target_persen', 'realisasi_persen', 'realisasi_nominal', 'cost_reduction', 'jumlah_sdm', 'total_lisensi'].includes(field);
+                              const isNumeric = [
+                                'target_persen', 'realisasi_persen', 'realisasi_nominal', 'cost_reduction', 'jumlah_sdm', 'total_lisensi',
+                                'jumlah', 'rencana_persen', 'bandwidth_mbps', 'utilisasi_mbps', 'cpu_cores', 'utilisasi_ghz',
+                                'utilisasi_persen', 'memory_gb', 'utilisasi_gb', 'capacity_tb', 'utilisasi_tb', 'storage_tb',
+                                'ketersediaan_persen', 'wo_masuk', 'wo_selesai'
+                              ].includes(field);
                               const isDate = field === 'tanggal_expired';
                               return (
                                 <td key={field} className="py-1 px-2 border border-slate-200 bg-white min-w-[120px]">
@@ -974,6 +1335,37 @@ export const UploadFilePage: React.FC = () => {
                 className="bg-amber-600 hover:bg-amber-700 text-white px-5 py-2 rounded-lg font-semibold transition-all shadow-sm text-[10px] uppercase tracking-wider"
               >
                 Ya, Gantikan Data
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Beta Warning Notice Dialog Modal */}
+      {showBetaModal && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl border border-slate-200 max-w-md w-full p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-start gap-4">
+              <div className="p-3 bg-amber-50 text-amber-600 rounded-xl border border-amber-250 shrink-0">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-sm font-bold text-slate-800">Fitur Pengembangan (Beta)</h4>
+                <p className="text-xs text-slate-500 leading-relaxed">
+                  Fitur <strong>Upload & Import File Excel</strong> saat ini masih dalam tahap pengembangan (Beta). 
+                  Terdapat kemungkinan ketidakakuratan atau ketidaksesuaian data dalam pemetaan otomatis.
+                  <br /><br />
+                  Harap periksa kembali seluruh data pratinjau dengan seksama. Anda dapat mengubah data yang salah secara langsung pada tabel pratinjau sebelum menyimpannya ke database.
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-150">
+              <button
+                type="button"
+                onClick={() => setShowBetaModal(false)}
+                className="w-full bg-primary-900 hover:bg-primary-800 text-white py-2.5 rounded-lg font-semibold transition-all shadow-sm text-[10px] uppercase tracking-wider text-center"
+              >
+                Saya Mengerti &amp; Lanjutkan
               </button>
             </div>
           </div>
