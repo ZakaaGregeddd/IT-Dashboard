@@ -34,6 +34,35 @@ export class SDMService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_sdm_it.findFirst({
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_sdm_it: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_sdm_it.map(d => ({
+          urutan: d.urutan,
+          role_divisi: d.role_divisi,
+          jumlah: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          total_keseluruhan_sdm: 0,
+          detail_sdm_it: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

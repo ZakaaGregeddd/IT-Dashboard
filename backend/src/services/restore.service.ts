@@ -40,6 +40,39 @@ export class RestoreService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_work_order.findFirst({
+        where: {
+          kategori_layanan: 'RESTORE_ELLIPSE',
+        },
+        orderBy: {
+          tahun: 'desc',
+        },
+        include: {
+          detail_realisasi_restore: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_realisasi_restore.map(d => ({
+          urutan: d.urutan,
+          bulan_teks: d.bulan_teks,
+          wo_masuk: 0,
+          wo_selesai: 0
+        }));
+
+        return {
+          tahun,
+          kategori_layanan: 'RESTORE_ELLIPSE',
+          total_wo_masuk: 0,
+          total_wo_selesai: 0,
+          detail_realisasi_restore: details,
+        };
+      }
+
       const details = this.DEFAULT_MONTHS.map(m => ({
         urutan: m.urutan,
         bulan_teks: m.bulan_teks,

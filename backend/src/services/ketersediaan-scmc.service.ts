@@ -29,6 +29,38 @@ export class KetersediaanScmcService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_ketersediaan_master.findFirst({
+        where: {
+          kategori_ketersediaan: 'REPORT_SCMC',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_ketersediaan_scmc: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_ketersediaan_scmc.map(d => ({
+          urutan: d.urutan,
+          keterangan: d.keterangan,
+          jumlah: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          kategori_ketersediaan: 'REPORT_SCMC',
+          detail_ketersediaan_scmc: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

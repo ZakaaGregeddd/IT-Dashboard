@@ -50,6 +50,46 @@ export class UtilisasiStorageService {
       : 90;
 
     if (!master) {
+      const latestMaster = await prisma.laporan_utilisasi_server_master.findFirst({
+        where: {
+          tipe_utilisasi: 'SERVER_STORAGE',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_utilisasi_storage: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_utilisasi_storage.map(d => ({
+          urutan: d.urutan,
+          nama_storage: d.nama_storage,
+          capacity_tb: 0,
+          utilisasi_tb: 0,
+          free_tb: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_utilisasi: 'SERVER_STORAGE',
+          rata_rata_utilisasi_persen: 0,
+          total_kapasitas: 0,
+          total_utilisasi: 0,
+          total_free: 0,
+          target_utilisasi_persen: Number(latestMaster.target_utilisasi_persen) || 90,
+          detail_utilisasi_storage: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

@@ -36,6 +36,41 @@ export class KetersediaanSistemService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_ketersediaan_master.findFirst({
+        where: {
+          kategori_ketersediaan: 'SISTEM_APLIKASI',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_ketersediaan_sistem: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_ketersediaan_sistem.map(d => ({
+          urutan: d.urutan,
+          nama_sistem: d.nama_sistem,
+          rencana_persen: 0,
+          realisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          kategori_ketersediaan: 'SISTEM_APLIKASI',
+          rata_rata_rencana_persen: 0,
+          rata_rata_realisasi_persen: 0,
+          detail_ketersediaan_sistem: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

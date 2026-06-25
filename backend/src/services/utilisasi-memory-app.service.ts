@@ -32,6 +32,41 @@ export class UtilisasiMemoryAppService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_infrastruktur_master.findFirst({
+        where: {
+          tipe_infrastruktur: 'MEMORY_APLIKASI',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_memory_aplikasi: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_memory_aplikasi.map(d => ({
+          urutan: d.urutan,
+          nama_sistem: d.nama_sistem,
+          memory_gb: 0,
+          utilisasi_gb: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'MEMORY_APLIKASI',
+          detail_memory_aplikasi: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

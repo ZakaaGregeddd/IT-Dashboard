@@ -88,9 +88,15 @@ export class UtilisasiCpuService {
         id: matchingCurrent?.id, // include ID if exists so frontend can update it
         urutan: latestServer.urutan,
         nama_server: latestServer.nama_server,
-        cpu_cores: matchingCurrent ? (matchingCurrent.cpu_cores ?? 0) : 0,
-        utilisasi_ghz: matchingCurrent ? (Number(matchingCurrent.utilisasi_ghz) ?? 0) : 0,
-        utilisasi_persen: matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0,
+        cpu_cores: currentMaster 
+          ? (matchingCurrent ? (matchingCurrent.cpu_cores ?? 0) : 0)
+          : 0,
+        utilisasi_ghz: currentMaster
+          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_ghz) ?? 0) : 0)
+          : 0,
+        utilisasi_persen: currentMaster
+          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
+          : 0,
       };
     });
 

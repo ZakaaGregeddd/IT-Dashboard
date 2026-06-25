@@ -49,7 +49,25 @@ export class UtilisasiCpuDbService {
       },
     });
 
-    if (!currentMaster && !latestMaster) {
+    if (!currentMaster) {
+      if (latestMaster) {
+        const detail_cpu_db_aplikasi = latestMaster.detail_cpu_db_aplikasi.map((s) => ({
+          urutan: s.urutan,
+          nama_sistem: s.nama_sistem,
+          cpu_ghz: 0,
+          utilisasi_ghz: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'CPU_DATABASE',
+          detail_cpu_db_aplikasi,
+        };
+      }
+
       return {
         bulan,
         tahun,
@@ -58,40 +76,18 @@ export class UtilisasiCpuDbService {
       };
     }
 
-    // Build systems list based on active configuration
-    const activeMaster = (currentMaster || latestMaster)!;
-    const detail_cpu_db_aplikasi = activeMaster.detail_cpu_db_aplikasi.map((s) => {
-      const currentMatch = currentMaster?.detail_cpu_db_aplikasi.find(
-        (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-      );
-
-      if (currentMatch) {
-        return {
-          id: currentMatch.id,
-          urutan: currentMatch.urutan,
-          nama_sistem: currentMatch.nama_sistem,
-          cpu_ghz: Number(currentMatch.cpu_ghz) || 0,
-          utilisasi_ghz: Number(currentMatch.utilisasi_ghz) || 0,
-          free_persen: Number(currentMatch.free_persen) || 0,
-          utilisasi_persen: Number(currentMatch.utilisasi_persen) || 0,
-        };
-      } else {
-        const defaultMatch = this.DEFAULT_SYSTEMS.find(
-          (d) => d.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-        );
-        return {
-          urutan: s.urutan,
-          nama_sistem: s.nama_sistem,
-          cpu_ghz: defaultMatch ? defaultMatch.cpu_ghz : 0,
-          utilisasi_ghz: defaultMatch ? defaultMatch.utilisasi_ghz : 0,
-          free_persen: defaultMatch ? defaultMatch.free_persen : 100,
-          utilisasi_persen: defaultMatch ? defaultMatch.utilisasi_persen : 0,
-        };
-      }
-    });
+    const detail_cpu_db_aplikasi = currentMaster.detail_cpu_db_aplikasi.map((s) => ({
+      id: s.id,
+      urutan: s.urutan,
+      nama_sistem: s.nama_sistem,
+      cpu_ghz: Number(s.cpu_ghz) || 0,
+      utilisasi_ghz: Number(s.utilisasi_ghz) || 0,
+      free_persen: Number(s.free_persen) || 0,
+      utilisasi_persen: Number(s.utilisasi_persen) || 0,
+    }));
 
     return {
-      id: currentMaster?.id,
+      id: currentMaster.id,
       bulan,
       tahun,
       tipe_infrastruktur: 'CPU_DATABASE',

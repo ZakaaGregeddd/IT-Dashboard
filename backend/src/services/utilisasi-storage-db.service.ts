@@ -49,7 +49,25 @@ export class UtilisasiStorageDbService {
       },
     });
 
-    if (!currentMaster && !latestMaster) {
+    if (!currentMaster) {
+      if (latestMaster) {
+        const detail_storage_db_aplikasi = latestMaster.detail_storage_db_aplikasi.map((s) => ({
+          urutan: s.urutan,
+          nama_sistem: s.nama_sistem,
+          storage_tb: 0,
+          utilisasi_tb: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'STORAGE_DATABASE',
+          detail_storage_db_aplikasi,
+        };
+      }
+
       return {
         bulan,
         tahun,
@@ -58,39 +76,18 @@ export class UtilisasiStorageDbService {
       };
     }
 
-    const activeMaster = (currentMaster || latestMaster)!;
-    const detail_storage_db_aplikasi = activeMaster.detail_storage_db_aplikasi.map((s) => {
-      const currentMatch = currentMaster?.detail_storage_db_aplikasi.find(
-        (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-      );
-
-      if (currentMatch) {
-        return {
-          id: currentMatch.id,
-          urutan: currentMatch.urutan,
-          nama_sistem: currentMatch.nama_sistem,
-          storage_tb: Number(currentMatch.storage_tb) || 0,
-          utilisasi_tb: Number(currentMatch.utilisasi_tb) || 0,
-          free_persen: Number(currentMatch.free_persen) || 0,
-          utilisasi_persen: Number(currentMatch.utilisasi_persen) || 0,
-        };
-      } else {
-        const defaultMatch = this.DEFAULT_SYSTEMS.find(
-          (d) => d.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-        );
-        return {
-          urutan: s.urutan,
-          nama_sistem: s.nama_sistem,
-          storage_tb: defaultMatch ? defaultMatch.storage_tb : 0,
-          utilisasi_tb: defaultMatch ? defaultMatch.utilisasi_tb : 0,
-          free_persen: defaultMatch ? defaultMatch.free_persen : 100,
-          utilisasi_persen: defaultMatch ? defaultMatch.utilisasi_persen : 0,
-        };
-      }
-    });
+    const detail_storage_db_aplikasi = currentMaster.detail_storage_db_aplikasi.map((s) => ({
+      id: s.id,
+      urutan: s.urutan,
+      nama_sistem: s.nama_sistem,
+      storage_tb: Number(s.storage_tb) || 0,
+      utilisasi_tb: Number(s.utilisasi_tb) || 0,
+      free_persen: Number(s.free_persen) || 0,
+      utilisasi_persen: Number(s.utilisasi_persen) || 0,
+    }));
 
     return {
-      id: currentMaster?.id,
+      id: currentMaster.id,
       bulan,
       tahun,
       tipe_infrastruktur: 'STORAGE_DATABASE',

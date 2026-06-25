@@ -40,6 +40,39 @@ export class OperasionalService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_work_order.findFirst({
+        where: {
+          kategori_layanan: 'OPERASIONAL_TI',
+        },
+        orderBy: {
+          tahun: 'desc',
+        },
+        include: {
+          detail_layanan_operasional: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_layanan_operasional.map(d => ({
+          urutan: d.urutan,
+          bulan_teks: d.bulan_teks,
+          wo_masuk: 0,
+          wo_selesai: 0
+        }));
+
+        return {
+          tahun,
+          kategori_layanan: 'OPERASIONAL_TI',
+          total_wo_masuk: 0,
+          total_wo_selesai: 0,
+          detail_layanan_operasional: details,
+        };
+      }
+
       const details = this.DEFAULT_MONTHS.map(m => ({
         urutan: m.urutan,
         bulan_teks: m.bulan_teks,

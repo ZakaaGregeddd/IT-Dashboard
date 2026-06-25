@@ -32,6 +32,41 @@ export class UtilisasiCpuAppService {
     });
 
     if (!master) {
+      const latestMaster = await prisma.laporan_infrastruktur_master.findFirst({
+        where: {
+          tipe_infrastruktur: 'CPU',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_cpu_aplikasi: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        const details = latestMaster.detail_cpu_aplikasi.map(d => ({
+          urutan: d.urutan,
+          nama_sistem: d.nama_sistem,
+          cpu_ghz: 0,
+          utilisasi_ghz: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'CPU',
+          detail_cpu_aplikasi: details,
+        };
+      }
+
       return {
         bulan,
         tahun,

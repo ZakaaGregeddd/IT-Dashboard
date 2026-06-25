@@ -49,7 +49,27 @@ export class UtilisasiBandwidthService {
       },
     });
 
-    if (!currentMaster && !latestMaster) {
+    if (!currentMaster) {
+      if (latestMaster) {
+        const detail_utilisasi_bandwidth = latestMaster.detail_utilisasi_bandwidth.map((s) => ({
+          urutan: s.urutan,
+          lokasi: s.lokasi,
+          bandwidth_mbps: 0,
+          utilisasi_mbps: 0,
+          sisa_persen: 0,
+          utilisasi_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          total_bandwidth_mbps: 0,
+          total_utilisasi_mbps: 0,
+          rata_rata_utilisasi_persen: 0,
+          detail_utilisasi_bandwidth,
+        };
+      }
+
       return {
         bulan,
         tahun,
@@ -60,44 +80,23 @@ export class UtilisasiBandwidthService {
       };
     }
 
-    const activeMaster = (currentMaster || latestMaster)!;
-    const detail_utilisasi_bandwidth = activeMaster.detail_utilisasi_bandwidth.map((s) => {
-      const currentMatch = currentMaster?.detail_utilisasi_bandwidth.find(
-        (c) => c.lokasi.toLowerCase() === s.lokasi.toLowerCase()
-      );
-
-      if (currentMatch) {
-        return {
-          id: currentMatch.id,
-          urutan: currentMatch.urutan,
-          lokasi: currentMatch.lokasi,
-          bandwidth_mbps: Number(currentMatch.bandwidth_mbps) || 0,
-          utilisasi_mbps: Number(currentMatch.utilisasi_mbps) || 0,
-          sisa_persen: Number(currentMatch.sisa_persen) || 0,
-          utilisasi_persen: Number(currentMatch.utilisasi_persen) || 0,
-        };
-      } else {
-        const defaultMatch = this.DEFAULT_DETAILS.find(
-          (d) => d.lokasi.toLowerCase() === s.lokasi.toLowerCase()
-        );
-        return {
-          urutan: s.urutan,
-          lokasi: s.lokasi,
-          bandwidth_mbps: defaultMatch ? defaultMatch.bandwidth_mbps : 0,
-          utilisasi_mbps: defaultMatch ? defaultMatch.utilisasi_mbps : 0,
-          sisa_persen: defaultMatch ? defaultMatch.sisa_persen : 100,
-          utilisasi_persen: defaultMatch ? defaultMatch.utilisasi_persen : 0,
-        };
-      }
-    });
+    const detail_utilisasi_bandwidth = currentMaster.detail_utilisasi_bandwidth.map((s) => ({
+      id: s.id,
+      urutan: s.urutan,
+      lokasi: s.lokasi,
+      bandwidth_mbps: Number(s.bandwidth_mbps) || 0,
+      utilisasi_mbps: Number(s.utilisasi_mbps) || 0,
+      sisa_persen: Number(s.sisa_persen) || 0,
+      utilisasi_persen: Number(s.utilisasi_persen) || 0,
+    }));
 
     return {
-      id: currentMaster?.id,
+      id: currentMaster.id,
       bulan,
       tahun,
-      total_bandwidth_mbps: currentMaster ? Number(currentMaster.total_bandwidth_mbps) : 0,
-      total_utilisasi_mbps: currentMaster ? Number(currentMaster.total_utilisasi_mbps) : 0,
-      rata_rata_utilisasi_persen: currentMaster ? Number(currentMaster.rata_rata_utilisasi_persen) : 0,
+      total_bandwidth_mbps: Number(currentMaster.total_bandwidth_mbps) || 0,
+      total_utilisasi_mbps: Number(currentMaster.total_utilisasi_mbps) || 0,
+      rata_rata_utilisasi_persen: Number(currentMaster.rata_rata_utilisasi_persen) || 0,
       detail_utilisasi_bandwidth,
     };
   }

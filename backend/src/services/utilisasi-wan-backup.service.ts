@@ -50,7 +50,22 @@ export class UtilisasiWanBackupService {
       },
     });
 
-    if (!currentMaster && !latestMaster) {
+    if (!currentMaster) {
+      if (latestMaster) {
+        const detail_ketersediaan_backup = latestMaster.detail_ketersediaan_backup.map((s) => ({
+          urutan: s.urutan,
+          lokasi: s.lokasi,
+          ketersediaan_persen: 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'KETERSEDIAAN_BACKUP',
+          detail_ketersediaan_backup,
+        };
+      }
+
       return {
         bulan,
         tahun,
@@ -59,33 +74,15 @@ export class UtilisasiWanBackupService {
       };
     }
 
-    const activeMaster = (currentMaster || latestMaster)!;
-    const detail_ketersediaan_backup = activeMaster.detail_ketersediaan_backup.map((s) => {
-      const currentMatch = currentMaster?.detail_ketersediaan_backup.find(
-        (c) => c.lokasi.toLowerCase() === s.lokasi.toLowerCase()
-      );
-
-      if (currentMatch) {
-        return {
-          id: currentMatch.id,
-          urutan: currentMatch.urutan,
-          lokasi: currentMatch.lokasi,
-          ketersediaan_persen: Number(currentMatch.ketersediaan_persen) || 0,
-        };
-      } else {
-        const defaultMatch = this.DEFAULT_SYSTEMS.find(
-          (d) => d.lokasi.toLowerCase() === s.lokasi.toLowerCase()
-        );
-        return {
-          urutan: s.urutan,
-          lokasi: s.lokasi,
-          ketersediaan_persen: defaultMatch ? defaultMatch.ketersediaan_persen : 0,
-        };
-      }
-    });
+    const detail_ketersediaan_backup = currentMaster.detail_ketersediaan_backup.map((s) => ({
+      id: s.id,
+      urutan: s.urutan,
+      lokasi: s.lokasi,
+      ketersediaan_persen: Number(s.ketersediaan_persen) || 0,
+    }));
 
     return {
-      id: currentMaster?.id,
+      id: currentMaster.id,
       bulan,
       tahun,
       tipe_infrastruktur: 'KETERSEDIAAN_BACKUP',
