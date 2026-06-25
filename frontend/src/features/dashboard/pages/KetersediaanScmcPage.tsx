@@ -259,7 +259,7 @@ export const KetersediaanScmcPage: React.FC = () => {
     selectedYears.push(startYear);
   }
 
-  const getYearlyAvg = (yr: string, keterangan: string): number => {
+  const getYearlyTotal = (yr: string, keterangan: string): number => {
     const yearRecs = allScmcRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
     if (yearRecs.length === 0) {
       if (yr === tahun) {
@@ -269,15 +269,13 @@ export const KetersediaanScmcPage: React.FC = () => {
       return 0;
     }
     let sum = 0;
-    let count = 0;
     yearRecs.forEach((rec) => {
       const detail = rec.detail_ketersediaan_scmc.find((d) => d.keterangan === keterangan);
       if (detail) {
         sum += detail.jumlah;
-        count++;
       }
     });
-    return count > 0 ? Math.round(sum / count) : 0;
+    return sum;
   };
 
   const lineChartData: ChartData<'line'> = {
@@ -285,20 +283,22 @@ export const KetersediaanScmcPage: React.FC = () => {
     datasets: [
       {
         label: 'Realisasi Jumlah Laporan',
-        data: selectedYears.map((yr) => getYearlyAvg(yr, 'Realisasi Jumlah Laporan')),
+        data: selectedYears.map((yr) => getYearlyTotal(yr, 'Realisasi Jumlah Laporan')),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
-        tension: 0.4,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
         fill: false
       },
       {
         label: 'Jumlah Laporan Tersedia',
-        data: selectedYears.map((yr) => getYearlyAvg(yr, 'Jumlah Laporan Tersedia')),
+        data: selectedYears.map((yr) => getYearlyTotal(yr, 'Jumlah Laporan Tersedia')),
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
-        tension: 0.4,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -498,7 +498,7 @@ export const KetersediaanScmcPage: React.FC = () => {
         {/* Row 3: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Jumlah Laporan SCMC</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Ketersediaan Report SCMC</p>
             
             {/* Year Range Selectors */}

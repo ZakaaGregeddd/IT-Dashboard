@@ -292,7 +292,8 @@ export const UtilisasiWanBackupPage: React.FC = () => {
         data: filteredMockData.map(d => d.rata_rata),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
-        tension: 0.1,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -493,7 +494,7 @@ export const UtilisasiWanBackupPage: React.FC = () => {
         {/* YTD Line Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Rata-rata Ketersediaan WAN Backup</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Ketersediaan Jaringan (WAN) PTBA {startYear} - {endYear}</p>
             
             <div className="flex items-center gap-2 mt-1">

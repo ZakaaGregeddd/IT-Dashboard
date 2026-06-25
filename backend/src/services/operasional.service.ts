@@ -60,15 +60,15 @@ export class OperasionalService {
         const details = latestMaster.detail_layanan_operasional.map(d => ({
           urutan: d.urutan,
           bulan_teks: d.bulan_teks,
-          wo_masuk: Number(d.wo_masuk) || 0,
-          wo_selesai: Number(d.wo_selesai) || 0
+          wo_masuk: 0,
+          wo_selesai: 0
         }));
 
         return {
           tahun,
           kategori_layanan: 'OPERASIONAL_TI',
-          total_wo_masuk: latestMaster.total_wo_masuk,
-          total_wo_selesai: latestMaster.total_wo_selesai,
+          total_wo_masuk: 0,
+          total_wo_selesai: 0,
           detail_layanan_operasional: details,
         };
       }

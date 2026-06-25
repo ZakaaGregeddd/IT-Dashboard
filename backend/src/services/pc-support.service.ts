@@ -61,15 +61,15 @@ export class PcSupportService {
         const details = latestMaster.detail_pc_support.map(d => ({
           urutan: d.urutan,
           bulan_teks: d.bulan_teks,
-          wo_masuk: Number(d.wo_masuk) || 0,
-          wo_selesai: Number(d.wo_selesai) || 0
+          wo_masuk: 0,
+          wo_selesai: 0
         }));
 
         return {
           tahun,
           kategori_layanan: 'PC_SUPPORT',
-          total_wo_masuk: latestMaster.total_wo_masuk,
-          total_wo_selesai: latestMaster.total_wo_selesai,
+          total_wo_masuk: 0,
+          total_wo_selesai: 0,
           detail_pc_support: details,
         };
       }

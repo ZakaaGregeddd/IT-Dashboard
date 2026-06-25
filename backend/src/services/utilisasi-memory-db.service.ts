@@ -54,10 +54,10 @@ export class UtilisasiMemoryDbService {
         const detail_memory_db_aplikasi = latestMaster.detail_memory_db_aplikasi.map((s) => ({
           urutan: s.urutan,
           nama_sistem: s.nama_sistem,
-          memory_gb: Number(s.memory_gb) || 0,
-          utilisasi_gb: Number(s.utilisasi_gb) || 0,
-          free_persen: Number(s.free_persen) || 0,
-          utilisasi_persen: Number(s.utilisasi_persen) || 0,
+          memory_gb: 0,
+          utilisasi_gb: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
         }));
 
         return {

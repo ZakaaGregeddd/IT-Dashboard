@@ -90,13 +90,13 @@ export class UtilisasiCpuService {
         nama_server: latestServer.nama_server,
         cpu_cores: currentMaster 
           ? (matchingCurrent ? (matchingCurrent.cpu_cores ?? 0) : 0)
-          : (latestServer.cpu_cores ?? 0),
+          : 0,
         utilisasi_ghz: currentMaster
           ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_ghz) ?? 0) : 0)
-          : (Number(latestServer.utilisasi_ghz) ?? 0),
+          : 0,
         utilisasi_persen: currentMaster
           ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
-          : (Number(latestServer.utilisasi_persen) ?? 0),
+          : 0,
       };
     });
 

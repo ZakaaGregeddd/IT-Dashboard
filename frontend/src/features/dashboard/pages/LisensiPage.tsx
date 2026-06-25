@@ -436,18 +436,19 @@ export const LisensiPage: React.FC = () => {
     yearRecs.forEach((rec) => {
       sum += Number(rec.total_keseluruhan_lisensi) || 0;
     });
-    return parseFloat((sum / yearRecs.length).toFixed(1));
+    return sum;
   };
 
   const lineChartData: ChartData<'line'> = {
     labels: selectedYears,
     datasets: [
       {
-        label: 'Jumlah Lisensi Aktif (Rata-rata Tahunan)',
+        label: 'Jumlah Lisensi Aktif',
         data: selectedYears.map((yr) => getYearlyValue(yr)),
         borderColor: '#f59e0b',
         backgroundColor: '#0f2e60',
-        tension: 0.1,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone',
         borderWidth: 3.5,
         pointRadius: 4.5,
         fill: false
@@ -1490,7 +1491,7 @@ export const LisensiPage: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 w-full">
         <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white">
           <div>
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Jumlah Lisensi</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Lisensi Aktif</p>
           </div>
 

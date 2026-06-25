@@ -43,7 +43,7 @@ export class LicenseService {
           urutan: d.urutan,
           principle: d.principle,
           nama_produk: d.nama_produk,
-          total_lisensi: Number(d.total_lisensi) || 0,
+          total_lisensi: 0,
           tanggal_expired: d.tanggal_expired,
           status: d.status,
           catatan: d.catatan,
@@ -52,7 +52,7 @@ export class LicenseService {
         return {
           bulan,
           tahun,
-          total_keseluruhan_lisensi: latestMaster.total_keseluruhan_lisensi,
+          total_keseluruhan_lisensi: 0,
           detail_lisensi: details.sort((a, b) => a.urutan - b.urutan),
         };
       }

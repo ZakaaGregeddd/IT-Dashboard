@@ -54,8 +54,8 @@ export class ProgramKerjaService {
           detail_program_kerja_ti: latestMaster.detail_program_kerja_ti.map(d => ({
             urutan: d.urutan,
             nama_program: d.nama_program,
-            target_persen: Number(d.target_persen) || 0,
-            realisasi_persen: Number(d.realisasi_persen) || 0,
+            target_persen: 0,
+            realisasi_persen: 0,
           })),
         };
       }

@@ -54,10 +54,10 @@ export class UtilisasiCpuDbService {
         const detail_cpu_db_aplikasi = latestMaster.detail_cpu_db_aplikasi.map((s) => ({
           urutan: s.urutan,
           nama_sistem: s.nama_sistem,
-          cpu_ghz: Number(s.cpu_ghz) || 0,
-          utilisasi_ghz: Number(s.utilisasi_ghz) || 0,
-          free_persen: Number(s.free_persen) || 0,
-          utilisasi_persen: Number(s.utilisasi_persen) || 0,
+          cpu_ghz: 0,
+          utilisasi_ghz: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
         }));
 
         return {

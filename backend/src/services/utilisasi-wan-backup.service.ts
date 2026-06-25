@@ -55,7 +55,7 @@ export class UtilisasiWanBackupService {
         const detail_ketersediaan_backup = latestMaster.detail_ketersediaan_backup.map((s) => ({
           urutan: s.urutan,
           lokasi: s.lokasi,
-          ketersediaan_persen: Number(s.ketersediaan_persen) || 0,
+          ketersediaan_persen: 0,
         }));
 
         return {

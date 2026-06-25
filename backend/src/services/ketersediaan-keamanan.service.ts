@@ -53,16 +53,16 @@ export class KetersediaanKeamananService {
         const details = latestMaster.detail_ketersediaan_keamanan.map(d => ({
           urutan: d.urutan,
           nama_sistem: d.nama_sistem,
-          rencana_persen: Number(d.rencana_persen) || 0,
-          realisasi_persen: Number(d.realisasi_persen) || 0,
+          rencana_persen: 0,
+          realisasi_persen: 0,
         }));
 
         return {
           bulan,
           tahun,
           kategori_ketersediaan: 'KEAMANAN_TI',
-          rata_rata_rencana_persen: Number(latestMaster.rata_rata_rencana_persen) || 0,
-          rata_rata_realisasi_persen: Number(latestMaster.rata_rata_realisasi_persen) || 0,
+          rata_rata_rencana_persen: 0,
+          rata_rata_realisasi_persen: 0,
           detail_ketersediaan_keamanan: details,
         };
       }

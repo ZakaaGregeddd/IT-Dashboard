@@ -331,7 +331,7 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'CISEA')),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
-        tension: 0.4,
+        tension: 0.3,
         cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
@@ -342,7 +342,7 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'Ellipse')),
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
-        tension: 0.4,
+        tension: 0.3,
         cubicInterpolationMode: 'monotone',
         borderWidth: 2,
         pointRadius: 4,
@@ -686,7 +686,7 @@ export const UtilisasiCpuDbAplikasiPage: React.FC = () => {
         {/* YTD Line Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Rata-rata Utilisasi CPU Database</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Utilisasi CPU Database (%)</p>
             
             <div className="flex items-center gap-2 mt-1">

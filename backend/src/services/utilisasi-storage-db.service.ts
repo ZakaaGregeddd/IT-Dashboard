@@ -54,10 +54,10 @@ export class UtilisasiStorageDbService {
         const detail_storage_db_aplikasi = latestMaster.detail_storage_db_aplikasi.map((s) => ({
           urutan: s.urutan,
           nama_sistem: s.nama_sistem,
-          storage_tb: Number(s.storage_tb) || 0,
-          utilisasi_tb: Number(s.utilisasi_tb) || 0,
-          free_persen: Number(s.free_persen) || 0,
-          utilisasi_persen: Number(s.utilisasi_persen) || 0,
+          storage_tb: 0,
+          utilisasi_tb: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
         }));
 
         return {
