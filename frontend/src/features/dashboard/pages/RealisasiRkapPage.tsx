@@ -392,7 +392,8 @@ export const RealisasiRkapPage: React.FC = () => {
         borderWidth: 3.5,
         pointRadius: 4.5,
         fill: false,
-        tension: 0.1,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone',
       }
     ]
   };
@@ -635,7 +636,7 @@ export const RealisasiRkapPage: React.FC = () => {
         {/* Bottom: Performa Year to Date (YTD) */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Rata-rata Realisasi & Saving RKAP</h3>
             
             {/* Year Range Selectors */}
             <div className="flex items-center gap-2 mt-1">
