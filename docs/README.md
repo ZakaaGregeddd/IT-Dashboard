@@ -129,16 +129,7 @@ Diterapkan pada tabel input di halaman **Utilisasi CPU Server, Utilisasi Memory 
     * Input dibatasi secara aman (`min={1} max={totalPages}`).
     * Menggunakan event `onBlur`. Jika user mengosongkan input atau mengetik angka di luar batas halaman, nilai kotak input otomatis kembali ke nomor halaman aktif saat ini.
 
-### D. Fitur Ekspor/Download Grafik ke Gambar PNG
-Fitur ekspor grafik berkinerja tinggi tanpa menggunakan library pihak ketiga yang memperberat aplikasi:
-1.  **Ekspor Berbasis DOM**:
-    * Fungsi utilitas `downloadChart(e, filename)` mendeteksi tombol download yang diklik, lalu mencari pembungkus card terdekat menggunakan `.closest('.rounded-xl, .shadow-sm, .border-slate-200')`.
-    * Mengambil elemen `<canvas>` grafik di dalam card tersebut secara dinamis.
-    * Mengubah data canvas menjadi URL data gambar base64 berkualitas tinggi lewat fungsi browser bawaan `canvas.toDataURL('image/png')`.
-2.  **Kompatibilitas Browser**:
-    * Untuk mematuhi aturan keamanan browser modern (Chrome/Safari/Edge), elemen tautan `<a>` buatan sementara **wajib ditempelkan (append) ke `document.body`** terlebih dahulu sebelum dipicu kliknya secara terprogram (`link.click()`), lalu langsung dihapus kembali dari body. Hal ini menjamin download berjalan sukses di semua browser.
-
-### E. Aturan Filter Grafik Multi-Tahun (YTD)
+### D. Aturan Filter Grafik Multi-Tahun (YTD)
 Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang:
 1.  **Rentang Default 5 Tahun**:
     * Saat halaman pertama kali dimuat, filter tahun awal (`startYear`) dan tahun akhir (`endYear`) diatur secara dinamis untuk menampilkan rentang **5 tahun terakhir** (tahun saat ini dikurangi 4 hingga tahun saat ini).
@@ -146,6 +137,17 @@ Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang
     * Pada grafik YTD dengan nilai bulat (seperti jumlah SDM), sumbu Y dikonfigurasi menggunakan callback Chart.js `Number.isInteger` agar hanya menampilkan angka bulat (menghilangkan pecahan desimal seperti `1.5` atau `2.3`).
 3.  **Batas Skala Tetap (Fixed Bound)**:
     * Pada grafik persentase (seperti RKAP, Program Kerja, WAN, Keamanan), sumbu Y dikunci dengan batas tetap `0%` hingga `100%` agar visualisasi tren grafik tidak melebihi area visual standar.
+
+### E. Sistem Auto-Prefill Data Terakhir (Draf Pintar)
+Fitur ini mempermudah pengguna saat menginput data baru untuk periode yang belum memiliki catatan di database, dengan menduplikasi data dari periode terakhir yang berhasil disimpan.
+1. **Deteksi Data Kosong (Backend Service)**:
+   * Setiap service pada backend (misal: `PcSupportService`, `UtilisasiBandwidthService`, dll.) melakukan pemeriksaan awal. Jika data untuk periode yang diminta (`tahun` atau `bulan, tahun`) belum tersedia di database (`!master` atau `!currentMaster`), backend tidak akan langsung mengembalikan nilai nol kosong.
+2. **Pengambilan & Duplikasi Periode Terakhir**:
+   * Sistem akan mencari record master terbaru untuk kategori tersebut dengan pengurutan kronologis terbalik (`tahun desc` dan `bulan desc`).
+   * Jika ditemukan, detail baris dari periode terakhir tersebut disalin secara utuh ke objek respons untuk periode baru.
+3. **Pemberian Status Draf Aman**:
+   * Detail baris yang disalin sengaja **dihilangkan atribut `id` database-nya**. 
+   * Dengan tidak adanya ID pada detail draf tersebut, frontend akan merender data tersebut seperti biasa. Ketika pengguna menekan tombol **Simpan**, frontend mengirim data tanpa ID ke backend, yang kemudian akan memprosesnya sebagai operasi **INSERT** baru (bukan UPDATE) untuk periode baru tersebut. Ini menjamin data periode sebelumnya tidak akan rusak atau tertimpa secara tidak sengaja.
 
 ---
 

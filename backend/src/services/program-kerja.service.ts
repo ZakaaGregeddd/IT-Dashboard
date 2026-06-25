@@ -28,6 +28,39 @@ export class ProgramKerjaService {
       },
     });
 
+    if (!master) {
+      const latestMaster = await prisma.laporan_infrastruktur_master.findFirst({
+        where: {
+          tipe_infrastruktur: 'PROGRAM_KERJA_TI',
+        },
+        orderBy: [
+          { tahun: 'desc' },
+          { bulan: 'desc' },
+        ],
+        include: {
+          detail_program_kerja_ti: {
+            orderBy: {
+              urutan: 'asc',
+            },
+          },
+        },
+      });
+
+      if (latestMaster) {
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'PROGRAM_KERJA_TI',
+          detail_program_kerja_ti: latestMaster.detail_program_kerja_ti.map(d => ({
+            urutan: d.urutan,
+            nama_program: d.nama_program,
+            target_persen: Number(d.target_persen) || 0,
+            realisasi_persen: Number(d.realisasi_persen) || 0,
+          })),
+        };
+      }
+    }
+
     return master;
   }
 

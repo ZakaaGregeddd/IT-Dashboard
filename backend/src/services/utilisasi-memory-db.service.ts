@@ -49,7 +49,25 @@ export class UtilisasiMemoryDbService {
       },
     });
 
-    if (!currentMaster && !latestMaster) {
+    if (!currentMaster) {
+      if (latestMaster) {
+        const detail_memory_db_aplikasi = latestMaster.detail_memory_db_aplikasi.map((s) => ({
+          urutan: s.urutan,
+          nama_sistem: s.nama_sistem,
+          memory_gb: Number(s.memory_gb) || 0,
+          utilisasi_gb: Number(s.utilisasi_gb) || 0,
+          free_persen: Number(s.free_persen) || 0,
+          utilisasi_persen: Number(s.utilisasi_persen) || 0,
+        }));
+
+        return {
+          bulan,
+          tahun,
+          tipe_infrastruktur: 'MEMORY_DATABASE',
+          detail_memory_db_aplikasi,
+        };
+      }
+
       return {
         bulan,
         tahun,
@@ -58,39 +76,18 @@ export class UtilisasiMemoryDbService {
       };
     }
 
-    const activeMaster = (currentMaster || latestMaster)!;
-    const detail_memory_db_aplikasi = activeMaster.detail_memory_db_aplikasi.map((s) => {
-      const currentMatch = currentMaster?.detail_memory_db_aplikasi.find(
-        (c) => c.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-      );
-
-      if (currentMatch) {
-        return {
-          id: currentMatch.id,
-          urutan: currentMatch.urutan,
-          nama_sistem: currentMatch.nama_sistem,
-          memory_gb: Number(currentMatch.memory_gb) || 0,
-          utilisasi_gb: Number(currentMatch.utilisasi_gb) || 0,
-          free_persen: Number(currentMatch.free_persen) || 0,
-          utilisasi_persen: Number(currentMatch.utilisasi_persen) || 0,
-        };
-      } else {
-        const defaultMatch = this.DEFAULT_SYSTEMS.find(
-          (d) => d.nama_sistem.toLowerCase() === s.nama_sistem.toLowerCase()
-        );
-        return {
-          urutan: s.urutan,
-          nama_sistem: s.nama_sistem,
-          memory_gb: defaultMatch ? defaultMatch.memory_gb : 0,
-          utilisasi_gb: defaultMatch ? defaultMatch.utilisasi_gb : 0,
-          free_persen: defaultMatch ? defaultMatch.free_persen : 100,
-          utilisasi_persen: defaultMatch ? defaultMatch.utilisasi_persen : 0,
-        };
-      }
-    });
+    const detail_memory_db_aplikasi = currentMaster.detail_memory_db_aplikasi.map((s) => ({
+      id: s.id,
+      urutan: s.urutan,
+      nama_sistem: s.nama_sistem,
+      memory_gb: Number(s.memory_gb) || 0,
+      utilisasi_gb: Number(s.utilisasi_gb) || 0,
+      free_persen: Number(s.free_persen) || 0,
+      utilisasi_persen: Number(s.utilisasi_persen) || 0,
+    }));
 
     return {
-      id: currentMaster?.id,
+      id: currentMaster.id,
       bulan,
       tahun,
       tipe_infrastruktur: 'MEMORY_DATABASE',

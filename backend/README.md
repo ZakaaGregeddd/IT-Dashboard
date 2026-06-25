@@ -59,5 +59,5 @@ Server API backend akan aktif di port **`http://localhost:5000`**.
 * `prisma/`: Berisi file `schema.prisma` (definisi tabel dan relasi database) serta folder `migrations/` dan file `seed.ts` (data seeder awal).
 * `src/routes/`: Rute endpoint API (seperti `/api/licenses`, `/api/utilisasi/cpu`, dll).
 * `src/controllers/`: Pengendali request API untuk memproses data masukan dan memanggil service.
-* `src/services/`: Logika bisnis utama, manipulasi data, dan interaksi langsung dengan database PostgreSQL menggunakan Prisma Client.
+* `src/services/`: Logika bisnis utama, manipulasi data, dan interaksi database menggunakan Prisma Client. Dilengkapi dengan sistem fallback cerdas untuk menduplikasi data periode terakhir sebagai draf ketika data periode baru belum tersedia.
 * `src/index.ts`: Titik masuk utama (entry point) aplikasi Express Server.
