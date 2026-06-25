@@ -238,7 +238,7 @@ export const PcSupportPage: React.FC = () => {
     }
   };
 
-    // YTD trend datasets: displays the yearly average completion
+  // YTD trend datasets: displays the yearly total completion
   const getYearlyTrendData = () => {
     const labels: string[] = [];
     const masuk: number[] = [];
@@ -253,7 +253,6 @@ export const PcSupportPage: React.FC = () => {
       
       let totalMasuk = 0;
       let totalSelesai = 0;
-      let count = 0;
       
       if (dbRecord) {
         const details = (dbRecord as any).detail_pc_support || (dbRecord as any).detail_layanan_aplikasi || (dbRecord as any).detail_layanan_operasional || (dbRecord as any).detail_realisasi_restore;
@@ -261,22 +260,17 @@ export const PcSupportPage: React.FC = () => {
           details.forEach(d => {
             totalMasuk += Number(d.wo_masuk) || 0;
             totalSelesai += Number(d.wo_selesai) || 0;
-            count++;
           });
         }
       } else if (y === parseInt(tahun, 10) && systemRows.length > 0) {
         systemRows.forEach(d => {
           totalMasuk += Number(d.wo_masuk) || 0;
           totalSelesai += Number(d.wo_selesai) || 0;
-          count++;
         });
       }
       
-      const avgMasuk = count > 0 ? parseFloat((totalMasuk / count).toFixed(2)) : 0;
-      const avgSelesai = count > 0 ? parseFloat((totalSelesai / count).toFixed(2)) : 0;
-      
-      masuk.push(avgMasuk);
-      selesai.push(avgSelesai);
+      masuk.push(totalMasuk);
+      selesai.push(totalSelesai);
     }
     
     return { labels, masuk, selesai };
