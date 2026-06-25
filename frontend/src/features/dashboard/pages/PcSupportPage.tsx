@@ -255,13 +255,8 @@ export const PcSupportPage: React.FC = () => {
       let totalSelesai = 0;
       
       if (dbRecord) {
-        const details = (dbRecord as any).detail_pc_support || (dbRecord as any).detail_layanan_aplikasi || (dbRecord as any).detail_layanan_operasional || (dbRecord as any).detail_realisasi_restore;
-        if (Array.isArray(details) && details.length > 0) {
-          details.forEach(d => {
-            totalMasuk += Number(d.wo_masuk) || 0;
-            totalSelesai += Number(d.wo_selesai) || 0;
-          });
-        }
+        totalMasuk = Number(dbRecord.total_wo_masuk) || 0;
+        totalSelesai = Number(dbRecord.total_wo_selesai) || 0;
       } else if (y === parseInt(tahun, 10) && systemRows.length > 0) {
         systemRows.forEach(d => {
           totalMasuk += Number(d.wo_masuk) || 0;
@@ -429,6 +424,22 @@ export const PcSupportPage: React.FC = () => {
                     </td>
                   </tr>
                 ))}
+                {systemRows.length > 0 && (
+                  <tr className="bg-slate-50/80 font-bold text-slate-800 border-t-2 border-slate-200">
+                    <td className="py-2.5 px-4 border border-slate-200 text-center font-mono text-slate-400">
+                      -
+                    </td>
+                    <td className="py-2.5 px-4 border border-slate-200 font-bold text-primary-900 uppercase tracking-wider">
+                      Total
+                    </td>
+                    <td className="py-2.5 px-5 border border-slate-200 text-right font-mono bg-blue-50/20 text-slate-800 pr-5">
+                      {systemRows.reduce((sum, r) => sum + (r.wo_masuk || 0), 0).toLocaleString()}
+                    </td>
+                    <td className="py-2.5 px-5 border border-slate-200 text-right font-mono bg-blue-50/20 text-slate-800 pr-5">
+                      {systemRows.reduce((sum, r) => sum + (r.wo_selesai || 0), 0).toLocaleString()}
+                    </td>
+                  </tr>
+                )}
                 {systemRows.length === 0 && (
                   <tr>
                     <td colSpan={4} className="py-4 text-center text-slate-400">
@@ -493,7 +504,7 @@ export const PcSupportPage: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
             <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
-            <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Tahunan WO Masuk vs WO Selesai (Hanya menampilkan data dari database)</p>
+            <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Total Tahunan WO Masuk vs WO Selesai</p>
             
             <div className="flex items-center gap-2 mt-1">
               <FilterSelect 
