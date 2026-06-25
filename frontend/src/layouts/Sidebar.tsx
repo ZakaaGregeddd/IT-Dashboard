@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, Database, LayoutDashboard, Monitor, ShieldCheck } from 'lucide-react';
+import { ChevronDown, Database, LayoutDashboard, Monitor, ShieldCheck, Upload } from 'lucide-react';
 import { cn } from '@/components/ui/Card';
 import { navigateTo } from '@/utils/navigation';
 
@@ -261,6 +261,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
 
         {/* Sidebar Navigation */}
         <nav className="flex-1 overflow-y-auto sidebar-scroll py-4 flex flex-col gap-1">
+          <SidebarMenuItem 
+            label="Upload File" 
+            icon={<Upload className="w-full h-full" />} 
+            active={currentPath === '/upload-file'} 
+            onClick={() => navigateTo('/upload-file')}
+          />
           <SidebarMenuItem 
             label="Dashboard" 
             icon={<LayoutDashboard className="w-full h-full" />} 

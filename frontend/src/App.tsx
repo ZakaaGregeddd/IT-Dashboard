@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { UploadFilePage } from '@/features/dashboard/pages/UploadFilePage';
 import { MainLayout } from './layouts/MainLayout';
 import { DashboardPage, OverallPage, RealisasiProgramKerjaPage, RealisasiRkapPage, SdmItPage, LisensiPage, KetersediaanScmcPage, TingkatKetersediaanSistemPage, UtilisasiCpuServerPage, UtilisasiMemoryServerPage, UtilisasiStorageServerPage, UtilisasiCpuAplikasiPage, UtilisasiCpuDbAplikasiPage, UtilisasiBandwidthPage, UtilisasiMemoryDbApkPage, UtilisasiStorageDbApkPage, UtilisasiWanBackupPage, KetersediaanKeamananPage, PcSupportPage, RestorePage, OperasionalTiPage, LayananAppPage, UtilisasiMemoryAplikasiPage } from '@/pages';
 
@@ -104,6 +105,9 @@ const App: React.FC = () => {
   };
 
   const renderPage = () => {
+    if (currentPath === '/upload-file') {
+      return <UploadFilePage />;
+    }
     if (currentPath === '/' || currentPath === '/dashboard') {
       return <DashboardPage />;
     }

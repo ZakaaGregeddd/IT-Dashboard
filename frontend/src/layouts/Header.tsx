@@ -9,6 +9,7 @@ interface HeaderProps {
 }
 
 const breadcrumbMapping: Record<string, string> = {
+  '/upload-file': 'Upload File Excel',
   '/': 'Dashboard Utama',
   '/dashboard': 'Dashboard Utama',
   '/data-overall': 'Data Overall',
