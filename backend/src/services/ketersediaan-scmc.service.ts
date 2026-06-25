@@ -50,7 +50,7 @@ export class KetersediaanScmcService {
         const details = latestMaster.detail_ketersediaan_scmc.map(d => ({
           urutan: d.urutan,
           keterangan: d.keterangan,
-          jumlah: Number(d.jumlah) || 0,
+          jumlah: 0,
         }));
 
         return {

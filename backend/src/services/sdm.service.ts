@@ -52,13 +52,13 @@ export class SDMService {
         const details = latestMaster.detail_sdm_it.map(d => ({
           urutan: d.urutan,
           role_divisi: d.role_divisi,
-          jumlah: Number(d.jumlah) || 0,
+          jumlah: 0,
         }));
 
         return {
           bulan,
           tahun,
-          total_keseluruhan_sdm: latestMaster.total_keseluruhan_sdm,
+          total_keseluruhan_sdm: 0,
           detail_sdm_it: details,
         };
       }

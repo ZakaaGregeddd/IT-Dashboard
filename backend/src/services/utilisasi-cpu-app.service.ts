@@ -53,10 +53,10 @@ export class UtilisasiCpuAppService {
         const details = latestMaster.detail_cpu_aplikasi.map(d => ({
           urutan: d.urutan,
           nama_sistem: d.nama_sistem,
-          cpu_ghz: Number(d.cpu_ghz) || 0,
-          utilisasi_ghz: Number(d.utilisasi_ghz) || 0,
-          free_persen: Number(d.free_persen) || 0,
-          utilisasi_persen: Number(d.utilisasi_persen) || 0,
+          cpu_ghz: 0,
+          utilisasi_ghz: 0,
+          free_persen: 0,
+          utilisasi_persen: 0,
         }));
 
         return {
