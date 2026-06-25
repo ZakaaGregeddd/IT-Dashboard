@@ -43,7 +43,7 @@ Menjalankan server lokal untuk melihat hasil kompilasi produksi (`/dist`) sebelu
 * `public/`: Tempat penyimpanan aset statis publik.
 * `src/components/`: Komponen UI reusable (seperti Card, Avatar, dan modal konfirmasi).
 * `src/layouts/`: Layout utama dashboard seperti `Sidebar.tsx`, `Header.tsx`, dan `MainLayout.tsx`.
-* `src/features/`: Modul-modul fitur halaman dashboard (seperti Utilisasi CPU, Memory, Storage, Lisensi, dll) terpisah secara modular.
+* `src/features/`: Modul-modul fitur halaman dashboard terpisah secara modular. Setiap modul input dilengkapi dengan visualisasi grafik Chart.js, tabel interaktif dengan pagination, serta pop-up konfirmasi peringatan sebelum penyimpanan data.
 * `src/utils/`: Fungsi pembantu global (seperti helper navigasi dan sistem deteksi data kotor `navigation.ts`).
 * `src/App.tsx`: Router utama aplikasi dan tempat penempelan modal dialog peringatan global.
 * `src/main.tsx`: Entry point utama aplikasi React.
