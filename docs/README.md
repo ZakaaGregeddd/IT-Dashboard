@@ -147,6 +147,17 @@ Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang
 3.  **Batas Skala Tetap (Fixed Bound)**:
     * Pada grafik persentase (seperti RKAP, Program Kerja, WAN, Keamanan), sumbu Y dikunci dengan batas tetap `0%` hingga `100%` agar visualisasi tren grafik tidak melebihi area visual standar.
 
+### F. Sistem Auto-Prefill Data Terakhir (Draf Pintar)
+Fitur ini mempermudah pengguna saat menginput data baru untuk periode yang belum memiliki catatan di database, dengan menduplikasi data dari periode terakhir yang berhasil disimpan.
+1. **Deteksi Data Kosong (Backend Service)**:
+   * Setiap service pada backend (misal: `PcSupportService`, `UtilisasiBandwidthService`, dll.) melakukan pemeriksaan awal. Jika data untuk periode yang diminta (`tahun` atau `bulan, tahun`) belum tersedia di database (`!master` atau `!currentMaster`), backend tidak akan langsung mengembalikan nilai nol kosong.
+2. **Pengambilan & Duplikasi Periode Terakhir**:
+   * Sistem akan mencari record master terbaru untuk kategori tersebut dengan pengurutan kronologis terbalik (`tahun desc` dan `bulan desc`).
+   * Jika ditemukan, detail baris dari periode terakhir tersebut disalin secara utuh ke objek respons untuk periode baru.
+3. **Pemberian Status Draf Aman**:
+   * Detail baris yang disalin sengaja **dihilangkan atribut `id` database-nya**. 
+   * Dengan tidak adanya ID pada detail draf tersebut, frontend akan merender data tersebut seperti biasa. Ketika pengguna menekan tombol **Simpan**, frontend mengirim data tanpa ID ke backend, yang kemudian akan memprosesnya sebagai operasi **INSERT** baru (bukan UPDATE) untuk periode baru tersebut. Ini menjamin data periode sebelumnya tidak akan rusak atau tertimpa secara tidak sengaja.
+
 ---
 
 ## 5. Panduan Menambah Halaman Baru
