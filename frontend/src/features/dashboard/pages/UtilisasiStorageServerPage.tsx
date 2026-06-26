@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, X, Settings } from 'lucide-react';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -142,6 +142,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCopyTemplateModalOpen, setIsCopyTemplateModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -165,6 +166,33 @@ export const UtilisasiStorageServerPage: React.FC = () => {
   const totalPages = Math.ceil(serverRows.length / rowsPerPage) || 1;
   const startIndex = (currentPage - 1) * rowsPerPage;
   const paginatedRows = serverRows.slice(startIndex, startIndex + rowsPerPage);
+
+  const getLatestTemplateRows = () => {
+    if (allStorageRecords && allStorageRecords.length > 0) {
+      const recordsWithData = allStorageRecords.filter(
+        (rec) => rec.detail_utilisasi_storage && rec.detail_utilisasi_storage.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        return (latestRecord.detail_utilisasi_storage || []).map((d: any, idx: number) => {
+          const cap = parseFloat(d.capacity_tb) || 0;
+          return {
+            urutan: idx + 1,
+            nama_storage: d.nama_storage,
+            capacity_tb: cap,
+            utilisasi_tb: 0,
+            free_tb: cap,
+            utilisasi_persen: 0
+          };
+        });
+      }
+    }
+    return DEFAULT_ROWS;
+  };
 
   // Fetch all historical records on mount for YTD Chart
   const fetchAllHistoricalData = async () => {
@@ -207,7 +235,20 @@ export const UtilisasiStorageServerPage: React.FC = () => {
           setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
           setIsDirty(false);
         } else {
-          setServerRows(DEFAULT_ROWS);
+          let hasTemplate = false;
+          if (allStorageRecords && allStorageRecords.length > 0) {
+            const recordsWithData = allStorageRecords.filter(
+              (rec) => rec.detail_utilisasi_storage && rec.detail_utilisasi_storage.length > 0
+            );
+            if (recordsWithData.length > 0) {
+              hasTemplate = true;
+            }
+          }
+          if (hasTemplate) {
+            setIsCopyTemplateModalOpen(true);
+          } else {
+            setServerRows(DEFAULT_ROWS);
+          }
           setIsDirty(false);
         }
       } catch (error) {
@@ -219,31 +260,93 @@ export const UtilisasiStorageServerPage: React.FC = () => {
       }
     };
     fetchActiveData();
-  }, [tahun, bulan]);
+  }, [tahun, bulan, allStorageRecords]);
+
+  const handleCopyTemplate = () => {
+    setIsCopyTemplateModalOpen(false);
+    setServerRows(getLatestTemplateRows());
+    setIsDirty(true);
+  };
+
+  const handleDeclineCopy = () => {
+    setIsCopyTemplateModalOpen(false);
+    setServerRows(DEFAULT_ROWS);
+    setIsDirty(false);
+  };
+
+  const copyFromPeriod = React.useMemo(() => {
+    if (allStorageRecords && allStorageRecords.length > 0) {
+      const recordsWithData = allStorageRecords.filter(
+        (rec) => rec.detail_utilisasi_storage && rec.detail_utilisasi_storage.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        const monthName = monthsList[latestRecord.bulan - 1] || `Bulan ${latestRecord.bulan}`;
+        return `${monthName} ${latestRecord.tahun}`;
+      }
+    }
+    return '';
+  }, [allStorageRecords]);
 
   // Compute live totals
   const totalCapacity = serverRows.reduce((acc, row) => acc + (row.capacity_tb || 0), 0);
   const totalUtil = serverRows.reduce((acc, row) => acc + (row.utilisasi_tb || 0), 0);
-  const avgUtilisasiPercent = totalCapacity > 0 ? Math.round((totalUtil / totalCapacity) * 100) : 0;
+  const avgUtilisasiPercent = totalCapacity > 0 ? parseFloat(((totalUtil / totalCapacity) * 100).toFixed(2)) : 0;
   const totalFree = totalCapacity - totalUtil;
 
   // Handle edit row inputs
-  const handleInputChange = (index: number, field: 'capacity_tb' | 'utilisasi_tb', val: string) => {
+  const handleInputChange = (index: number, field: 'nama_storage' | 'capacity_tb' | 'utilisasi_tb', val: string) => {
     setIsDirty(true);
     setServerRows((prev) => {
       const updated = [...prev];
-      const parsed = parseFloat(val) || 0;
-      const currentCapacity = field === 'capacity_tb' ? parsed : (updated[index].capacity_tb || 0);
-      const currentUtil = field === 'utilisasi_tb' ? parsed : (updated[index].utilisasi_tb || 0);
-      const calculatedPercent = currentCapacity > 0 ? Math.round((currentUtil / currentCapacity) * 100) : 0;
-      
-      updated[index] = {
-        ...updated[index],
-        [field]: parsed,
-        free_tb: currentCapacity - currentUtil,
-        utilisasi_persen: calculatedPercent
-      };
+      if (field === 'nama_storage') {
+        updated[index] = {
+          ...updated[index],
+          nama_storage: val
+        };
+      } else {
+        const parsed = parseFloat(val) || 0;
+        const currentCapacity = field === 'capacity_tb' ? parsed : (updated[index].capacity_tb || 0);
+        const currentUtil = field === 'utilisasi_tb' ? parsed : (updated[index].utilisasi_tb || 0);
+        const calculatedPercent = currentCapacity > 0 ? parseFloat(((currentUtil / currentCapacity) * 100).toFixed(2)) : 0;
+        
+        updated[index] = {
+          ...updated[index],
+          [field]: parsed,
+          free_tb: currentCapacity - currentUtil,
+          utilisasi_persen: calculatedPercent
+        };
+      }
       return updated;
+    });
+  };
+
+  // Add dynamic row
+  const handleAddRow = () => {
+    setIsDirty(true);
+    setServerRows((prev) => [
+      ...prev,
+      {
+        urutan: prev.length + 1,
+        nama_storage: '',
+        capacity_tb: 0,
+        utilisasi_tb: 0,
+        free_tb: 0,
+        utilisasi_persen: 0
+      }
+    ]);
+  };
+
+  // Delete row
+  const handleDeleteRow = (index: number) => {
+    setIsDirty(true);
+    setServerRows((prev) => {
+      const updated = prev.filter((_, i) => i !== index);
+      return updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
     });
   };
 
@@ -535,15 +638,15 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                 <p className="text-xs text-slate-500 leading-relaxed">
                   {avgUtilisasiPercent >= targetUtilisasi ? (
                     <>
-                      Rata-rata utilisasi storage saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas storage.</strong>
+                      Rata-rata utilisasi storage saat ini sebesar <span className="font-semibold text-amber-700">{avgUtilisasiPercent.toFixed(2)}%</span>, telah mencapai atau melebihi target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. <strong>Waktunya untuk meningkatkan kapasitas storage.</strong>
                     </>
                   ) : serverRows.some(r => r.nama_storage && r.utilisasi_persen >= targetUtilisasi) ? (
                     <>
-                      Rata-rata utilisasi storage saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, namun <strong>terdapat storage individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada storage tersebut.
+                      Rata-rata utilisasi storage saat ini aman sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent.toFixed(2)}%</span>, namun <strong>terdapat storage individual yang melebihi target utilisasi {targetUtilisasi}%</strong>. Perlu perhatian pada storage tersebut.
                     </>
                   ) : (
                     <>
-                      Rata-rata utilisasi storage saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas storage saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan kapasitas.
+                      Rata-rata utilisasi storage saat ini sebesar <span className="font-semibold text-emerald-700">{avgUtilisasiPercent.toFixed(2)}%</span>, masih berada di bawah target utilisasi <span className="font-semibold">{targetUtilisasi}%</span>. Kapasitas storage saat ini <strong>masih mencukupi</strong> dan belum memerlukan peningkatan kapasitas.
                     </>
                   )}
                 </p>
@@ -588,7 +691,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                       <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
                       <span className="font-semibold">{row.nama_storage}</span>
                       <span className="opacity-60">|</span>
-                      <span>Utilisasi: <strong className="font-mono">{row.utilisasi_persen}%</strong></span>
+                      <span>Utilisasi: <strong className="font-mono">{row.utilisasi_persen.toFixed(2)}%</strong></span>
                       <span className="text-[9px] px-1.5 py-0.5 rounded font-bold uppercase bg-red-100 text-red-800">
                         Melebihi Target
                       </span>
@@ -604,6 +707,14 @@ export const UtilisasiStorageServerPage: React.FC = () => {
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
             <h3 className="text-xs font-bold text-primary-900">Data Entri Storage</h3>
+            <button 
+              type="button"
+              onClick={handleAddRow}
+              className="flex items-center gap-1 bg-primary-900 text-white px-3 py-1 rounded text-[10px] font-semibold hover:bg-primary-800 transition-colors uppercase tracking-wider shadow-sm"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Tambah Server
+            </button>
           </div>
           
           <div className="overflow-x-auto p-4">
@@ -616,6 +727,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                   <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40 bg-blue-50/30">UTILISASI (TB)</th>
                   <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40">UTILISASI (%)</th>
                   <th className="py-2.5 px-4 border border-slate-200 text-right uppercase tracking-wider w-40">FREE (TB)</th>
+                  <th className="py-2.5 px-4 border border-slate-200 text-center uppercase tracking-wider w-20">AKSI</th>
                 </tr>
               </thead>
               <tbody className="text-xs text-slate-700 divide-y divide-slate-100">
@@ -626,8 +738,14 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                       <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                         {actualIndex + 1}
                       </td>
-                      <td className="py-2.5 px-4 font-semibold border border-slate-200 text-slate-800">
-                        {row.nama_storage}
+                      <td className="py-1 px-3 border border-slate-200">
+                        <input 
+                          type="text"
+                          value={row.nama_storage}
+                          onChange={(e) => handleInputChange(actualIndex, 'nama_storage', e.target.value)}
+                          placeholder="Nama Storage"
+                          className="w-full px-2 py-1 text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-semibold"
+                        />
                       </td>
                       <td className="py-1.5 px-3 border border-slate-200">
                         <input 
@@ -652,10 +770,20 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                         />
                       </td>
                       <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
-                        {row.utilisasi_persen}%
+                        {row.utilisasi_persen.toFixed(2)}%
                       </td>
                       <td className="py-2.5 px-4 text-right border border-slate-200 font-mono font-semibold">
                         {row.free_tb.toFixed(2)}
+                      </td>
+                      <td className="py-2.5 px-4 text-center border border-slate-200">
+                        <button 
+                          type="button" 
+                          onClick={() => handleDeleteRow(actualIndex)}
+                          className="text-slate-400 hover:text-red-600 transition-colors opacity-0 group-hover:opacity-100"
+                          title="Hapus"
+                        >
+                          <X className="w-3.5 h-3.5 mx-auto" />
+                        </button>
                       </td>
                     </tr>
                   );
@@ -674,16 +802,17 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                       {totalUtil.toFixed(2)}
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200 text-sm">
-                      {avgUtilisasiPercent}%
+                      {avgUtilisasiPercent.toFixed(2)}%
                     </td>
                     <td className="py-2.5 px-4 text-right font-mono text-primary-900 border border-slate-200">
                       {totalFree.toFixed(2)}
                     </td>
+                    <td className="border border-slate-200 bg-slate-50"></td>
                   </tr>
                 )}
                 {serverRows.length === 0 && (
                   <tr>
-                    <td colSpan={6} className="py-4 text-center text-slate-400">
+                    <td colSpan={7} className="py-4 text-center text-slate-400">
                       Tidak ada data.
                     </td>
                   </tr>
@@ -781,9 +910,13 @@ export const UtilisasiStorageServerPage: React.FC = () => {
                         setIsDirty(false);
                         setCurrentPage(1);
                       } else {
-                        setServerRows(DEFAULT_ROWS);
+                        setServerRows(getLatestTemplateRows());
                         setIsDirty(false);
                       }
+                    })
+                    .catch(() => {
+                      setServerRows(getLatestTemplateRows());
+                      setIsDirty(false);
                     });
                 }}
                 className="px-4 py-1.5 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] hover:bg-slate-100 transition-colors uppercase tracking-wider"
@@ -857,6 +990,16 @@ export const UtilisasiStorageServerPage: React.FC = () => {
         message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi Storage Server untuk periode ${bulan} ${tahun}?`}
       />
 
+      {/* Copy Template Modal */}
+      <CopyTemplateModal
+        isOpen={isCopyTemplateModalOpen}
+        onClose={handleDeclineCopy}
+        onConfirm={handleCopyTemplate}
+        bulan={bulan}
+        tahun={tahun}
+        copyFromPeriod={copyFromPeriod}
+      />
+
     </div>
   );
 };
@@ -897,6 +1040,52 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
             className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
           >
             Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface CopyTemplateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  bulan: string;
+  tahun: string;
+  copyFromPeriod: string;
+}
+
+const CopyTemplateModal: React.FC<CopyTemplateModalProps> = ({ isOpen, onClose, onConfirm, bulan, tahun, copyFromPeriod }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-sm w-full p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-50 text-primary-900 rounded-lg shrink-0 border border-blue-100">
+            <Settings className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Data Kosong</h4>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Data periode <strong className="font-bold text-slate-800">{bulan} {tahun}</strong> kosong. Apakah anda ingin melakukan copy data dari periode <strong className="font-bold text-primary-900">{copyFromPeriod}</strong> ke periode ini? Anda tetap bisa mengubahnya nanti.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-150">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-colors"
+          >
+            Tidak, mulai baru
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 py-2 rounded bg-primary-900 text-white font-semibold text-[10px] uppercase tracking-wider hover:bg-primary-800 shadow-sm transition-all"
+          >
+            Ya, Copy
           </button>
         </div>
       </div>

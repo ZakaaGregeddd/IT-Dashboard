@@ -55,8 +55,8 @@ const mockDashboardPayload: DashboardData = {
   bandwidthJaringan: {
     labels: ['M.Kadin', 'Tarahan', 'Kertapati', 'Griya Puncak', 'Bukit Kecil', 'UPO'],
     datasets: [
-      { label: 'Bandwidth (Mbps)', data: [32.41, 17.76, 8.82, 3.97, 9.83, 1.91], backgroundColor: '#0f2e60', barThickness: 20 },
-      { label: 'Rata-rata Utilisasi (Mbps)', data: [7.59, 2.24, 1.18, 0.03, 0.17, 0.09], backgroundColor: '#f59e0b', barThickness: 20 }
+      { label: 'Bandwidth (Mbps)', data: [32.41, 17.76, 8.82, 3.97, 9.83, 1.91], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Rata-rata Utilisasi (Mbps)', data: [7.59, 2.24, 1.18, 0.03, 0.17, 0.09], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
     ]
   },
   pcSupport: {
@@ -125,8 +125,8 @@ const zeroDashboardPayload: DashboardData = {
   bandwidthJaringan: {
     labels: ['M.Kadin', 'Tarahan', 'Kertapati', 'Griya Puncak', 'Bukit Kecil', 'UPO'],
     datasets: [
-      { label: 'Bandwidth (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#0f2e60', barThickness: 20 },
-      { label: 'Rata-rata Utilisasi (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#f59e0b', barThickness: 20 }
+      { label: 'Bandwidth (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Rata-rata Utilisasi (Mbps)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
     ]
   },
   pcSupport: {
@@ -284,9 +284,9 @@ export const DashboardPage: React.FC = () => {
           });
 
           if (details.length > 0) {
-            licenses = { 
-              under2, 
-              between2and4, 
+            licenses = {
+              under2,
+              between2and4,
               over4,
               rawList: details.map((d: any) => ({
                 nama_aplikasi: d.nama_produk,
@@ -366,8 +366,8 @@ export const DashboardPage: React.FC = () => {
             bandwidthJaringan = {
               labels: details.map((d: any) => d.lokasi.replace(' - Tanjung Enim', '')),
               datasets: [
-                { label: 'Bandwidth (Mbps)', data: details.map((d: any) => parseFloat(d.bandwidth_mbps) || 0), backgroundColor: '#0f2e60', barThickness: 20 },
-                { label: 'Rata-rata Utilisasi (Mbps)', data: details.map((d: any) => parseFloat(d.rata_utilisasi_mbps) || 0), backgroundColor: '#f59e0b', barThickness: 20 }
+                { label: 'Bandwidth (Mbps)', data: details.map((d: any) => parseFloat(d.bandwidth_mbps) || 0), backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+                { label: 'Rata-rata Utilisasi (Mbps)', data: details.map((d: any) => parseFloat(d.utilisasi_mbps) || 0), backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
               ]
             };
           }
@@ -477,3 +477,4 @@ export const DashboardPage: React.FC = () => {
 
   return <DashboardOverview data={data} />;
 };
+

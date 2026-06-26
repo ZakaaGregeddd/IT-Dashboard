@@ -791,7 +791,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
