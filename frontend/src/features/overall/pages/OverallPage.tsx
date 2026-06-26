@@ -173,7 +173,10 @@ const mockOverallData = {
   },
   wan: {
     labels: ['Unit. TE - PLG', 'Unit. TRH - TE', 'Unit. KPT - TE', 'Unit. KPT - PLG', 'Unit. LPG - TE', 'Unit. LPG - PLG'],
-    datasets: [{ label: 'Ketersediaan (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: '#0f2e60' }]
+    datasets: [
+      { label: 'Target (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Ketersediaan (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
+    ]
   },
   keamanan: [
     { item: 'Proxy Tanjung Enim', rencana: 100, realisasi: 100 },
@@ -304,7 +307,10 @@ const zeroOverallData = {
   },
   wan: {
     labels: ['M.Kadin', 'Tarahan', 'Kertapati', 'Griya Puncak', 'Bukit Kecil', 'UPO'],
-    datasets: [{ label: 'Ketersediaan (%)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#0f2e60' }]
+    datasets: [
+      { label: 'Target (%)', data: [100, 100, 100, 100, 100, 100], backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+      { label: 'Ketersediaan (%)', data: [0, 0, 0, 0, 0, 0], backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
+    ]
   },
   keamanan: [
     { item: 'Proxy Tanjung Enim', rencana: 0, realisasi: 0 },
@@ -689,7 +695,8 @@ export const OverallPage: React.FC = () => {
             wan = {
               labels: details.map((d: any) => d.lokasi.replace(' - Tanjung Enim', '')),
               datasets: [
-                { label: 'Ketersediaan (%)', data: details.map((d: any) => parseFloat(d.ketersediaan_persen) || 0), backgroundColor: '#0f2e60' }
+                { label: 'Target (%)', data: details.map(() => 100), backgroundColor: '#0f2e60', grouped: false, barPercentage: 0.8, order: 2 },
+                { label: 'Ketersediaan (%)', data: details.map((d: any) => parseFloat(d.ketersediaan_persen) || 0), backgroundColor: '#f59e0b', grouped: false, barPercentage: 0.5, order: 1 }
               ]
             };
           }
@@ -834,27 +841,27 @@ export const OverallPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Realisasi Program Kerja TI" 
-              options={defaultOptions} 
-              data={data.programKerja} 
+            <KpiChartCard
+              title="Realisasi Program Kerja TI"
+              options={defaultOptions}
+              data={data.programKerja}
               onClick={() => window.location.href = '/realisasi-program-kerja-ti'}
             />
           </div>
           <div className="h-[240px]">
-            <RkapDonutChart 
-              title="Realisasi RKAP TI" 
-              percentage={data.rkapPercentage} 
+            <RkapDonutChart
+              title="Realisasi RKAP TI"
+              percentage={data.rkapPercentage}
               onClick={() => window.location.href = '/realisasi-rkap-ti'}
             />
           </div>
           <div className="h-[240px]">
-            <SdmDistributionCard 
-              data={data.sdm} 
+            <SdmDistributionCard
+              data={data.sdm}
               onClick={() => window.location.href = '/sdm-it-outsource-pegawai'}
             />
           </div>
-          <div 
+          <div
             onClick={() => window.location.href = '/lisensi'}
             className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 flex flex-col justify-between h-[240px] overflow-hidden"
           >
@@ -1029,18 +1036,18 @@ export const OverallPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Ketersediaan Report Aplikasi SCMC" 
-              options={commonLegendOptions} 
-              data={data.reportScmc} 
+            <KpiChartCard
+              title="Ketersediaan Report Aplikasi SCMC"
+              options={commonLegendOptions}
+              data={data.reportScmc}
               onClick={() => window.location.href = '/ketersediaan-report-aplikasi-scmc'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Tingkat Ketersediaan Sistem" 
-              options={commonLegendOptions} 
-              data={data.ketersediaanSistem} 
+            <KpiChartCard
+              title="Tingkat Ketersediaan Sistem"
+              options={commonLegendOptions}
+              data={data.ketersediaanSistem}
               onClick={() => window.location.href = '/tingkat-ketersediaan-sistem'}
             />
           </div>
@@ -1054,27 +1061,27 @@ export const OverallPage: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi - CPU Cores vs Utilisasi" 
-              options={commonLegendOptions} 
-              data={data.cpuServer} 
+            <KpiChartCard
+              title="Visualisasi - CPU Cores vs Utilisasi"
+              options={commonLegendOptions}
+              data={data.cpuServer}
               onClick={() => window.location.href = '/utilisasi-cpu-server'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi - Memory Capacity vs Utilisasi" 
-              options={commonLegendOptions} 
-              data={data.memoryServer} 
+            <KpiChartCard
+              title="Visualisasi - Memory Capacity vs Utilisasi"
+              options={commonLegendOptions}
+              data={data.memoryServer}
               onClick={() => window.location.href = '/utilisasi-memory-server'}
             />
           </div>
-          
+
           <div className="md:col-span-2 h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi - Storage Capacity vs Utilization" 
-              options={commonLegendOptions} 
-              data={data.storageServer} 
+            <KpiChartCard
+              title="Visualisasi - Storage Capacity vs Utilization"
+              options={commonLegendOptions}
+              data={data.storageServer}
               onClick={() => window.location.href = '/utilisasi-storage-server'}
             />
           </div>
@@ -1082,99 +1089,99 @@ export const OverallPage: React.FC = () => {
           {/* Sub-grid of Horizontal Stacked Charts */}
           <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
             <div className="h-[240px]">
-              <KpiChartCard 
-                title="Visualisasi Utilisasi CPU" 
-                options={horizontalStackedOptions} 
-                data={data.utilisasiCpu} 
+              <KpiChartCard
+                title="Visualisasi Utilisasi CPU"
+                options={horizontalStackedOptions}
+                data={data.utilisasiCpu}
                 onClick={() => window.location.href = '/utilisasi-cpu-aplikasi'}
               />
             </div>
             <div className="h-[240px]">
-              <KpiChartCard 
-                title="Visualisasi Utilisasi Memory" 
-                options={horizontalStackedOptions} 
-                data={data.utilisasiMemApp} 
+              <KpiChartCard
+                title="Visualisasi Utilisasi Memory"
+                options={horizontalStackedOptions}
+                data={data.utilisasiMemApp}
                 onClick={() => window.location.href = '/utilisasi-memory-aplikasi'}
               />
             </div>
             <div className="h-[240px]">
-              <KpiChartCard 
-                title="Visualisasi Utilisasi CPU Database" 
-                options={horizontalStackedOptions} 
-                data={data.utilisasiCpuDb} 
+              <KpiChartCard
+                title="Visualisasi Utilisasi CPU Database"
+                options={horizontalStackedOptions}
+                data={data.utilisasiCpuDb}
                 onClick={() => window.location.href = '/utilisasi-cpu-database'}
               />
             </div>
             <div className="h-[240px]">
-              <KpiChartCard 
-                title="Visualisasi Utilisasi Memory Database" 
-                options={horizontalStackedOptions} 
-                data={data.utilisasiMemDb} 
+              <KpiChartCard
+                title="Visualisasi Utilisasi Memory Database"
+                options={horizontalStackedOptions}
+                data={data.utilisasiMemDb}
                 onClick={() => window.location.href = '/utilisasi-memory-database'}
               />
             </div>
             <div className="h-[240px]">
-              <KpiChartCard 
-                title="Visualisasi Storage Database" 
-                options={horizontalStackedOptions} 
-                data={data.utilisasiStorageDb} 
+              <KpiChartCard
+                title="Visualisasi Storage Database"
+                options={horizontalStackedOptions}
+                data={data.utilisasiStorageDb}
                 onClick={() => window.location.href = '/utilisasi-storage-database'}
               />
             </div>
           </div>
 
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Utilisasi Bandwidth Jaringan" 
-              options={doubleStackedOptions} 
-              data={data.bandwidth} 
+            <KpiChartCard
+              title="Visualisasi Utilisasi Bandwidth Jaringan"
+              options={doubleStackedOptions}
+              data={data.bandwidth}
               onClick={() => window.location.href = '/rata-rata-utilisasi-bandwidth-jaringan'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Ketersediaan Jaringan (WAN) PTBA" 
-              options={defaultOptions} 
-              data={data.wan} 
+            <KpiChartCard
+              title="Visualisasi Ketersediaan Jaringan (WAN) PTBA"
+              options={doubleStackedOptions}
+              data={data.wan}
               onClick={() => window.location.href = '/ketersediaan-sistem-backup-ellipse-email-dr-ellipse-jaringan-wan-dan-cisea'}
             />
           </div>
           <div className="h-[240px]">
-            <KeamananSistemCard 
-              data={data.keamanan} 
+            <KeamananSistemCard
+              data={data.keamanan}
               onClick={() => window.location.href = '/ketersediaan-sistem-keamanan-ti'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Penyelesaian Pekerjaan PC Support" 
-              options={commonLegendOptions} 
-              data={data.pcSupport} 
+            <KpiChartCard
+              title="Visualisasi Penyelesaian Pekerjaan PC Support"
+              options={commonLegendOptions}
+              data={data.pcSupport}
               onClick={() => window.location.href = '/penyelesaian-pekerjaan-pc-support'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Penyelesaian Permintaan Layanan Aplikasi TI" 
-              options={commonLegendOptions} 
-              data={data.layananAplikasi} 
+            <KpiChartCard
+              title="Visualisasi Penyelesaian Permintaan Layanan Aplikasi TI"
+              options={commonLegendOptions}
+              data={data.layananAplikasi}
               onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-aplikasi-ti'}
             />
           </div>
           <div className="h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Penyelesaian Permintaan Layanan TI di Operasional TI" 
-              options={commonLegendOptions} 
-              data={data.layananOperasional} 
+            <KpiChartCard
+              title="Visualisasi Penyelesaian Permintaan Layanan TI di Operasional TI"
+              options={commonLegendOptions}
+              data={data.layananOperasional}
               onClick={() => window.location.href = '/penyelesaian-permintaan-layanan-ti'}
             />
           </div>
 
           <div className="md:col-span-2 max-w-4xl w-full mx-auto h-[240px]">
-            <KpiChartCard 
-              title="Visualisasi Realisasi Restore Ellipse dan Email sesuai kebutuhan" 
-              options={commonLegendOptions} 
-              data={data.restore} 
+            <KpiChartCard
+              title="Visualisasi Realisasi Restore Ellipse dan Email sesuai kebutuhan"
+              options={commonLegendOptions}
+              data={data.restore}
               onClick={() => window.location.href = '/realisasi-restore-ellipse-dan-email'}
             />
           </div>

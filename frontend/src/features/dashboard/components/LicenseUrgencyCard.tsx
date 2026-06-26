@@ -48,11 +48,10 @@ export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ data, on
   };
 
   return (
-    <Card 
+    <Card
       onClick={!showList ? onClick : undefined}
-      className={`flex flex-col h-full min-h-[210px] p-4 bg-white rounded-xl border border-slate-200 shadow-sm ${
-        !showList && onClick ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" : ""
-      }`}
+      className={`flex flex-col h-full min-h-[210px] p-4 bg-white rounded-xl border border-slate-200 shadow-sm ${!showList && onClick ? "cursor-pointer transition-all duration-200 hover:shadow-md hover:-translate-y-0.5" : ""
+        }`}
     >
       {/* Header */}
       <div className="flex justify-between items-center border-b border-slate-100 pb-2 mb-2 shrink-0">
@@ -114,13 +113,13 @@ export const LicenseUrgencyCard: React.FC<LicenseUrgencyCardProps> = ({ data, on
                       if (diffMonths <= 2) dateColorClass = 'text-red-600 font-extrabold';
                       else if (diffMonths <= 4) dateColorClass = 'text-amber-600 font-extrabold';
 
-                      const formattedDate = isNaN(expDate.getTime()) 
-                        ? lic.expiry_date 
+                      const formattedDate = isNaN(expDate.getTime())
+                        ? lic.expiry_date
                         : expDate.toLocaleDateString('id-ID', {
-                            year: 'numeric',
-                            month: 'short',
-                            day: 'numeric'
-                          });
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        });
 
                       return (
                         <tr key={idx} className="hover:bg-slate-50/55 transition-colors">

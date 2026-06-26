@@ -282,7 +282,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#0f2e60',
         backgroundColor: 'rgba(15, 46, 96, 0.1)',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         fill: true,
         pointRadius: 2
       },
@@ -292,7 +292,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#f59e0b',
         backgroundColor: 'transparent',
         tension: 0.3,
-        cubicInterpolationMode: 'monotone',
+        cubicInterpolationMode: 'monotone' as const,
         fill: false,
         pointRadius: 2
       }
@@ -563,7 +563,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
