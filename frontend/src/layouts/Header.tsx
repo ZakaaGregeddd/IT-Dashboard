@@ -49,11 +49,14 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSide
     return () => clearInterval(timer);
   }, []);
 
-  const formatDateTime = (date: Date) => {
+  const formatTimeOnly = (date: Date) => {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
     const seconds = String(date.getSeconds()).padStart(2, '0');
-    
+    return `${hours}:${minutes}:${seconds}`;
+  };
+
+  const formatDayDateMonth = (date: Date) => {
     const indonesianDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const dayName = indonesianDays[date.getDay()];
     
@@ -63,9 +66,7 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSide
       'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
     ];
     const month = indonesianMonths[date.getMonth()];
-    const year = date.getFullYear();
-    
-    return `${hours}:${minutes}:${seconds} WIB, ${dayName}, ${day} ${month} ${year}`;
+    return `${dayName}, ${day} ${month}`;
   };
 
   useEffect(() => {
@@ -86,8 +87,8 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSide
     const fullText = breadcrumbMapping[currentPath] || 'Dashboard Utama';
     return fullText.split(' / ').map((segment, index, array) => (
       <React.Fragment key={index}>
-        {index > 0 && <span className="text-slate-300">/</span>}
-        <span className={index === array.length - 1 ? "font-medium text-slate-700" : "text-slate-400"}>
+        {index > 0 && <span className="text-slate-300 shrink-0">/</span>}
+        <span className={index === array.length - 1 ? "font-medium text-slate-700 truncate" : "text-slate-400 truncate"}>
           {segment}
         </span>
       </React.Fragment>
@@ -96,36 +97,40 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSide
 
   return (
     <header className="flex-none h-11 flex items-center justify-between px-6 border-b border-slate-200 bg-white z-20">
-      <div className="flex items-center gap-4 text-sm">
+      <div className="flex items-center gap-4 text-sm min-w-0 flex-1 mr-4">
         <button 
           onClick={onToggleSidebar}
-          className="p-1 hover:bg-slate-100 rounded-md text-slate-500 transition-colors flex items-center justify-center"
+          className="p-1 hover:bg-slate-100 rounded-md text-slate-500 transition-colors flex items-center justify-center shrink-0"
           aria-label={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
           title={isSidebarCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           <Menu className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 truncate min-w-0">
           <a 
             onClick={(e) => {
               e.preventDefault();
               navigateTo('/');
             }}
-            className="text-slate-400 hover:text-slate-600 flex items-center cursor-pointer" 
+            className="text-slate-400 hover:text-slate-600 flex items-center cursor-pointer shrink-0" 
             href="/"
           >
             <Home className="w-4 h-4" />
           </a>
-          <span className="text-slate-300">/</span>
+          <span className="text-slate-300 shrink-0">/</span>
           {getBreadcrumbs()}
         </div>
       </div>
       
       {/* Date-Time & User Avatar */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 border border-slate-250 rounded-lg px-2.5 py-1 font-bold select-none shadow-sm">
-          <Calendar className="w-3.5 h-3.5 text-slate-500" />
-          <span className="font-mono font-bold">{formatDateTime(currentTime)}</span>
+        <div className="hidden sm:flex items-center gap-2 text-xs text-slate-700 bg-slate-50 border border-slate-250 rounded-lg px-2.5 py-1 font-bold select-none shadow-sm whitespace-nowrap">
+          <Calendar className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <span className="font-mono font-bold whitespace-nowrap">
+            <span className="hidden lg:inline">{formatTimeOnly(currentTime)} WIB, </span>
+            <span>{formatDayDateMonth(currentTime)}</span>
+            <span className="hidden lg:inline"> {currentTime.getFullYear()}</span>
+          </span>
         </div>
         <Avatar fallback="A" />
       </div>
