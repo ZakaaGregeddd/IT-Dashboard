@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Home, Menu } from 'lucide-react';
+import { Home, Menu, Calendar } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { navigateTo } from '@/utils/navigation';
 
@@ -40,6 +40,33 @@ const breadcrumbMapping: Record<string, string> = {
 
 export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSidebar }) => {
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatDateTime = (date: Date) => {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    
+    const indonesianDays = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const dayName = indonesianDays[date.getDay()];
+    
+    const day = date.getDate();
+    const indonesianMonths = [
+      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    const month = indonesianMonths[date.getMonth()];
+    const year = date.getFullYear();
+    
+    return `${hours}:${minutes}:${seconds} WIB, ${dayName}, ${day} ${month} ${year}`;
+  };
 
   useEffect(() => {
     const handleLocationChange = () => {
@@ -94,8 +121,12 @@ export const Header: React.FC<HeaderProps> = ({ isSidebarCollapsed, onToggleSide
         </div>
       </div>
       
-      {/* User Avatar */}
-      <div className="flex items-center">
+      {/* Date-Time & User Avatar */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 text-xs text-slate-700 bg-slate-50 border border-slate-250 rounded-lg px-2.5 py-1 font-bold select-none shadow-sm">
+          <Calendar className="w-3.5 h-3.5 text-slate-500" />
+          <span className="font-mono font-bold">{formatDateTime(currentTime)}</span>
+        </div>
         <Avatar fallback="A" />
       </div>
     </header>
