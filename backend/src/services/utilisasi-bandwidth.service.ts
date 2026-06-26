@@ -54,18 +54,18 @@ export class UtilisasiBandwidthService {
         const detail_utilisasi_bandwidth = latestMaster.detail_utilisasi_bandwidth.map((s) => ({
           urutan: s.urutan,
           lokasi: s.lokasi,
-          bandwidth_mbps: Number(s.bandwidth_mbps) || 0,
-          utilisasi_mbps: Number(s.utilisasi_mbps) || 0,
-          sisa_persen: Number(s.sisa_persen) || 0,
-          utilisasi_persen: Number(s.utilisasi_persen) || 0,
+          bandwidth_mbps: 0,
+          utilisasi_mbps: 0,
+          sisa_persen: 0,
+          utilisasi_persen: 0,
         }));
 
         return {
           bulan,
           tahun,
-          total_bandwidth_mbps: Number(latestMaster.total_bandwidth_mbps) || 0,
-          total_utilisasi_mbps: Number(latestMaster.total_utilisasi_mbps) || 0,
-          rata_rata_utilisasi_persen: Number(latestMaster.rata_rata_utilisasi_persen) || 0,
+          total_bandwidth_mbps: 0,
+          total_utilisasi_mbps: 0,
+          rata_rata_utilisasi_persen: 0,
           detail_utilisasi_bandwidth,
         };
       }

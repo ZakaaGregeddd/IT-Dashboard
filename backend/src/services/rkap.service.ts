@@ -45,12 +45,12 @@ export class RKAPService {
         return {
           bulan,
           tahun,
-          kalkulasi_cost_reduction_rp: Number(latestMaster.kalkulasi_cost_reduction_rp) || 0,
-          kalkulasi_persentase_realisasi: Number(latestMaster.kalkulasi_persentase_realisasi) || 0,
+          kalkulasi_cost_reduction_rp: 0,
+          kalkulasi_persentase_realisasi: 0,
           detail_rkap_ti: latestMaster.detail_rkap_ti.map(d => ({
             urutan: d.urutan,
             nama_metrik: d.nama_metrik,
-            nilai_nominal: Number(d.nilai_nominal) || 0,
+            nilai_nominal: 0,
           })),
         };
       }

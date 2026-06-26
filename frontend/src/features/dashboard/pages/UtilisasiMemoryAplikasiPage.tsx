@@ -336,8 +336,8 @@ export const UtilisasiMemoryAplikasiPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'CISEA')),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
-        tension: 0.4,
-        cubicInterpolationMode: 'monotone',
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -347,8 +347,8 @@ export const UtilisasiMemoryAplikasiPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'Ellipse')),
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
-        tension: 0.4,
-        cubicInterpolationMode: 'monotone',
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -698,7 +698,7 @@ export const UtilisasiMemoryAplikasiPage: React.FC = () => {
         {/* Row 3: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Rata-rata Utilisasi Memory Aplikasi</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Rata-rata Utilisasi Memory Aplikasi (%)</p>
             
             {/* Year Range Selectors */}
@@ -758,7 +758,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">

@@ -133,6 +133,7 @@ export const LisensiPage: React.FC = () => {
   const [activeDetailView, setActiveDetailView] = useState<'urgent' | 'peringatan' | 'aman' | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [isCopyTemplateModalOpen, setIsCopyTemplateModalOpen] = useState(false);
   // Expanded table checklist-based filtering states (Nama & Exp Date)
   const [enableNameFilter, setEnableNameFilter] = useState(false);
   const [enableDateFilter, setEnableDateFilter] = useState(false);
@@ -245,7 +246,7 @@ export const LisensiPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/licenses?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_lisensi)) {
+        if (result.success && result.data && Array.isArray(result.data.detail_lisensi) && result.data.detail_lisensi.length > 0) {
           const formatted = result.data.detail_lisensi.map((d: any) => ({
             ...d,
             satuan: d.satuan || 'Unit',
@@ -257,6 +258,20 @@ export const LisensiPage: React.FC = () => {
         } else {
           setLicenseRows([]);
           setIsDirty(false);
+
+          // Check if we have latest data in database to offer copying from
+          let hasTemplate = false;
+          if (allLicenseRecords && allLicenseRecords.length > 0) {
+            const recordsWithData = allLicenseRecords.filter(
+              (rec) => rec.detail_lisensi && rec.detail_lisensi.length > 0
+            );
+            if (recordsWithData.length > 0) {
+              hasTemplate = true;
+            }
+          }
+          if (hasTemplate) {
+            setIsCopyTemplateModalOpen(true);
+          }
         }
       } catch (error) {
         console.error('Failed to fetch active license data:', error);
@@ -265,27 +280,104 @@ export const LisensiPage: React.FC = () => {
       }
     };
     fetchActiveData();
-  }, [tahun, bulan]);
+  }, [tahun, bulan, allLicenseRecords]);
 
-  // Compute month difference between expiration date and selected period
-  const getMonthDifference = (expDateStr: string) => {
+  const handleCopyTemplate = () => {
+    setIsCopyTemplateModalOpen(false);
+    if (allLicenseRecords && allLicenseRecords.length > 0) {
+      const recordsWithData = allLicenseRecords.filter(
+        (rec) => rec.detail_lisensi && rec.detail_lisensi.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        const templateRows = (latestRecord.detail_lisensi || []).map((d: any) => ({
+          urutan: d.urutan,
+          principle: d.principle,
+          nama_produk: d.nama_produk,
+          total_lisensi: d.total_lisensi,
+          satuan: d.satuan || 'Unit',
+          tanggal_expired: formatDateForInput(d.tanggal_expired),
+          status: d.status,
+          catatan: d.catatan || ''
+        }));
+        setLicenseRows(templateRows);
+        setIsDirty(true);
+      }
+    }
+  };
+
+  const handleDeclineCopy = () => {
+    setIsCopyTemplateModalOpen(false);
+    setLicenseRows([]);
+    setIsDirty(false);
+  };
+
+  const copyFromPeriod = React.useMemo(() => {
+    if (allLicenseRecords && allLicenseRecords.length > 0) {
+      const recordsWithData = allLicenseRecords.filter(
+        (rec) => rec.detail_lisensi && rec.detail_lisensi.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        const monthName = monthsList[latestRecord.bulan - 1] || `Bulan ${latestRecord.bulan}`;
+        return `${monthName} ${latestRecord.tahun}`;
+      }
+    }
+    return '';
+  }, [allLicenseRecords]);
+
+  // Get the latest chronological license record from the database
+  const latestLicenseDetails = React.useMemo(() => {
+    if (!allLicenseRecords || allLicenseRecords.length === 0) {
+      // Fallback to currently selected licenseRows if allLicenseRecords is not loaded yet
+      return licenseRows;
+    }
+    // Filter out records that have no details (empty placeholder/future records)
+    const recordsWithData = allLicenseRecords.filter(
+      (rec) => rec.detail_lisensi && rec.detail_lisensi.length > 0
+    );
+
+    if (recordsWithData.length === 0) {
+      // Fallback to currently selected licenseRows if all records are empty
+      return licenseRows;
+    }
+
+    const sorted = [...recordsWithData].sort((a, b) => {
+      if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+      return b.bulan - a.bulan;
+    });
+    const latestRecord = sorted[0];
+    return (latestRecord.detail_lisensi || []) as LicenseDetail[];
+  }, [allLicenseRecords, licenseRows]);
+
+  // Compute month difference between expiration date and current time
+  const getMonthDifferenceFromNow = (expDateStr: string) => {
     if (!expDateStr) return 999;
     const expDate = new Date(expDateStr);
     if (isNaN(expDate.getTime())) return 999;
 
-    const selectedMonth = monthsNumMap[bulan] || 1;
-    const selectedYear = parseInt(tahun, 10);
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1;
+    const currentYear = today.getFullYear();
 
-    return (expDate.getFullYear() - selectedYear) * 12 + (expDate.getMonth() + 1 - selectedMonth);
+    return (expDate.getFullYear() - currentYear) * 12 + (expDate.getMonth() + 1 - currentMonth);
   };
 
-  // Categorize rows based on dynamic thresholds
-  const urgentLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) <= urgentLimit);
-  const warningLicenses = licenseRows.filter((r) => {
-    const diff = getMonthDifference(r.tanggal_expired);
+  // Categorize rows based on dynamic thresholds, using the latest data from the database and comparing with current time
+  const urgentLicenses = latestLicenseDetails.filter((r) => getMonthDifferenceFromNow(r.tanggal_expired) <= urgentLimit);
+  const warningLicenses = latestLicenseDetails.filter((r) => {
+    const diff = getMonthDifferenceFromNow(r.tanggal_expired);
     return diff > urgentLimit && diff <= warningLimit;
   });
-  const safeLicenses = licenseRows.filter((r) => getMonthDifference(r.tanggal_expired) > warningLimit);
+  const safeLicenses = latestLicenseDetails.filter((r) => getMonthDifferenceFromNow(r.tanggal_expired) > warningLimit);
 
   // Compute live total
   const totalJumlah = licenseRows.reduce((acc, row) => acc + (row.total_lisensi || 0), 0);
@@ -345,7 +437,7 @@ export const LisensiPage: React.FC = () => {
       const updated = prev.filter((row) => row.urutan !== urutan);
       // Re-map the urutan sequential numbering
       const remapped = updated.map((item, idx) => ({ ...item, urutan: idx + 1 }));
-      
+
       // Ensure the current page does not exceed the new total pages
       const totalPages = Math.ceil(remapped.length / entryRowsPerPage) || 1;
       if (entryCurrentPage > totalPages) {
@@ -436,18 +528,19 @@ export const LisensiPage: React.FC = () => {
     yearRecs.forEach((rec) => {
       sum += Number(rec.total_keseluruhan_lisensi) || 0;
     });
-    return parseFloat((sum / yearRecs.length).toFixed(1));
+    return sum;
   };
 
   const lineChartData: ChartData<'line'> = {
     labels: selectedYears,
     datasets: [
       {
-        label: 'Jumlah Lisensi Aktif (Rata-rata Tahunan)',
+        label: 'Jumlah Lisensi Aktif',
         data: selectedYears.map((yr) => getYearlyValue(yr)),
         borderColor: '#f59e0b',
         backgroundColor: '#0f2e60',
-        tension: 0.1,
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 3.5,
         pointRadius: 4.5,
         fill: false
@@ -631,7 +724,7 @@ export const LisensiPage: React.FC = () => {
 
   const filteredEntryRows = getFilteredEntryRows();
   const totalEntryPages = Math.ceil(filteredEntryRows.length / entryRowsPerPage) || 1;
-  
+
   // Slice to get the current page's rows
   const entryStartIndex = (entryCurrentPage - 1) * entryRowsPerPage;
   const paginatedEntryRows = filteredEntryRows.slice(entryStartIndex, entryStartIndex + entryRowsPerPage);
@@ -680,59 +773,64 @@ export const LisensiPage: React.FC = () => {
       </div>
 
       {/* Ringkasan Lisensi (Three Cards) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Urgent Card */}
-        <div
-          onClick={() => setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent')}
-          className="bg-red-50 hover:bg-red-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-red-200 transition-all shadow-sm"
-        >
-          <div className="text-red-700 font-bold text-xs uppercase tracking-wider">Urgent (&lt;= {urgentLimit} Bulan)</div>
-          <div className="text-3xl font-extrabold text-red-800 mt-2">{urgentLicenses.length}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent');
-            }}
-            className="text-[10px] font-semibold text-red-600 mt-2 hover:underline flex items-center gap-1 text-left self-start"
-          >
-            Lihat Detail &rarr;
-          </button>
+      <div className="flex flex-col gap-2">
+        <div className="border-b border-slate-200 pb-1.5">
+          <h3 className="text-xs font-bold text-slate-700 tracking-wider uppercase">Status Lisensi berdasarkan data terbaru</h3>
         </div>
-
-        {/* Peringatan Card */}
-        <div
-          onClick={() => setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan')}
-          className="bg-amber-50 hover:bg-amber-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-amber-200 transition-all shadow-sm"
-        >
-          <div className="text-amber-700 font-bold text-xs uppercase tracking-wider">Peringatan (&gt; {urgentLimit} - {warningLimit} Bulan)</div>
-          <div className="text-3xl font-extrabold text-amber-800 mt-2">{warningLicenses.length}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan');
-            }}
-            className="text-[10px] font-semibold text-amber-600 mt-2 hover:underline flex items-center gap-1 text-left self-start"
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Urgent Card */}
+          <div
+            onClick={() => setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent')}
+            className="bg-red-50 hover:bg-red-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-red-200 transition-all shadow-sm"
           >
-            Lihat Detail &rarr;
-          </button>
-        </div>
+            <div className="text-red-700 font-bold text-xs uppercase tracking-wider">Urgent (&lt;= {urgentLimit} Bulan)</div>
+            <div className="text-3xl font-extrabold text-red-800 mt-2">{urgentLicenses.length}</div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveDetailView(activeDetailView === 'urgent' ? null : 'urgent');
+              }}
+              className="text-[10px] font-semibold text-red-600 mt-2 hover:underline flex items-center gap-1 text-left self-start"
+            >
+              Lihat Detail &rarr;
+            </button>
+          </div>
 
-        {/* Aman Card */}
-        <div
-          onClick={() => setActiveDetailView(activeDetailView === 'aman' ? null : 'aman')}
-          className="bg-[#0f2e60] hover:bg-[#0c244c] cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-[#0f2e60] transition-all shadow-sm"
-        >
-          <div className="text-white font-bold text-xs uppercase tracking-wider">Aman (&gt; {warningLimit} Bulan)</div>
-          <div className="text-3xl font-extrabold text-white mt-2">{safeLicenses.length}</div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setActiveDetailView(activeDetailView === 'aman' ? null : 'aman');
-            }}
-            className="text-[10px] font-semibold text-white mt-2 hover:underline flex items-center gap-1 text-left self-start"
+          {/* Peringatan Card */}
+          <div
+            onClick={() => setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan')}
+            className="bg-amber-50 hover:bg-amber-100/75 cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-amber-200 transition-all shadow-sm"
           >
-            Lihat Detail &rarr;
-          </button>
+            <div className="text-amber-700 font-bold text-xs uppercase tracking-wider">Peringatan (&gt; {urgentLimit} - {warningLimit} Bulan)</div>
+            <div className="text-3xl font-extrabold text-amber-800 mt-2">{warningLicenses.length}</div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveDetailView(activeDetailView === 'peringatan' ? null : 'peringatan');
+              }}
+              className="text-[10px] font-semibold text-amber-600 mt-2 hover:underline flex items-center gap-1 text-left self-start"
+            >
+              Lihat Detail &rarr;
+            </button>
+          </div>
+
+          {/* Aman Card */}
+          <div
+            onClick={() => setActiveDetailView(activeDetailView === 'aman' ? null : 'aman')}
+            className="bg-[#0f2e60] hover:bg-[#0c244c] cursor-pointer rounded-xl p-5 flex flex-col gap-1 border border-[#0f2e60] transition-all shadow-sm"
+          >
+            <div className="text-white font-bold text-xs uppercase tracking-wider">Aman (&gt; {warningLimit} Bulan)</div>
+            <div className="text-3xl font-extrabold text-white mt-2">{safeLicenses.length}</div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setActiveDetailView(activeDetailView === 'aman' ? null : 'aman');
+              }}
+              className="text-[10px] font-semibold text-white mt-2 hover:underline flex items-center gap-1 text-left self-start"
+            >
+              Lihat Detail &rarr;
+            </button>
+          </div>
         </div>
       </div>
 
@@ -816,7 +914,7 @@ export const LisensiPage: React.FC = () => {
               {/* Right: Sorting (Always Visible!) */}
               <div className="flex items-center gap-4 flex-wrap">
                 <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
-                
+
                 {/* Sort Nama */}
                 <div className="flex items-center gap-1.5">
                   <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
@@ -824,11 +922,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNameSortOrder(nameSortOrder === 'asc' ? null : 'asc')}
-                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        nameSortOrder === 'asc'
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${nameSortOrder === 'asc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan A-Z"
                     >
                       A-Z
@@ -836,11 +933,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setNameSortOrder(nameSortOrder === 'desc' ? null : 'desc')}
-                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        nameSortOrder === 'desc'
+                      className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${nameSortOrder === 'desc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Z-A"
                     >
                       Z-A
@@ -855,11 +951,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDateSortOrder(dateSortOrder === 'asc' ? null : 'asc')}
-                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        dateSortOrder === 'asc'
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${dateSortOrder === 'asc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Exp Date Terdekat"
                     >
                       Terdekat
@@ -867,11 +962,10 @@ export const LisensiPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setDateSortOrder(dateSortOrder === 'desc' ? null : 'desc')}
-                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                        dateSortOrder === 'desc'
+                      className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${dateSortOrder === 'desc'
                           ? 'bg-[#0f2e60] text-white shadow-sm'
                           : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                      }`}
+                        }`}
                       title="Urutkan Exp Date Terjauh"
                     >
                       Terjauh
@@ -967,10 +1061,10 @@ export const LisensiPage: React.FC = () => {
                     </td>
                     <td className="py-2.5 px-4 border-r border-slate-200 text-center">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold border ${row.status === 'Aktif'
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                          : row.status === 'Proses Renewal'
-                            ? 'bg-amber-50 text-amber-700 border-amber-200'
-                            : 'bg-blue-50 text-blue-700 border-blue-200'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : row.status === 'Proses Renewal'
+                          ? 'bg-amber-50 text-amber-700 border-amber-200'
+                          : 'bg-blue-50 text-blue-700 border-blue-200'
                         }`}>
                         {row.status}
                       </span>
@@ -1127,7 +1221,7 @@ export const LisensiPage: React.FC = () => {
             {/* Right: Sorting (Always Visible!) */}
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider">Urutkan:</span>
-              
+
               {/* Sort Nama */}
               <div className="flex items-center gap-1.5">
                 <span className="text-[9px] font-bold text-slate-500 uppercase">Nama</span>
@@ -1135,11 +1229,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'asc' ? null : 'asc')}
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryNameSortOrder === 'asc'
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryNameSortOrder === 'asc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan A-Z"
                   >
                     A-Z
@@ -1147,11 +1240,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryNameSortOrder(entryNameSortOrder === 'desc' ? null : 'desc')}
-                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryNameSortOrder === 'desc'
+                    className={`px-2 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryNameSortOrder === 'desc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Z-A"
                   >
                     Z-A
@@ -1166,11 +1258,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'asc' ? null : 'asc')}
-                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryDateSortOrder === 'asc'
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryDateSortOrder === 'asc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Exp Date Terdekat"
                   >
                     Terdekat
@@ -1178,11 +1269,10 @@ export const LisensiPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setEntryDateSortOrder(entryDateSortOrder === 'desc' ? null : 'desc')}
-                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${
-                      entryDateSortOrder === 'desc'
+                    className={`px-2.5 py-0.5 text-[9px] font-bold rounded transition-all h-full flex items-center ${entryDateSortOrder === 'desc'
                         ? 'bg-[#0f2e60] text-white shadow-sm'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
+                      }`}
                     title="Urutkan Exp Date Terjauh"
                   >
                     Terjauh
@@ -1204,7 +1294,7 @@ export const LisensiPage: React.FC = () => {
               )}
             </div>
           </div>
- 
+
           {/* Conditionally Rendered Inputs Row */}
           {(entryEnableNameFilter || entryEnableDateFilter || entryEnableStatusFilter) && (
             <div className="flex flex-wrap items-end gap-4 border-t border-slate-200/60 pt-3 mt-1">
@@ -1221,7 +1311,7 @@ export const LisensiPage: React.FC = () => {
                   />
                 </div>
               )}
- 
+
               {/* Date Range Filter Inputs */}
               {entryEnableDateFilter && (
                 <div className="flex items-end gap-2 flex-wrap">
@@ -1248,7 +1338,7 @@ export const LisensiPage: React.FC = () => {
                   </div>
                 </div>
               )}
- 
+
               {/* Status Filter Dropdown */}
               {entryEnableStatusFilter && (
                 <div className="flex flex-col gap-1 min-w-[160px]">
@@ -1490,7 +1580,7 @@ export const LisensiPage: React.FC = () => {
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 w-full">
         <div className="p-4 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white">
           <div>
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Jumlah Lisensi</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Lisensi Aktif</p>
           </div>
 
@@ -1526,6 +1616,16 @@ export const LisensiPage: React.FC = () => {
         message={`Apakah Anda yakin ingin menyimpan perubahan data lisensi untuk periode ${bulan} ${tahun}?`}
       />
 
+      {/* Copy Template Modal */}
+      <CopyTemplateModal
+        isOpen={isCopyTemplateModalOpen}
+        onClose={handleDeclineCopy}
+        onConfirm={handleCopyTemplate}
+        bulan={bulan}
+        tahun={tahun}
+        copyFromPeriod={copyFromPeriod}
+      />
+
       {/* Configuration Settings Modal */}
       <ConfigurationModal
         isOpen={isConfigModalOpen}
@@ -1535,10 +1635,10 @@ export const LisensiPage: React.FC = () => {
         onSave={(urgent, warning) => {
           setUrgentLimit(urgent);
           setWarningLimit(warning);
-          
+
           localStorage.setItem('lisensi_urgentLimit', urgent.toString());
           localStorage.setItem('lisensi_warningLimit', warning.toString());
-          
+
           setIsConfigModalOpen(false);
         }}
       />
@@ -1694,7 +1794,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
@@ -1711,6 +1824,52 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
             className="bg-primary-900 text-white px-5 py-2 rounded font-semibold hover:bg-primary-800 transition-all shadow-sm uppercase tracking-wider text-[10px]"
           >
             Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface CopyTemplateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  bulan: string;
+  tahun: string;
+  copyFromPeriod: string;
+}
+
+const CopyTemplateModal: React.FC<CopyTemplateModalProps> = ({ isOpen, onClose, onConfirm, bulan, tahun, copyFromPeriod }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-sm w-full p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-50 text-primary-900 rounded-lg shrink-0 border border-blue-100">
+            <Settings className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Data Kosong</h4>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Data periode <strong className="font-bold text-slate-800">{bulan} {tahun}</strong> kosong. Apakah anda ingin melakukan copy data dari periode <strong className="font-bold text-primary-900">{copyFromPeriod}</strong> ke periode ini? Anda tetap bisa mengubahnya nanti.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-150">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-colors"
+          >
+            Tidak, mulai baru
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 py-2 rounded bg-primary-900 text-white font-semibold text-[10px] uppercase tracking-wider hover:bg-primary-800 shadow-sm transition-all"
+          >
+            Ya, Copy
           </button>
         </div>
       </div>

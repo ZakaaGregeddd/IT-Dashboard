@@ -88,13 +88,13 @@ export class UtilisasiMemoryService {
         nama_server: latestServer.nama_server,
         memory_gb: currentMaster
           ? (matchingCurrent ? (Number(matchingCurrent.memory_gb) ?? 0) : 0)
-          : (Number(latestServer.memory_gb) ?? 0),
+          : 0,
         utilisasi_gb: currentMaster
           ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_gb) ?? 0) : 0)
-          : (Number(latestServer.utilisasi_gb) ?? 0),
+          : 0,
         utilisasi_persen: currentMaster
           ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
-          : (Number(latestServer.utilisasi_persen) ?? 0),
+          : 0,
       };
     });
 

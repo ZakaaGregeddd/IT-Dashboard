@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, X } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, X, Settings } from 'lucide-react';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -82,6 +82,17 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
+const DEFAULT_ROWS: MemoryDetail[] = [
+  { urutan: 1, nama_server: 'steppl-esxi1', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 2, nama_server: 'steppl-esxi2', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 3, nama_server: 'steppl-esxi3', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 4, nama_server: 'steppl-esxi4', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 5, nama_server: 'tjevmerp1', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 6, nama_server: 'tjevmerp2', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 7, nama_server: 'tjevmerp3', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 },
+  { urutan: 8, nama_server: 'tjevmerp4', memory_gb: 0, utilisasi_gb: 0, utilisasi_persen: 0 }
+];
+
 export const UtilisasiMemoryServerPage: React.FC = () => {
   const getCurrentMonthName = () => monthsList[new Date().getMonth()];
   const getCurrentYear = () => new Date().getFullYear().toString();
@@ -110,7 +121,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
   }, [isDirty]);
 
   // Input states
-  const [serverRows, setServerRows] = useState<MemoryDetail[]>([]);
+  const [serverRows, setServerRows] = useState<MemoryDetail[]>(DEFAULT_ROWS);
   const [targetUtilisasi, setTargetUtilisasi] = useState<number>(90);
 
   // Historical data for YTD Chart
@@ -122,6 +133,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCopyTemplateModalOpen, setIsCopyTemplateModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -145,6 +157,29 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
   const totalPages = Math.ceil(serverRows.length / rowsPerPage) || 1;
   const startIndex = (currentPage - 1) * rowsPerPage;
   const paginatedRows = serverRows.slice(startIndex, startIndex + rowsPerPage);
+
+  const getLatestTemplateRows = () => {
+    if (allMemoryRecords && allMemoryRecords.length > 0) {
+      const recordsWithData = allMemoryRecords.filter(
+        (rec) => rec.detail_utilisasi_memory && rec.detail_utilisasi_memory.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        return (latestRecord.detail_utilisasi_memory || []).map((d: any, idx: number) => ({
+          urutan: idx + 1,
+          nama_server: d.nama_server,
+          memory_gb: parseInt(d.memory_gb, 10) || 0,
+          utilisasi_gb: 0,
+          utilisasi_persen: 0
+        }));
+      }
+    }
+    return DEFAULT_ROWS;
+  };
 
   // Fetch all historical records on mount for YTD Chart
   const fetchAllHistoricalData = async () => {
@@ -171,7 +206,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/utilisasi/memory?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory)) {
+        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory) && result.data.detail_utilisasi_memory.length > 0) {
           const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
             ...item,
             memory_gb: parseInt(item.memory_gb, 10) || 0,
@@ -182,17 +217,62 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
           setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
           setIsDirty(false);
         } else {
-          setServerRows([]);
+          let hasTemplate = false;
+          if (allMemoryRecords && allMemoryRecords.length > 0) {
+            const recordsWithData = allMemoryRecords.filter(
+              (rec) => rec.detail_utilisasi_memory && rec.detail_utilisasi_memory.length > 0
+            );
+            if (recordsWithData.length > 0) {
+              hasTemplate = true;
+            }
+          }
+          if (hasTemplate) {
+            setIsCopyTemplateModalOpen(true);
+          } else {
+            setServerRows(DEFAULT_ROWS);
+          }
           setIsDirty(false);
         }
       } catch (error) {
         console.error('Failed to fetch Memory active data:', error);
+        setServerRows(DEFAULT_ROWS);
+        setIsDirty(false);
       } finally {
         setIsLoading(false);
       }
     };
     fetchActiveData();
-  }, [tahun, bulan]);
+  }, [tahun, bulan, allMemoryRecords]);
+
+  const handleCopyTemplate = () => {
+    setIsCopyTemplateModalOpen(false);
+    setServerRows(getLatestTemplateRows());
+    setIsDirty(true);
+  };
+
+  const handleDeclineCopy = () => {
+    setIsCopyTemplateModalOpen(false);
+    setServerRows(DEFAULT_ROWS);
+    setIsDirty(false);
+  };
+
+  const copyFromPeriod = React.useMemo(() => {
+    if (allMemoryRecords && allMemoryRecords.length > 0) {
+      const recordsWithData = allMemoryRecords.filter(
+        (rec) => rec.detail_utilisasi_memory && rec.detail_utilisasi_memory.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        const monthName = monthsList[latestRecord.bulan - 1] || `Bulan ${latestRecord.bulan}`;
+        return `${monthName} ${latestRecord.tahun}`;
+      }
+    }
+    return '';
+  }, [allMemoryRecords]);
 
   // Compute live totals
   const totalMemory = serverRows.reduce((acc, row) => acc + (row.memory_gb || 0), 0);
@@ -387,8 +467,8 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'capacity')),
         borderColor: '#0f2e60',
         backgroundColor: '#0f2e60',
-        tension: 0.4,
-        cubicInterpolationMode: 'monotone',
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -398,8 +478,8 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         data: selectedYears.map((yr) => getYearlyValue(yr, 'utilisasi')),
         borderColor: '#f59e0b',
         backgroundColor: '#f59e0b',
-        tension: 0.4,
-        cubicInterpolationMode: 'monotone',
+        tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         borderWidth: 2,
         pointRadius: 4,
         fill: false
@@ -775,7 +855,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                   fetch(`http://localhost:5000/api/utilisasi/memory?bulan=${monthNum}&tahun=${tahun}`)
                     .then(res => res.json())
                     .then(result => {
-                      if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory)) {
+                      if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory) && result.data.detail_utilisasi_memory.length > 0) {
                         const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
                           ...item,
                           memory_gb: parseInt(item.memory_gb, 10) || 0,
@@ -786,7 +866,18 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
                         setTargetUtilisasi(parseFloat(result.data.target_utilisasi_persen) || 90);
                         setIsDirty(false);
                         setCurrentPage(1);
+                      } else {
+                        setServerRows(getLatestTemplateRows());
+                        setTargetUtilisasi(90);
+                        setIsDirty(false);
+                        setCurrentPage(1);
                       }
+                    })
+                    .catch(() => {
+                      setServerRows(getLatestTemplateRows());
+                      setTargetUtilisasi(90);
+                      setIsDirty(false);
+                      setCurrentPage(1);
                     });
                 }}
                 className="px-4 py-1.5 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] hover:bg-slate-100 transition-colors uppercase tracking-wider"
@@ -823,7 +914,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         {/* Row 3: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Rata-rata Utilisasi Memory Server</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Memory Capacity vs Utilisasi Memory</p>
             
             {/* Year Range Selectors */}
@@ -858,6 +949,16 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         onConfirm={handleConfirmSave}
         title="Konfirmasi Penyimpanan"
         message={`Apakah Anda yakin ingin menyimpan perubahan data utilisasi Memory Server untuk periode ${bulan} ${tahun}?`}
+      />
+
+      {/* Copy Template Modal */}
+      <CopyTemplateModal
+        isOpen={isCopyTemplateModalOpen}
+        onClose={handleDeclineCopy}
+        onConfirm={handleCopyTemplate}
+        bulan={bulan}
+        tahun={tahun}
+        copyFromPeriod={copyFromPeriod}
       />
 
     </div>
@@ -900,6 +1001,52 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
             className="px-3.5 py-1.5 rounded bg-primary-900 text-white text-[10px] font-bold uppercase tracking-wider hover:bg-primary-800 shadow-sm"
           >
             Ya, Simpan
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+interface CopyTemplateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  bulan: string;
+  tahun: string;
+  copyFromPeriod: string;
+}
+
+const CopyTemplateModal: React.FC<CopyTemplateModalProps> = ({ isOpen, onClose, onConfirm, bulan, tahun, copyFromPeriod }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-sm w-full p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-50 text-primary-900 rounded-lg shrink-0 border border-blue-100">
+            <Settings className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Data Kosong</h4>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Data periode <strong className="font-bold text-slate-800">{bulan} {tahun}</strong> kosong. Apakah anda ingin melakukan copy data dari periode <strong className="font-bold text-primary-900">{copyFromPeriod}</strong> ke periode ini? Anda tetap bisa mengubahnya nanti.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-150">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-colors"
+          >
+            Tidak, mulai baru
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 py-2 rounded bg-primary-900 text-white font-semibold text-[10px] uppercase tracking-wider hover:bg-primary-800 shadow-sm transition-all"
+          >
+            Ya, Copy
           </button>
         </div>
       </div>

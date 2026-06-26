@@ -280,8 +280,8 @@ export const SdmItPage: React.FC = () => {
   sdmRows.forEach((r) => allRolesSet.add(r.role_divisi));
   const distinctRoles = Array.from(allRolesSet);
 
-  // Group by year and calculate average count of each role
-  const getYearlyRoleAvg = (yr: string, role: string): number => {
+  // Group by year and calculate latest count of each role
+  const getYearlyRoleLatest = (yr: string, role: string): number => {
     const yearRecs = allSdmRecords.filter((rec) => rec.tahun === parseInt(yr, 10));
     if (yearRecs.length === 0) {
       // Fallback to active display if selected year is currently active and has no DB record yet
@@ -291,27 +291,25 @@ export const SdmItPage: React.FC = () => {
       }
       return 0;
     }
-    // Average counts of this role across all months in this year
-    let sum = 0;
-    let count = 0;
-    yearRecs.forEach((rec) => {
-      const detail = rec.detail_sdm_it.find((d) => d.role_divisi === role);
-      if (detail) {
-        sum += detail.jumlah;
-        count++;
-      }
-    });
-    return count > 0 ? Math.round(sum / count) : 0;
+    
+    // Find the record with the maximum month number (latest month) in this year
+    const latestRec = yearRecs.reduce((latest, current) => {
+      return current.bulan > latest.bulan ? current : latest;
+    }, yearRecs[0]);
+
+    const detail = latestRec.detail_sdm_it.find((d) => d.role_divisi === role);
+    return detail ? detail.jumlah : 0;
   };
 
   const lineChartData: ChartData<'line'> = {
     labels: selectedYears,
     datasets: distinctRoles.map((role, idx) => ({
       label: role,
-      data: selectedYears.map((yr) => getYearlyRoleAvg(yr, role)),
+      data: selectedYears.map((yr) => getYearlyRoleLatest(yr, role)),
       borderColor: colors[idx % colors.length],
       backgroundColor: colors[idx % colors.length],
-      tension: 0.4,
+      tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
       borderWidth: 2,
       pointRadius: 3,
       fill: false
@@ -541,7 +539,7 @@ export const SdmItPage: React.FC = () => {
         {/* Row 2: Performa Year to Date (YTD) - Full Width */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Rata-Rata total SDM (Year to Date)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Data Terkini SDM IT</h3>
             
             {/* Year Range Selectors */}
             <div className="flex items-center gap-2 mt-1">
@@ -600,7 +598,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">

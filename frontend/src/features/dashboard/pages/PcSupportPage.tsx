@@ -282,6 +282,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#0f2e60',
         backgroundColor: 'rgba(15, 46, 96, 0.1)',
         tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         fill: true,
         pointRadius: 2
       },
@@ -291,6 +292,7 @@ export const PcSupportPage: React.FC = () => {
         borderColor: '#f59e0b',
         backgroundColor: 'transparent',
         tension: 0.3,
+        cubicInterpolationMode: 'monotone' as const,
         fill: false,
         pointRadius: 2
       }
@@ -503,7 +505,7 @@ export const PcSupportPage: React.FC = () => {
         {/* YTD Line Chart */}
         <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden w-full">
           <div className="p-4 border-b border-slate-100 flex flex-col gap-2 bg-white">
-            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD)</h3>
+            <h3 className="text-xs font-semibold text-slate-800">Performa Year to Date (YTD) - Jumlah Work Order PC Support</h3>
             <p className="text-[10px] text-slate-500 mt-0.5">Tren Jumlah Total Tahunan WO Masuk vs WO Selesai</p>
             
             <div className="flex items-center gap-2 mt-1">
@@ -561,7 +563,20 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
           </div>
           <div>
             <h4 className="text-sm font-bold text-slate-800">{title}</h4>
-            <p className="text-xs text-slate-500 mt-1">{message}</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {message.includes("periode ") ? (
+                (() => {
+                  const parts = message.split("periode ");
+                  return (
+                    <>
+                      {parts[0]}periode <span className="font-bold text-slate-800">{parts[1]}</span>
+                    </>
+                  );
+                })()
+              ) : (
+                message
+              )}
+            </p>
           </div>
         </div>
         <div className="flex justify-end gap-2.5 mt-2">
