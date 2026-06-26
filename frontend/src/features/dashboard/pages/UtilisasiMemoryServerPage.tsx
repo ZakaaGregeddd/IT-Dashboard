@@ -173,8 +173,8 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
           urutan: idx + 1,
           nama_server: d.nama_server,
           memory_gb: parseInt(d.memory_gb, 10) || 0,
-          utilisasi_gb: 0,
-          utilisasi_persen: 0
+          utilisasi_gb: parseFloat(d.utilisasi_gb) || 0,
+          utilisasi_persen: parseFloat(d.utilisasi_persen) || 0
         }));
       }
     }
@@ -206,7 +206,7 @@ export const UtilisasiMemoryServerPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/utilisasi/memory?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_memory) && result.data.detail_utilisasi_memory.length > 0) {
+        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_utilisasi_memory) && result.data.detail_utilisasi_memory.length > 0) {
           const parsed = result.data.detail_utilisasi_memory.map((item: any) => ({
             ...item,
             memory_gb: parseInt(item.memory_gb, 10) || 0,

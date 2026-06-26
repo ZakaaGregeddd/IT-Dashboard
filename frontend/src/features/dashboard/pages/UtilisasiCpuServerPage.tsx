@@ -175,8 +175,8 @@ export const UtilisasiCpuServerPage: React.FC = () => {
           urutan: idx + 1,
           nama_server: d.nama_server,
           cpu_cores: parseInt(d.cpu_cores, 10) || 0,
-          utilisasi_ghz: 0,
-          utilisasi_persen: 0
+          utilisasi_ghz: parseFloat(d.utilisasi_ghz) || 0,
+          utilisasi_persen: parseFloat(d.utilisasi_persen) || 0
         }));
       }
     }
@@ -208,7 +208,7 @@ export const UtilisasiCpuServerPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/utilisasi/cpu?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_cpu) && result.data.detail_utilisasi_cpu.length > 0) {
+        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_utilisasi_cpu) && result.data.detail_utilisasi_cpu.length > 0) {
           const parsed = result.data.detail_utilisasi_cpu.map((item: any) => ({
             ...item,
             cpu_cores: parseInt(item.cpu_cores, 10) || 0,

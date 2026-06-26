@@ -246,7 +246,7 @@ export const LisensiPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/licenses?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_lisensi) && result.data.detail_lisensi.length > 0) {
+        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_lisensi) && result.data.detail_lisensi.length > 0) {
           const formatted = result.data.detail_lisensi.map((d: any) => ({
             ...d,
             satuan: d.satuan || 'Unit',

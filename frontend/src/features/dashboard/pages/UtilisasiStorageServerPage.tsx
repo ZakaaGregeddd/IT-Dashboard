@@ -180,13 +180,14 @@ export const UtilisasiStorageServerPage: React.FC = () => {
         const latestRecord = sorted[0];
         return (latestRecord.detail_utilisasi_storage || []).map((d: any, idx: number) => {
           const cap = parseFloat(d.capacity_tb) || 0;
+          const util = parseFloat(d.utilisasi_tb) || 0;
           return {
             urutan: idx + 1,
             nama_storage: d.nama_storage,
             capacity_tb: cap,
-            utilisasi_tb: 0,
-            free_tb: cap,
-            utilisasi_persen: 0
+            utilisasi_tb: util,
+            free_tb: cap - util,
+            utilisasi_persen: parseFloat(d.utilisasi_persen) || 0
           };
         });
       }
@@ -219,7 +220,7 @@ export const UtilisasiStorageServerPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/utilisasi/storage?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_utilisasi_storage) && result.data.detail_utilisasi_storage.length > 0) {
+        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_utilisasi_storage) && result.data.detail_utilisasi_storage.length > 0) {
           const parsed = result.data.detail_utilisasi_storage.map((item: any) => {
             const cap = parseFloat(item.capacity_tb) || 0;
             const util = parseFloat(item.utilisasi_tb) || 0;
