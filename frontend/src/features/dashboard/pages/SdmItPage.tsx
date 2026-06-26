@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, X, ArrowUpDown } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, X, ArrowUpDown, Plus, Settings } from 'lucide-react';
+import { setIsDirtyCheck } from '@/utils/navigation';
 import { Doughnut, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -65,6 +66,17 @@ const monthsNumMap: Record<string, number> = {
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2022 + i).toString());
 
+const DEFAULT_ROWS: SDMDetail[] = [
+  { urutan: 1, role_divisi: 'Join Dev', jumlah: 0 },
+  { urutan: 2, role_divisi: 'Network', jumlah: 0 },
+  { urutan: 3, role_divisi: 'Noc', jumlah: 0 },
+  { urutan: 4, role_divisi: 'Office Boy', jumlah: 0 },
+  { urutan: 5, role_divisi: 'PC Support', jumlah: 0 },
+  { urutan: 6, role_divisi: 'Admin', jumlah: 0 },
+  { urutan: 7, role_divisi: 'Data Scientist', jumlah: 0 },
+  { urutan: 8, role_divisi: 'Driver', jumlah: 0 },
+];
+
 
 
 export const SdmItPage: React.FC = () => {
@@ -77,7 +89,26 @@ export const SdmItPage: React.FC = () => {
   const [tahun, setTahun] = useState<string>(getCurrentYear());
 
   // Input state for details table
-  const [sdmRows, setSdmRows] = useState<SDMDetail[]>([]);
+  const [sdmRows, setSdmRows] = useState<SDMDetail[]>(DEFAULT_ROWS);
+  const [isDirty, setIsDirty] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = 'Ada perubahan yang belum disimpan. Apakah Anda yakin ingin meninggalkan halaman ini?';
+        return e.returnValue;
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    setIsDirtyCheck(() => isDirty);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      setIsDirtyCheck(null);
+    };
+  }, [isDirty]);
 
   // Sort state for the input table: null | 'asc' | 'desc'
   const [jumlahSortOrder, setJumlahSortOrder] = useState<'asc' | 'desc' | null>(null);
@@ -91,6 +122,7 @@ export const SdmItPage: React.FC = () => {
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCopyTemplateModalOpen, setIsCopyTemplateModalOpen] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -114,6 +146,27 @@ export const SdmItPage: React.FC = () => {
     fetchAllHistoricalData();
   }, []);
 
+  const getLatestTemplateRows = () => {
+    if (allSdmRecords && allSdmRecords.length > 0) {
+      const recordsWithData = allSdmRecords.filter(
+        (rec) => rec.detail_sdm_it && rec.detail_sdm_it.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        return (latestRecord.detail_sdm_it || []).map((d: any, idx: number) => ({
+          urutan: idx + 1,
+          role_divisi: d.role_divisi,
+          jumlah: parseInt(d.jumlah, 10) || 0
+        }));
+      }
+    }
+    return DEFAULT_ROWS;
+  };
+
   // Fetch active details on filter changes
   useEffect(() => {
     const fetchActiveData = async () => {
@@ -122,32 +175,75 @@ export const SdmItPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/sdm?bulan=${monthNum}&tahun=${tahun}`);
         const result = await response.json();
-        if (result.success && result.data && Array.isArray(result.data.detail_sdm_it)) {
+        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_sdm_it) && result.data.detail_sdm_it.length > 0) {
           setSdmRows(result.data.detail_sdm_it);
           setJumlahSortOrder(null); // Reset sorting when changing month/year
+          setIsDirty(false);
         } else {
-          setSdmRows([]);
+          let hasTemplate = false;
+          if (allSdmRecords && allSdmRecords.length > 0) {
+            const recordsWithData = allSdmRecords.filter(
+              (rec) => rec.detail_sdm_it && rec.detail_sdm_it.length > 0
+            );
+            if (recordsWithData.length > 0) {
+              hasTemplate = true;
+            }
+          }
+          if (hasTemplate) {
+            setIsCopyTemplateModalOpen(true);
+          } else {
+            setSdmRows(DEFAULT_ROWS);
+          }
           setJumlahSortOrder(null);
+          setIsDirty(false);
         }
       } catch (error) {
         console.error('Failed to fetch active SDM data:', error);
+        setSdmRows(DEFAULT_ROWS);
+        setIsDirty(false);
       } finally {
         setIsLoading(false);
       }
     };
     fetchActiveData();
-  }, [tahun, bulan]);
+  }, [tahun, bulan, allSdmRecords]);
 
-  // Compute live total
-  const totalJumlah = sdmRows.reduce((acc, row) => acc + (row.jumlah || 0), 0);
+  const handleCopyTemplate = () => {
+    setIsCopyTemplateModalOpen(false);
+    setSdmRows(getLatestTemplateRows());
+    setIsDirty(true);
+  };
+
+  const handleDeclineCopy = () => {
+    setIsCopyTemplateModalOpen(false);
+    setSdmRows(DEFAULT_ROWS);
+    setIsDirty(false);
+  };
+
+  // Add dynamic row
+  const handleAddRow = () => {
+    setIsDirty(true);
+    setSdmRows((prev) => [
+      ...prev,
+      {
+        urutan: prev.length + 1,
+        role_divisi: '',
+        jumlah: 0
+      }
+    ]);
+  };
 
   // Handle edit row input value by unique urutan identifier
-  const handleJumlahChangeByUrutan = (urutan: number, val: string) => {
-    const parsed = parseInt(val, 10) || 0;
+  const handleInputChangeByUrutan = (urutan: number, field: 'role_divisi' | 'jumlah', val: string) => {
+    setIsDirty(true);
     setSdmRows((prev) => {
       return prev.map((row) => {
         if (row.urutan === urutan) {
-          return { ...row, jumlah: parsed };
+          if (field === 'role_divisi') {
+            return { ...row, role_divisi: val };
+          } else {
+            return { ...row, jumlah: parseInt(val, 10) || 0 };
+          }
         }
         return row;
       });
@@ -156,6 +252,7 @@ export const SdmItPage: React.FC = () => {
 
   // Handle delete row by unique urutan identifier
   const handleDeleteRowByUrutan = (urutan: number) => {
+    setIsDirty(true);
     setSdmRows((prev) => {
       const updated = prev.filter((row) => row.urutan !== urutan);
       // Re-assign order (urutan)
@@ -176,7 +273,25 @@ export const SdmItPage: React.FC = () => {
 
   const sortedSdmRows = getSortedSdmRows();
 
+  const totalJumlah = sdmRows.reduce((acc, row) => acc + (row.jumlah || 0), 0);
 
+  const copyFromPeriod = React.useMemo(() => {
+    if (allSdmRecords && allSdmRecords.length > 0) {
+      const recordsWithData = allSdmRecords.filter(
+        (rec) => rec.detail_sdm_it && rec.detail_sdm_it.length > 0
+      );
+      if (recordsWithData.length > 0) {
+        const sorted = [...recordsWithData].sort((a, b) => {
+          if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+          return b.bulan - a.bulan;
+        });
+        const latestRecord = sorted[0];
+        const monthName = monthsList[latestRecord.bulan - 1] || `Bulan ${latestRecord.bulan}`;
+        return `${monthName} ${latestRecord.tahun}`;
+      }
+    }
+    return '';
+  }, [allSdmRecords]);
 
   // Handle Save
   const handleSaveClick = () => {
@@ -414,6 +529,14 @@ export const SdmItPage: React.FC = () => {
           <div className="xl:col-span-8 bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden">
             <div className="p-4 border-b border-slate-100 bg-slate-50/50 flex justify-between items-center">
               <h3 className="text-xs font-bold text-primary-900">Detail Komposisi SDM</h3>
+              <button 
+                type="button"
+                onClick={handleAddRow}
+                className="flex items-center gap-1 bg-primary-900 text-white px-3 py-1 rounded text-[10px] font-semibold hover:bg-primary-800 transition-colors uppercase tracking-wider shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                Tambah Role
+              </button>
             </div>
             
             <div className="overflow-x-auto p-4">
@@ -445,14 +568,20 @@ export const SdmItPage: React.FC = () => {
                       <td className="py-2.5 px-4 text-center border border-slate-200 text-slate-400 font-medium">
                         {index + 1}
                       </td>
-                      <td className="py-2.5 px-4 font-semibold border border-slate-200">
-                        {row.role_divisi}
+                      <td className="py-1 px-3 border border-slate-200">
+                        <input 
+                          type="text"
+                          value={row.role_divisi}
+                          onChange={(e) => handleInputChangeByUrutan(row.urutan, 'role_divisi', e.target.value)}
+                          placeholder="Role/Divisi"
+                          className="w-full px-2 py-1 text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-semibold"
+                        />
                       </td>
                       <td className="py-1.5 px-3 border border-slate-200">
                         <input 
                           type="number"
                           value={row.jumlah === 0 ? '' : row.jumlah}
-                          onChange={(e) => handleJumlahChangeByUrutan(row.urutan, e.target.value)}
+                          onChange={(e) => handleInputChangeByUrutan(row.urutan, 'jumlah', e.target.value)}
                           placeholder="0"
                           min="0"
                           className="w-full px-2 py-1 text-right text-xs rounded border border-transparent hover:border-slate-200 focus:border-primary-900 focus:ring-1 focus:ring-primary-900 focus:bg-white bg-transparent outline-none transition-all font-mono"
@@ -491,16 +620,21 @@ export const SdmItPage: React.FC = () => {
                 <button 
                   type="button"
                   onClick={() => {
-                    // reset to default or database values
                     const monthNum = monthsNumMap[bulan] || 1;
                     fetch(`http://localhost:5000/api/sdm?bulan=${monthNum}&tahun=${tahun}`)
                       .then(res => res.json())
                       .then(result => {
-                        if (result.success && result.data && Array.isArray(result.data.detail_sdm_it)) {
+                        if (result.success && result.data && result.data.id && Array.isArray(result.data.detail_sdm_it) && result.data.detail_sdm_it.length > 0) {
                           setSdmRows(result.data.detail_sdm_it);
+                          setIsDirty(false);
                         } else {
-                          setSdmRows([]);
+                          setSdmRows(getLatestTemplateRows());
+                          setIsDirty(false);
                         }
+                      })
+                      .catch(() => {
+                        setSdmRows(getLatestTemplateRows());
+                        setIsDirty(false);
                       });
                   }}
                   className="px-4 py-1.5 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] hover:bg-slate-100 transition-colors uppercase tracking-wider"
@@ -575,6 +709,16 @@ export const SdmItPage: React.FC = () => {
         message={`Apakah Anda yakin ingin menyimpan perubahan data komposisi SDM IT untuk periode ${bulan} ${tahun}?`}
       />
 
+      {/* Copy Template Modal */}
+      <CopyTemplateModal
+        isOpen={isCopyTemplateModalOpen}
+        onClose={handleDeclineCopy}
+        onConfirm={handleCopyTemplate}
+        bulan={bulan}
+        tahun={tahun}
+        copyFromPeriod={copyFromPeriod}
+      />
+
     </div>
   );
 };
@@ -634,3 +778,50 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, 
     </div>
   );
 };
+
+interface CopyTemplateModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
+  bulan: string;
+  tahun: string;
+  copyFromPeriod: string;
+}
+
+const CopyTemplateModal: React.FC<CopyTemplateModalProps> = ({ isOpen, onClose, onConfirm, bulan, tahun, copyFromPeriod }) => {
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl border border-slate-200 max-w-sm w-full p-5 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">
+        <div className="flex items-start gap-3">
+          <div className="p-2 bg-blue-50 text-primary-900 rounded-lg shrink-0 border border-blue-100">
+            <Settings className="w-5 h-5" />
+          </div>
+          <div>
+            <h4 className="text-sm font-bold text-slate-800">Data Kosong</h4>
+            <p className="text-xs text-slate-500 mt-1.5 leading-relaxed">
+              Data periode <strong className="font-bold text-slate-800">{bulan} {tahun}</strong> kosong. Apakah anda ingin melakukan copy data dari periode <strong className="font-bold text-primary-900">{copyFromPeriod}</strong> ke periode ini? Anda tetap bisa mengubahnya nanti.
+            </p>
+          </div>
+        </div>
+        <div className="flex justify-end gap-2.5 mt-2 pt-3 border-t border-slate-150">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-2 rounded border border-slate-300 text-slate-700 font-semibold text-[10px] uppercase tracking-wider hover:bg-slate-50 transition-colors"
+          >
+            Tidak, mulai baru
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className="px-4 py-2 rounded bg-primary-900 text-white font-semibold text-[10px] uppercase tracking-wider hover:bg-primary-800 shadow-sm transition-all"
+          >
+            Ya, Copy
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
