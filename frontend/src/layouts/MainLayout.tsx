@@ -22,8 +22,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setIsSidebarCollapsed(true);
-      } else {
-        setIsSidebarCollapsed(false);
       }
     };
     window.addEventListener('resize', handleResize);
