@@ -7,13 +7,8 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  // Collapse sidebar by default on mobile screens (<1024px)
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return window.innerWidth < 1024;
-    }
-    return false;
-  });
+  // Collapse sidebar by default
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(230);
   const [isResizing, setIsResizing] = useState(false);
 
@@ -22,8 +17,6 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
         setIsSidebarCollapsed(true);
-      } else {
-        setIsSidebarCollapsed(false);
       }
     };
     window.addEventListener('resize', handleResize);
