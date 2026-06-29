@@ -129,16 +129,8 @@ Diterapkan pada tabel input di halaman **Utilisasi CPU Server, Utilisasi Memory 
     * Input dibatasi secara aman (`min={1} max={totalPages}`).
     * Menggunakan event `onBlur`. Jika user mengosongkan input atau mengetik angka di luar batas halaman, nilai kotak input otomatis kembali ke nomor halaman aktif saat ini.
 
-### D. Fitur Ekspor/Download Grafik ke Gambar PNG
-Fitur ekspor grafik berkinerja tinggi tanpa menggunakan library pihak ketiga yang memperberat aplikasi:
-1.  **Ekspor Berbasis DOM**:
-    * Fungsi utilitas `downloadChart(e, filename)` mendeteksi tombol download yang diklik, lalu mencari pembungkus card terdekat menggunakan `.closest('.rounded-xl, .shadow-sm, .border-slate-200')`.
-    * Mengambil elemen `<canvas>` grafik di dalam card tersebut secara dinamis.
-    * Mengubah data canvas menjadi URL data gambar base64 berkualitas tinggi lewat fungsi browser bawaan `canvas.toDataURL('image/png')`.
-2.  **Kompatibilitas Browser**:
-    * Untuk mematuhi aturan keamanan browser modern (Chrome/Safari/Edge), elemen tautan `<a>` buatan sementara **wajib ditempelkan (append) ke `document.body`** terlebih dahulu sebelum dipicu kliknya secara terprogram (`link.click()`), lalu langsung dihapus kembali dari body. Hal ini menjamin download berjalan sukses di semua browser.
 
-### E. Aturan Filter Grafik Multi-Tahun (YTD)
+### D. Aturan Filter Grafik Multi-Tahun (YTD)
 Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang:
 1.  **Rentang Default 5 Tahun**:
     * Saat halaman pertama kali dimuat, filter tahun awal (`startYear`) dan tahun akhir (`endYear`) diatur secara dinamis untuk menampilkan rentang **5 tahun terakhir** (tahun saat ini dikurangi 4 hingga tahun saat ini).
@@ -147,7 +139,7 @@ Seluruh 20 halaman detail visualisasi menerapkan aturan penapisan jangka panjang
 3.  **Batas Skala Tetap (Fixed Bound)**:
     * Pada grafik persentase (seperti RKAP, Program Kerja, WAN, Keamanan), sumbu Y dikunci dengan batas tetap `0%` hingga `100%` agar visualisasi tren grafik tidak melebihi area visual standar.
 
-### F. Fitur Hapus Baris Lembut (Soft-Delete) dengan Feedback Visual & Undo
+### E. Fitur Hapus Baris Lembut (Soft-Delete) dengan Feedback Visual & Undo
 Alur penghapusan baris pada tabel input ditingkatkan menggunakan pola **Soft-Delete** untuk meningkatkan keselamatan data sebelum disimpan:
 1.  **Status `isDeleted` pada State**:
     * Setiap baris data memiliki properti opsional `isDeleted?: boolean`.
@@ -166,7 +158,7 @@ Alur penghapusan baris pada tabel input ditingkatkan menggunakan pola **Soft-Del
 
 Diterapkan secara konsisten di 4 halaman entri data: `LisensiPage.tsx`, `SdmItPage.tsx`, `UtilisasiMemoryServerPage.tsx`, dan `UtilisasiCpuServerPage.tsx`.
 
-### G. Fitur Pengurutan Dinamis (Sorting by Total) pada Tabel Lisensi
+### F. Fitur Pengurutan Dinamis (Sorting by Total) pada Tabel Lisensi
 Tabel "Data Lisensi Terdaftar" di `LisensiPage.tsx` dilengkapi dengan fitur pengurutan dinamis berdasarkan jumlah total lisensi:
 1.  **State `entryTotalSortOrder`**:
     * Menyimpan status pengurutan aktif dengan tipe data `'asc' | 'desc' | null`.

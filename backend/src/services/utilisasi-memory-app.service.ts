@@ -17,7 +17,7 @@ export class UtilisasiMemoryAppService {
   ];
 
   /**
-   * Fetch master and details for application Memory utilization by month & year.
+   * Ambil data master dan detail untuk utilisasi memori aplikasi berdasarkan bulan & tahun.
    */
   static async getKetersediaan(bulan: number, tahun: number) {
     const master = await prisma.laporan_infrastruktur_master.findFirst({
@@ -110,7 +110,7 @@ export class UtilisasiMemoryAppService {
   }
 
   /**
-   * Fetch all historical Application Memory records for YTD chart
+   * Ambil semua riwayat record memori aplikasi untuk chart YTD
    */
   static async getAllUtilisasi() {
     const records = await prisma.laporan_infrastruktur_master.findMany({
@@ -150,7 +150,7 @@ export class UtilisasiMemoryAppService {
   }
 
   /**
-   * Save (Upsert Master and Sync Details) Application Memory utilization data
+   * Simpan (Upsert Master dan Sinkronisasi Detail) data utilisasi memori aplikasi
    */
   static async saveUtilisasi(
     bulan: number,

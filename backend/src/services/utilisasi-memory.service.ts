@@ -22,11 +22,11 @@ export class UtilisasiMemoryService {
   ];
 
   /**
-   * Fetch master and details for memory server utilization by month & year.
-   * Always retrieves the server names from the latest month, but values from the selected month.
+   * Ambil data master dan detail untuk utilisasi memori server berdasarkan bulan & tahun.
+   * Selalu mengambil nama server dari bulan terbaru, tetapi nilainya dari bulan yang dipilih.
    */
   static async getKetersediaan(bulan: number, tahun: number) {
-    // 1. Get the absolute latest record to define the list of server names
+    // 1. Dapatkan record terbaru secara absolut untuk menentukan daftar nama server
     const latestMaster = await prisma.laporan_utilisasi_server_master.findFirst({
       where: {
         tipe_utilisasi: 'SERVER_MEMORY',
@@ -44,7 +44,7 @@ export class UtilisasiMemoryService {
       },
     });
 
-    // 2. Get the record for the current selected month & year
+    // 2. Dapatkan record untuk bulan & tahun terpilih saat ini
     const currentMaster = await prisma.laporan_utilisasi_server_master.findFirst({
       where: {
         bulan,
@@ -60,7 +60,7 @@ export class UtilisasiMemoryService {
       ? Number(currentMaster.target_utilisasi_persen)
       : (latestMaster?.target_utilisasi_persen ? Number(latestMaster.target_utilisasi_persen) : 90);
 
-    // If there are no records at all in the database, return hardcoded default
+    // Jika tidak ada record sama sekali di database, kembalikan default hardcoded
     if (!latestMaster) {
       return {
         bulan,
@@ -75,15 +75,15 @@ export class UtilisasiMemoryService {
       };
     }
 
-    // Build the details list based on the latest servers list
+    // Bangun daftar detail berdasarkan daftar server terbaru
     const detail_utilisasi_memory = latestMaster.detail_utilisasi_memory.map((latestServer) => {
-      // Find matching server in current period
+      // Temukan server yang cocok di periode saat ini
       const matchingCurrent = currentMaster?.detail_utilisasi_memory.find(
         (c) => c.nama_server.toLowerCase() === latestServer.nama_server.toLowerCase()
       );
 
       return {
-        id: matchingCurrent?.id, // include ID if exists so frontend can update it
+        id: matchingCurrent?.id, // sertakan ID jika ada agar frontend dapat memperbaruinya
         urutan: latestServer.urutan,
         nama_server: latestServer.nama_server,
         memory_gb: currentMaster
@@ -121,7 +121,7 @@ export class UtilisasiMemoryService {
   }
 
   /**
-   * Fetch all historical Memory records for YTD chart
+   * Ambil semua riwayat record memori untuk chart YTD
    */
   static async getAllUtilisasi() {
     return await prisma.laporan_utilisasi_server_master.findMany({
@@ -143,7 +143,7 @@ export class UtilisasiMemoryService {
   }
 
   /**
-   * Save (Upsert Master and Sync Details) Memory server utilization data
+   * Simpan (Upsert Master dan Sinkronisasi Detail) data utilisasi memori server
    */
   static async saveUtilisasi(
     bulan: number,

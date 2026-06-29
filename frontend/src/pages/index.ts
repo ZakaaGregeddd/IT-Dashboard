@@ -22,6 +22,6 @@ export { RestorePage } from '../features/dashboard/pages/RestorePage';
 export { OperasionalTiPage } from '../features/dashboard/pages/OperasionalTiPage';
 export { LayananAppPage } from '../features/dashboard/pages/LayananAppPage';
 export { UtilisasiMemoryAplikasiPage } from '../features/dashboard/pages/UtilisasiMemoryAplikasiPage';
-
+export {TestPage} from '../features/dashboard/pages/Testpage';
 
 

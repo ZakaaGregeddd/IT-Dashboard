@@ -15,7 +15,7 @@ Platform ini menggantikan sistem pelaporan lama berbasis static HTML iframes men
 * **Pengurutan (Sorting) Dinamis**: Memungkinkan pengurutan data entri secara instan, seperti pengurutan berdasarkan total lisensi terdaftar ("Terkecil" & "Terbesar") untuk mempermudah analisis kuantitas produk lisensi.
 * **Layout Responsif & Laci Sidebar Mobile**: Antarmuka adaptif yang dioptimalkan untuk smartphone dan tablet dengan sidebar menu bermodel drawer overlay yang menutup otomatis saat berpindah halaman.
 * **Pagination Interaktif**: Kontrol tabel data entri yang mendukung pembatasan baris (rows per page) serta input angka halaman langsung untuk berpindah lembar secara instan.
-* **Ekspor Grafik Berkinerja Tinggi**: Fitur download instan grafik visualisasi ke format gambar PNG secara langsung di sisi client (client-side canvas export) tanpa membebani server.
+
 * **Filter Kronologis Multi-Tahun (YTD)**: Menyajikan analisis tren performa Year to Date (YTD) dengan rentang waktu historis 5 tahun secara dinamis.
 
 ---

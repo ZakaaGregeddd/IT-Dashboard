@@ -10,7 +10,7 @@ interface ProgramKerjaDetailInput {
 
 export class ProgramKerjaService {
   /**
-   * Fetch master and details of Program Kerja TI for a specific month and year
+   * Ambil data master dan detail dari Program Kerja TI untuk bulan dan tahun tertentu
    */
   static async getProgramKerja(bulan: number, tahun: number) {
     const master = await prisma.laporan_infrastruktur_master.findFirst({
@@ -65,7 +65,7 @@ export class ProgramKerjaService {
   }
 
   /**
-   * Fetch all master and details of Program Kerja TI
+   * Ambil semua data master dan detail dari Program Kerja TI
    */
   static async getAllProgramKerja() {
     const masters = await prisma.laporan_infrastruktur_master.findMany({
@@ -85,16 +85,16 @@ export class ProgramKerjaService {
   }
 
   /**
-   * Save (Upsert Master and Sync Details) Program Kerja TI
+   * Simpan (Upsert Master dan Sinkronisasi Detail) Program Kerja TI
    */
   static async saveProgramKerja(
     bulan: number,
     tahun: number,
     details: ProgramKerjaDetailInput[]
   ) {
-    // We use a transaction to ensure all db operations are atomic
+    // Gunakan transaksi untuk memastikan semua operasi database bersifat atomik
     return await prisma.$transaction(async (tx) => {
-      // 1. Find or Create the Master Record
+      // 1. Temukan atau Buat Record Master
       let master = await tx.laporan_infrastruktur_master.findFirst({
         where: {
           bulan,
@@ -113,7 +113,7 @@ export class ProgramKerjaService {
         });
       }
 
-      // 2. Identify existing details in the database for this master
+      // 2. Identifikasi detail yang sudah ada di database untuk master ini
       const existingDetails = await tx.detail_program_kerja_ti.findMany({
         where: {
           laporan_infrastruktur_id: master.id,
@@ -124,7 +124,7 @@ export class ProgramKerjaService {
       const incomingIds = details.filter(d => d.id).map(d => d.id as string);
       const detailsToRemove = existingDetails.filter(d => !incomingIds.includes(d.id));
 
-      // 3. Delete details that were removed in the frontend
+      // 3. Hapus detail yang dihapus dari frontend
       if (detailsToRemove.length > 0) {
         await tx.detail_program_kerja_ti.deleteMany({
           where: {
@@ -135,7 +135,7 @@ export class ProgramKerjaService {
         });
       }
 
-      // 4. Upsert (create/update) the incoming details
+      // 4. Upsert (buat/perbarui) detail yang masuk
       const upsertPromises = details.map((detail) => {
         if (detail.id) {
           return tx.detail_program_kerja_ti.update({
@@ -164,7 +164,7 @@ export class ProgramKerjaService {
 
       await Promise.all(upsertPromises);
 
-      // 5. Fetch and return the fully updated master with its details
+      // 5. Ambil dan kembalikan master yang telah diperbarui sepenuhnya beserta detailnya
       return await tx.laporan_infrastruktur_master.findUnique({
         where: { id: master.id },
         include: {

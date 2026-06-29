@@ -31,7 +31,7 @@ export class UtilisasiStorageService {
   ];
 
   /**
-   * Fetch master and details for storage server utilization by month & year.
+   * Ambil data master dan detail untuk utilisasi storage server berdasarkan bulan & tahun.
    */
   static async getKetersediaan(bulan: number, tahun: number) {
     const master = await prisma.laporan_utilisasi_server_master.findFirst({
@@ -147,7 +147,7 @@ export class UtilisasiStorageService {
   }
 
   /**
-   * Fetch all historical Storage records for YTD chart
+   * Ambil semua riwayat record Storage untuk chart YTD
    */
   static async getAllUtilisasi() {
     return await prisma.laporan_utilisasi_server_master.findMany({
@@ -169,7 +169,7 @@ export class UtilisasiStorageService {
   }
 
   /**
-   * Save (Upsert Master and Sync Details) Storage server utilization data
+   * Simpan (Upsert Master dan Sinkronisasi Detail) data utilisasi storage server
    */
   static async saveUtilisasi(
     bulan: number,

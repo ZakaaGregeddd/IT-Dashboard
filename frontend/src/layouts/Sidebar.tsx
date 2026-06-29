@@ -24,7 +24,7 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
 
   if (!hasChildren) {
     return (
-      <a 
+      <a
         onClick={(e) => {
           if (onClick) {
             e.preventDefault();
@@ -33,10 +33,10 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
         }}
         className={cn(
           "flex items-center gap-2.5 px-4 py-2 transition-colors",
-          active 
-            ? "bg-primary-800 border-l-4 border-amber-500 text-white" 
+          active
+            ? "bg-primary-800 border-l-4 border-amber-500 text-white"
             : "text-slate-300 hover:text-white hover:bg-white/5"
-        )} 
+        )}
         href="#"
       >
         <div className={cn("w-4 h-4", active ? "text-amber-500" : "text-slate-300")}>
@@ -56,12 +56,12 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
 
   return (
     <div className="mt-2">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-center justify-between px-4 py-2 transition-colors",
-          active 
-            ? "bg-primary-800 border-l-4 border-amber-500 text-white" 
+          active
+            ? "bg-primary-800 border-l-4 border-amber-500 text-white"
             : "text-slate-300 hover:text-white hover:bg-white/5"
         )}
       >
@@ -83,16 +83,16 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
 const convertToSlug = (text: string): string => {
   return '/' + text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove non-alphanumeric characters
+    .replace(/[^\w\s-]/g, '') // Hapus karakter non-alfanumerik
     .trim()
-    .replace(/\s+/g, '-');   // Replace spaces with dash
+    .replace(/\s+/g, '-');   // Ganti spasi dengan tanda hubung (dash)
 };
 
 export const SidebarSubItem: React.FC<{ label: string; currentPath: string; to?: string; isNested?: boolean }> = ({ label, currentPath, to, isNested }) => {
   const slug = to || convertToSlug(label);
   const isActive = currentPath === slug;
   return (
-    <a 
+    <a
       onClick={(e) => {
         e.preventDefault();
         navigateTo(slug);
@@ -126,7 +126,7 @@ const SidebarSubCategory: React.FC<SidebarSubCategoryProps> = ({ label, active, 
 
   return (
     <div className="flex flex-col mt-0.5 mb-0.5">
-      <button 
+      <button
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
           "w-full flex items-start pl-9 pr-4 py-1.5 text-[10px] transition-colors leading-snug ml-6 cursor-pointer text-left relative",
@@ -150,26 +150,26 @@ const appDevItems = [
   "Tingkat ketersediaan sistem"
 ];
 
-// Title Case formatter with rules for prepositions and acronyms
+// Format Title Case dengan aturan untuk preposisi dan akronim
 const formatDropdownText = (text: string): string => {
   const lowercaseWords = ['dan', 'di'];
   const acronyms = ['CPU', 'IT', 'SCMC', 'CISEA', 'WAN', 'DR', 'PC', 'TI', 'UPO'];
-  
+
   return text
     .split(' ')
     .map((word, index) => {
       const cleanWord = word.replace(/[(),.!?]/g, '');
       const cleanLower = cleanWord.toLowerCase();
-      
+
       const matchedAcronym = acronyms.find(a => a.toLowerCase() === cleanLower);
       if (matchedAcronym) {
         return word.replace(cleanWord, matchedAcronym);
       }
-      
+
       if (index > 0 && lowercaseWords.includes(cleanLower)) {
         return word.replace(cleanWord, cleanLower);
       }
-      
+
       if (cleanWord.length > 0) {
         let capitalized = cleanWord.charAt(0).toUpperCase() + cleanWord.slice(1).toLowerCase();
         if (cleanLower === 'ellipse') {
@@ -242,7 +242,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
   ].includes(currentPath);
 
   return (
-    <aside 
+    <aside
       style={{ width: isCollapsed ? 0 : width }}
       className={cn(
         "bg-primary-900 text-white flex flex-col flex-shrink-0 z-50 overflow-hidden select-none",
@@ -251,7 +251,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
       )}
     >
       <div style={{ width }} className="h-full flex flex-col relative">
-        {/* Sidebar Header */}
+        {/* Header Sidebar */}
         <div className="h-11 flex items-center px-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2">
             <div className="grid grid-cols-2 gap-0.5">
@@ -261,34 +261,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
               <div className="w-2 h-2 border border-white rounded-sm"></div>
             </div>
             <span className="font-semibold text-xs leading-tight tracking-wide whitespace-nowrap">
-              Sistem Pelaporan<br/>Bulanan Terpusat
+              Sistem Pelaporan<br />Bulanan Terpusat
             </span>
           </div>
         </div>
 
-        {/* Sidebar Navigation */}
+        {/* Navigasi Sidebar */}
         <nav className="flex-1 overflow-y-auto sidebar-scroll py-4 flex flex-col gap-1">
-          <SidebarMenuItem 
-            label="Upload File" 
-            icon={<Upload className="w-full h-full" />} 
-            active={currentPath === '/upload-file'} 
+          <SidebarMenuItem
+            label="Upload File"
+            icon={<Upload className="w-full h-full" />}
+            active={currentPath === '/upload-file'}
             onClick={() => navigateTo('/upload-file')}
           />
-          <SidebarMenuItem 
-            label="Dashboard" 
-            icon={<LayoutDashboard className="w-full h-full" />} 
-            active={currentPath === '/' || currentPath === '/dashboard'} 
+          <SidebarMenuItem
+            label="Dashboard"
+            icon={<LayoutDashboard className="w-full h-full" />}
+            active={currentPath === '/' || currentPath === '/dashboard'}
             onClick={() => navigateTo('/')}
           />
-          <SidebarMenuItem 
-            label="Data Overall" 
-            icon={<Database className="w-full h-full" />} 
+          <SidebarMenuItem
+            label="Data Overall"
+            icon={<Database className="w-full h-full" />}
             active={currentPath === '/data-overall'}
             onClick={() => navigateTo('/data-overall')}
           />
 
-          <SidebarMenuItem 
-            label="IT Planning & Security" 
+          <SidebarMenuItem
+            label="IT Planning & Security"
             icon={<ShieldCheck className="w-full h-full" />}
             active={isItPlanningActive}
           >
@@ -297,9 +297,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             <SidebarSubItem label="SDM IT (Outsource & Pegawai)" currentPath={currentPath} />
             <SidebarSubItem label="Lisensi" currentPath={currentPath} />
           </SidebarMenuItem>
- 
-          <SidebarMenuItem 
-            label="App Dev & Services / EIS" 
+
+          <SidebarMenuItem
+            label="App Dev & Services / EIS"
             icon={<Monitor className="w-full h-full" />}
             active={isAppDevActive}
           >
@@ -307,17 +307,17 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
               <SidebarSubItem key={idx} label={formatDropdownText(item)} currentPath={currentPath} />
             ))}
           </SidebarMenuItem>
- 
-          <SidebarMenuItem 
-            label="IT Operation" 
+
+          <SidebarMenuItem
+            label="IT Operation"
             icon={<Database className="w-full h-full" />}
             active={isItOperationActive}
           >
             <SidebarSubItem label="Utilisasi CPU Server" currentPath={currentPath} to="/utilisasi-cpu-server" />
             <SidebarSubItem label="Utilisasi Memory Server" currentPath={currentPath} to="/utilisasi-memory-server" />
             <SidebarSubItem label="Utilisasi Storage Server" currentPath={currentPath} to="/utilisasi-storage-server" />
-            {/* Sub-Category: Aplikasi */}
-            <SidebarSubCategory 
+            {/* Sub-Kategori: Aplikasi */}
+            <SidebarSubCategory
               label="utilisasi CPU & memory aplikasi Ellipse & CISEA"
               active={[
                 '/utilisasi-cpu-aplikasi',
@@ -327,9 +327,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
               <SidebarSubItem label="CPU" currentPath={currentPath} to="/utilisasi-cpu-aplikasi" isNested />
               <SidebarSubItem label="Memory" currentPath={currentPath} to="/utilisasi-memory-aplikasi" isNested />
             </SidebarSubCategory>
-            
-            {/* Sub-Category: Database */}
-            <SidebarSubCategory 
+
+            {/* Sub-Kategori: Database */}
+            <SidebarSubCategory
               label="Utilisasi CPU, memory & storage database Ellipse & CISEA"
               active={[
                 '/utilisasi-cpu-database',
@@ -349,12 +349,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             <SidebarSubItem label="Penyelesaian Permintaan Layanan Aplikasi TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-aplikasi-ti" />
             <SidebarSubItem label="Penyelesaian Permintaan Layanan TI di Operasional TI" currentPath={currentPath} to="/penyelesaian-permintaan-layanan-ti" />
             <SidebarSubItem label="Realisasi Restore Ellipse dan Email Sesuai Kebutuhan" currentPath={currentPath} to="/realisasi-restore-ellipse-dan-email" />
+            <SidebarSubItem label="Test Page" currentPath={currentPath} to="/testpage" />
           </SidebarMenuItem>
         </nav>
-        
-        {/* Resize Handle */}
+
+        {/* Handle Resize */}
         {!isCollapsed && onMouseDownResize && (
-          <div 
+          <div
             onMouseDown={onMouseDownResize}
             className="absolute top-0 right-0 w-1 h-full cursor-col-resize hover:bg-amber-500/40 active:bg-amber-500/70 transition-colors z-30 group lg:flex hidden items-center justify-center"
           >

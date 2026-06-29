@@ -1,2 +1,2 @@
-// This directory is for utility and helper functions
+// Direktori ini untuk fungsi utilitas dan helper
 export {};

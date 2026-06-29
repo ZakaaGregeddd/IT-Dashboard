@@ -1,2 +1,2 @@
-// This directory is for global configurations (env variables, theme config, etc.)
+// Direktori ini untuk konfigurasi global (variabel env, konfigurasi tema, dll.)
 export {};
