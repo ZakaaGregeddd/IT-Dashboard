@@ -1,2 +1,2 @@
-// This directory is for third-party library configurations (e.g. axios instance)
+// Direktori ini untuk konfigurasi library pihak ketiga (misalnya instance axios)
 export {};

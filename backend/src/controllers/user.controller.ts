@@ -51,7 +51,7 @@ export class UserController {
 
       const newUser = await UserService.createUser({
         email: parsedBody.email,
-        passwordHash: parsedBody.password, // This will be hashed inside user.service or we can pass hashed pass
+        passwordHash: parsedBody.password, // Ini akan di-hash di dalam user.service atau kita dapat mengirimkan password yang sudah di-hash
         name: parsedBody.name,
         role: parsedBody.role,
       });
@@ -83,7 +83,7 @@ export class UserController {
     try {
       const { id } = req.params;
 
-      // Prevent admin from deleting themselves
+      // Cegah admin menghapus diri mereka sendiri
       if (req.user?.id === id) {
         return sendError(res, 'Admin cannot delete their own account', 400);
       }

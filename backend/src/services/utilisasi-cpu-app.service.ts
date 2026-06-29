@@ -17,7 +17,7 @@ export class UtilisasiCpuAppService {
   ];
 
   /**
-   * Fetch master and details for application CPU utilization by month & year.
+   * Ambil data master dan detail untuk utilisasi CPU aplikasi berdasarkan bulan & tahun.
    */
   static async getKetersediaan(bulan: number, tahun: number) {
     const master = await prisma.laporan_infrastruktur_master.findFirst({
@@ -110,7 +110,7 @@ export class UtilisasiCpuAppService {
   }
 
   /**
-   * Fetch all historical Application CPU records for YTD chart
+   * Ambil semua riwayat record CPU aplikasi untuk chart YTD
    */
   static async getAllUtilisasi() {
     return await prisma.laporan_infrastruktur_master.findMany({
@@ -132,7 +132,7 @@ export class UtilisasiCpuAppService {
   }
 
   /**
-   * Save (Upsert Master and Sync Details) Application CPU utilization data
+   * Simpan (Upsert Master dan Sinkronisasi Detail) data utilisasi CPU aplikasi
    */
   static async saveUtilisasi(
     bulan: number,

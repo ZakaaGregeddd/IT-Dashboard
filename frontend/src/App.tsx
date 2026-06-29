@@ -12,11 +12,11 @@ const playWarningSound = () => {
     const ctx = new AudioContext();
     const now = ctx.currentTime;
     
-    // Play a premium warm notification chime using dual sine waves with exponential decay
+    // Mainkan nada pemberitahuan hangat premium menggunakan gelombang sinus ganda dengan peluruhan eksponensial
     const osc1 = ctx.createOscillator();
     const gain1 = ctx.createGain();
     osc1.type = 'sine';
-    osc1.frequency.setValueAtTime(360, now); // Low fundamental tone
+    osc1.frequency.setValueAtTime(360, now); // Nada fundamental rendah
     gain1.gain.setValueAtTime(0.12, now);
     gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
     osc1.connect(gain1);
@@ -25,7 +25,7 @@ const playWarningSound = () => {
     const osc2 = ctx.createOscillator();
     const gain2 = ctx.createGain();
     osc2.type = 'sine';
-    osc2.frequency.setValueAtTime(450, now + 0.04); // Warm harmonic chime, slightly offset
+    osc2.frequency.setValueAtTime(450, now + 0.04); // Lonceng harmonik hangat, sedikit bergeser
     gain2.gain.setValueAtTime(0.06, now + 0.04);
     gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
     osc2.connect(gain2);
@@ -62,7 +62,7 @@ const App: React.FC = () => {
       }
       lastPath = window.location.pathname;
       setCurrentPath(window.location.pathname);
-      // Reset global dirty state upon successful navigation
+      // Reset state dirty global setelah navigasi berhasil
       setGlobalDirty(false);
     };
 
@@ -173,7 +173,7 @@ const App: React.FC = () => {
     if (currentPath === '/penyelesaian-permintaan-layanan-aplikasi-ti') {
       return <LayananAppPage />;
     }
-    // Default fallback to Dashboard
+    // Fallback default ke Dashboard
     return <DashboardPage />;
   };
 
@@ -183,7 +183,7 @@ const App: React.FC = () => {
         {renderPage()}
       </MainLayout>
 
-      {/* Custom Unsaved Changes Warning Modal */}
+      {/* Modal Peringatan Perubahan Belum Disimpan Kustom */}
       {isWarningOpen && (
         <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white rounded-xl border border-slate-200 max-w-sm w-full p-6 shadow-2xl flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-200">

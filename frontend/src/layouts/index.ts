@@ -1,2 +1,2 @@
-// This directory is for structural layouts (Sidebar, Header, MainLayout, etc.)
+// Direktori ini untuk tata letak struktural (Sidebar, Header, MainLayout, dll.)
 export {};
