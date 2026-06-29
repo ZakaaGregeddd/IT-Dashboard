@@ -1,3 +1,10 @@
+# Mockup Desain IT-Dashboard
+
+Berkas ini berisi desain antarmuka asli (mockup) untuk IT Dashboard yang menggunakan HTML, Tailwind CSS, dan Chart.js.
+
+## Kode Mockup HTML
+
+```html
 <!DOCTYPE html><html lang="id"><head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0" name="viewport">
