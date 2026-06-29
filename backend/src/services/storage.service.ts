@@ -48,14 +48,14 @@ class LocalStorageService implements IStorageService {
 
 class S3StorageService implements IStorageService {
   constructor() {
-    // In production, instantiate AWS SDK S3Client here:
+    // Di production, instansiasikan AWS SDK S3Client di sini:
     // this.s3Client = new S3Client({ region: storageConfig.s3.region, credentials: { ... } });
     console.log('S3 Storage Service Initialized (Placeholder for production).');
   }
 
   async saveFile(fileBuffer: Buffer, storageKey: string): Promise<void> {
     console.log(`[Production S3] Uploading file: ${storageKey} to bucket: ${storageConfig.s3.bucketName}`);
-    // Code snippet for production implementation:
+    // Cuplikan kode untuk implementasi production:
     /*
     const command = new PutObjectCommand({
       Bucket: storageConfig.s3.bucketName,
@@ -68,7 +68,7 @@ class S3StorageService implements IStorageService {
 
   async getFile(storageKey: string): Promise<Buffer> {
     console.log(`[Production S3] Retrieving file: ${storageKey} from bucket: ${storageConfig.s3.bucketName}`);
-    // Code snippet for production implementation:
+    // Cuplikan kode untuk implementasi production:
     /*
     const command = new GetObjectCommand({
       Bucket: storageConfig.s3.bucketName,
@@ -98,6 +98,6 @@ class S3StorageService implements IStorageService {
   }
 }
 
-// Factory to export correct storage service instance based on configurations
+// Factory untuk mengekspor instance service storage yang tepat berdasarkan konfigurasi
 export const storageService: IStorageService =
   storageConfig.provider === 's3' ? new S3StorageService() : new LocalStorageService();

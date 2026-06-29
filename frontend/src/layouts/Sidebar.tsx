@@ -76,9 +76,9 @@ const SidebarMenuItem: React.FC<SidebarMenuItemProps> = ({ label, icon, active, 
 const convertToSlug = (text: string): string => {
   return '/' + text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '') // Remove non-alphanumeric characters
+    .replace(/[^\w\s-]/g, '') // Hapus karakter non-alfanumerik
     .trim()
-    .replace(/\s+/g, '-');   // Replace spaces with dash
+    .replace(/\s+/g, '-');   // Ganti spasi dengan tanda hubung (dash)
 };
 
 export const SidebarSubItem: React.FC<{ label: string; currentPath: string; to?: string; isNested?: boolean }> = ({ label, currentPath, to, isNested }) => {
@@ -143,7 +143,7 @@ const appDevItems = [
   "Tingkat ketersediaan sistem"
 ];
 
-// Title Case formatter with rules for prepositions and acronyms
+// Format Title Case dengan aturan untuk preposisi dan akronim
 const formatDropdownText = (text: string): string => {
   const lowercaseWords = ['dan', 'di'];
   const acronyms = ['CPU', 'IT', 'SCMC', 'CISEA', 'WAN', 'DR', 'PC', 'TI', 'UPO'];
@@ -244,7 +244,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
       )}
     >
       <div style={{ width }} className="h-full flex flex-col relative">
-        {/* Sidebar Header */}
+        {/* Header Sidebar */}
         <div className="h-11 flex items-center px-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2">
             <div className="grid grid-cols-2 gap-0.5">
@@ -259,7 +259,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
           </div>
         </div>
 
-        {/* Sidebar Navigation */}
+        {/* Navigasi Sidebar */}
         <nav className="flex-1 overflow-y-auto sidebar-scroll py-4 flex flex-col gap-1">
           <SidebarMenuItem 
             label="Dashboard" 
@@ -303,7 +303,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
             <SidebarSubItem label="Utilisasi CPU Server" currentPath={currentPath} to="/utilisasi-cpu-server" />
             <SidebarSubItem label="Utilisasi Memory Server" currentPath={currentPath} to="/utilisasi-memory-server" />
             <SidebarSubItem label="Utilisasi Storage Server" currentPath={currentPath} to="/utilisasi-storage-server" />
-            {/* Sub-Category: Aplikasi */}
+            {/* Sub-Kategori: Aplikasi */}
             <SidebarSubCategory 
               label="utilisasi CPU & memory aplikasi Ellipse & CISEA"
               active={[
@@ -315,7 +315,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
               <SidebarSubItem label="Memory" currentPath={currentPath} to="/utilisasi-memory-aplikasi" isNested />
             </SidebarSubCategory>
             
-            {/* Sub-Category: Database */}
+            {/* Sub-Kategori: Database */}
             <SidebarSubCategory 
               label="Utilisasi CPU, memory & storage database Ellipse & CISEA"
               active={[
@@ -339,7 +339,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isCollapsed, width, isResizing
           </SidebarMenuItem>
         </nav>
         
-        {/* Resize Handle */}
+        {/* Handle Resize */}
         {!isCollapsed && onMouseDownResize && (
           <div 
             onMouseDown={onMouseDownResize}

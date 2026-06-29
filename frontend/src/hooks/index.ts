@@ -1,2 +1,2 @@
-// This directory is for global custom hooks
+// Direktori ini untuk custom hook global
 export {};

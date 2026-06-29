@@ -1,2 +1,2 @@
-// This directory is for global state management (Zustand, Redux, etc.)
+// Direktori ini untuk management global state (Zustand, Redux, dll.)
 export {};

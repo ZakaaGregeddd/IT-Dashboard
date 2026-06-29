@@ -16,13 +16,13 @@ export const checkIsDirty = (): boolean => {
   return isGlobalDirty;
 };
 
-// Global Event Listeners to automatically track unsaved changes on ALL pages
+// Event Listener Global untuk melacak perubahan yang belum disimpan secara otomatis di SEMUA halaman
 if (typeof window !== 'undefined') {
-  // 1. Mark as dirty when user types/inputs data
+  // 1. Tandai sebagai kotor (dirty) saat pengguna mengetik/memasukkan data
   window.addEventListener('input', (e) => {
     const target = e.target as HTMLElement;
     if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT')) {
-      // Check if this is a main Month/Year filter dropdown to avoid false positives
+      // Periksa apakah ini adalah dropdown filter Bulan/Tahun utama untuk menghindari false positive
       const labelText = target.previousElementSibling?.textContent?.toLowerCase() || '';
       const isMainFilter = 
         labelText.includes('bulan') || 
@@ -36,7 +36,7 @@ if (typeof window !== 'undefined') {
     }
   });
 
-  // 2. Reset dirty flag when user clicks Save, Batal, Konfirmasi, or Cancel buttons
+  // 2. Reset flag dirty saat pengguna mengklik tombol Simpan, Batal, Konfirmasi, atau Cancel
   window.addEventListener('click', (e) => {
     const target = e.target as HTMLElement;
     const clickable = target.closest('button, input[type="submit"], a');
@@ -63,7 +63,7 @@ if (typeof window !== 'undefined') {
   });
 }
 
-/** Smooth client-side navigation helper */
+/** Helper navigasi sisi klien (client-side) yang mulus */
 export const navigateTo = (path: string) => {
   if (checkIsDirty()) {
     const event = new CustomEvent('show-unsaved-warning', { detail: { path } });

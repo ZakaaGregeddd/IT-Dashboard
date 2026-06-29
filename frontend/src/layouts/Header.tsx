@@ -12,15 +12,15 @@ const breadcrumbMapping: Record<string, string> = {
   '/': 'Dashboard Utama',
   '/dashboard': 'Dashboard Utama',
   '/data-overall': 'Data Overall',
-  // IT Planning & Security
+  // Perencanaan & Keamanan TI
   '/realisasi-program-kerja-ti': 'IT Planning & Security / Realisasi Program Kerja TI',
   '/realisasi-rkap-ti': 'IT Planning & Security / Realisasi RKAP TI',
   '/sdm-it-outsource-pegawai': 'IT Planning & Security / SDM IT (Outsource & Pegawai)',
   '/lisensi': 'IT Planning & Security / Lisensi',
-  // App Dev & Services
+  // Pengembangan & Layanan Aplikasi
   '/ketersediaan-report-aplikasi-scmc': 'App Dev & Services / Ketersediaan Report SCMC',
   '/tingkat-ketersediaan-sistem': 'App Dev & Services / Tingkat Ketersediaan Sistem',
-  // IT Operation
+  // Operasional TI
   '/utilisasi-cpu-server': 'IT Operation / Utilisasi CPU Server',
   '/utilisasi-memory-server': 'IT Operation / Utilisasi Memori Server',
   '/utilisasi-storage-server': 'IT Operation / Utilisasi Storage Server',

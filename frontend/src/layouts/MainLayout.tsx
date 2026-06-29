@@ -7,7 +7,7 @@ interface MainLayoutProps {
 }
 
 export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
-  // Collapse sidebar by default on mobile screens (<1024px)
+  // Sembunyikan (collapse) sidebar secara default pada layar mobile (<1024px)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 1024;
@@ -17,7 +17,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [sidebarWidth, setSidebarWidth] = useState(230);
   const [isResizing, setIsResizing] = useState(false);
 
-  // Automatically collapse sidebar on resize if below tablet threshold
+  // Sembunyikan sidebar secara otomatis saat resize jika berada di bawah ambang batas tablet
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -42,7 +42,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const resize = useCallback(
     (mouseMoveEvent: MouseEvent) => {
       if (isResizing) {
-        // Limit width between 180px and 400px for usability
+        // Batasi lebar antara 180px dan 400px untuk kegunaan (usability)
         const newWidth = Math.max(180, Math.min(400, mouseMoveEvent.clientX));
         setSidebarWidth(newWidth);
       }
@@ -76,7 +76,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         onCollapse={() => setIsSidebarCollapsed(true)}
       />
       
-      {/* Mobile Sidebar Backdrop Overlay */}
+      {/* Overlay Latar Belakang Sidebar Mobile */}
       {showMobileOverlay && (
         <div 
           onClick={() => setIsSidebarCollapsed(true)}
