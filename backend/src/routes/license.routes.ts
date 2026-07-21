@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', LicenseController.getLicenses);
 router.post('/', LicenseController.saveLicenses);
+router.delete('/', LicenseController.deleteLicenses);
 
 export default router;
+

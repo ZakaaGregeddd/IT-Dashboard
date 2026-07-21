@@ -52,4 +52,32 @@ export class LayananAppController {
       return sendError(res, 'Gagal menyimpan data Layanan Aplikasi TI', 500, error.message);
     }
   }
+
+  static async deleteLayananApp(req: Request, res: Response) {
+    try {
+      const { tahun } = req.query;
+
+      if (!tahun) {
+        return sendError(res, 'Tahun wajib dikirimkan', 400);
+      }
+
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(tahunNum)) {
+        return sendError(res, 'Format tahun harus berupa angka', 400);
+      }
+
+      const deleted = await LayananAppService.deleteLayananApp(tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data Layanan Aplikasi TI untuk tahun tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data Layanan Aplikasi TI', 200);
+    } catch (error: any) {
+      console.error('[LayananAppController] Error deleting Layanan Aplikasi TI:', error);
+      return sendError(res, 'Gagal menghapus data Layanan Aplikasi TI', 500, error.message);
+    }
+  }
 }
+

@@ -229,4 +229,25 @@ export class UtilisasiCpuAppService {
       });
     });
   }
+
+  static async deleteUtilisasi(bulan: number, tahun: number) {
+    const master = await prisma.laporan_infrastruktur_master.findFirst({
+      where: {
+        bulan,
+        tahun,
+        tipe_infrastruktur: 'CPU',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_infrastruktur_master.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

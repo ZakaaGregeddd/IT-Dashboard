@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, Plus, X, Settings } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, Plus, X, Settings, Trash2 } from 'lucide-react';
+import { DeletePeriodModal } from '@/components/DeletePeriodModal';
 import { setIsDirtyCheck } from '@/utils/navigation';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -143,8 +144,34 @@ export const UtilisasiStorageServerPage: React.FC = () => {
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCopyTemplateModalOpen, setIsCopyTemplateModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleConfirmDelete = async () => {
+    const monthNum = monthsNumMap[bulan] || 1;
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/utilisasi/storage?bulan=${monthNum}&tahun=${tahun}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsDeleteModalOpen(false);
+        setServerRows(DEFAULT_ROWS);
+        setIsDirty(false);
+        fetchAllHistoricalData();
+      } else {
+        alert(result.message || 'Gagal menghapus data.');
+      }
+    } catch (error) {
+      console.error('Failed to delete Storage data:', error);
+      alert('Terjadi kesalahan saat menghapus data.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -889,6 +916,14 @@ export const UtilisasiStorageServerPage: React.FC = () => {
             <div className="flex gap-2">
               <button 
                 type="button"
+                onClick={() => setIsDeleteModalOpen(true)}
+                className="flex items-center gap-1.5 bg-red-600 text-white px-4 py-1.5 rounded font-semibold text-[10px] hover:bg-red-700 transition-all shadow-sm uppercase tracking-wider"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                Hapus Data Periode
+              </button>
+              <button 
+                type="button"
                 onClick={() => {
                   const monthNum = monthsNumMap[bulan] || 1;
                   fetch(`http://localhost:5000/api/utilisasi/storage?bulan=${monthNum}&tahun=${tahun}`)
@@ -999,6 +1034,15 @@ export const UtilisasiStorageServerPage: React.FC = () => {
         bulan={bulan}
         tahun={tahun}
         copyFromPeriod={copyFromPeriod}
+      />
+
+      {/* Delete Period Confirmation Modal */}
+      <DeletePeriodModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        periodText={`${bulan} ${tahun}`}
+        isDeleting={isDeleting}
       />
 
     </div>

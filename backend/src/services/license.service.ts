@@ -200,4 +200,21 @@ export class LicenseService {
       });
     });
   }
+
+  static async deleteLicense(bulan: number, tahun: number) {
+    const master = await prisma.laporan_lisensi.findFirst({
+      where: { bulan, tahun },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_lisensi.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

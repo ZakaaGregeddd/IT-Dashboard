@@ -46,10 +46,37 @@ export class RestoreController {
         details
       );
 
-      return sendSuccess(res, updatedData, 'Berhasil menyimpan data Realisasi Restore Ellipse', 200);
+      return sendSuccess(res, updatedData, 'Berhasil menyimpan data restore', 200);
     } catch (error: any) {
-      console.error('[RestoreController] Error saving Realisasi Restore Ellipse:', error);
-      return sendError(res, 'Gagal menyimpan data Realisasi Restore Ellipse', 500, error.message);
+      console.error('[RestoreController] Error saving restore:', error);
+      return sendError(res, 'Gagal menyimpan data restore', 500, error.message);
+    }
+  }
+
+  static async deleteRestore(req: Request, res: Response) {
+    try {
+      const { tahun } = req.query;
+
+      if (!tahun) {
+        return sendError(res, 'Tahun wajib dikirimkan', 400);
+      }
+
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(tahunNum)) {
+        return sendError(res, 'Format tahun harus berupa angka', 400);
+      }
+
+      const deleted = await RestoreService.deleteRestore(tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data restore untuk tahun tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data restore', 200);
+    } catch (error: any) {
+      console.error('[RestoreController] Error deleting restore:', error);
+      return sendError(res, 'Gagal menghapus data restore', 500, error.message);
     }
   }
 }

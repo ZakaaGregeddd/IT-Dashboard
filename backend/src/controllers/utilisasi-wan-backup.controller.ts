@@ -52,10 +52,38 @@ export class UtilisasiWanBackupController {
         details
       );
 
-      return sendSuccess(res, updatedData, 'Berhasil menyimpan data ketersediaan backup wan', 200);
+      return sendSuccess(res, updatedData, 'Berhasil menyimpan data ketersediaan WAN backup', 200);
     } catch (error: any) {
-      console.error('[UtilisasiWanBackupController] Error saving ketersediaan backup wan:', error);
-      return sendError(res, 'Gagal menyimpan data ketersediaan backup wan', 500, error.message);
+      console.error('[UtilisasiWanBackupController] Error saving WAN backup utilisasi:', error);
+      return sendError(res, 'Gagal menyimpan data ketersediaan WAN backup', 500, error.message);
+    }
+  }
+
+  static async deleteUtilisasi(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await UtilisasiWanBackupService.deleteUtilisasi(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data utilisasi WAN backup untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data utilisasi WAN backup', 200);
+    } catch (error: any) {
+      console.error('[UtilisasiWanBackupController] Error deleting WAN backup utilisasi:', error);
+      return sendError(res, 'Gagal menghapus data utilisasi WAN backup', 500, error.message);
     }
   }
 }

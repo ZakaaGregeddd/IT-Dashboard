@@ -59,10 +59,38 @@ export class UtilisasiMemoryAppController {
         details
       );
 
-      return sendSuccess(res, updatedData, 'Berhasil menyimpan data utilisasi Memory Aplikasi', 200);
+      return sendSuccess(res, updatedData, 'Berhasil menyimpan data utilisasi memory aplikasi', 200);
     } catch (error: any) {
-      console.error('[UtilisasiMemoryAppController] Error saving Memory Aplikasi utilisasi:', error);
-      return sendError(res, 'Gagal menyimpan data utilisasi Memory Aplikasi', 500, error.message);
+      console.error('[UtilisasiMemoryAppController] Error saving memory aplikasi utilisasi:', error);
+      return sendError(res, 'Gagal menyimpan data utilisasi memory aplikasi', 500, error.message);
+    }
+  }
+
+  static async deleteUtilisasi(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await UtilisasiMemoryAppService.deleteUtilisasi(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data utilisasi memory aplikasi untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data utilisasi memory aplikasi', 200);
+    } catch (error: any) {
+      console.error('[UtilisasiMemoryAppController] Error deleting memory aplikasi utilisasi:', error);
+      return sendError(res, 'Gagal menghapus data utilisasi memory aplikasi', 500, error.message);
     }
   }
 }

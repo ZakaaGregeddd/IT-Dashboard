@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', RKAPController.getRKAP);
 router.post('/', RKAPController.saveRKAP);
+router.delete('/', RKAPController.deleteRKAP);
 
 export default router;
+

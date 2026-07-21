@@ -69,4 +69,33 @@ export class RKAPController {
       return sendError(res, 'Gagal menyimpan data RKAP', 500, error.message);
     }
   }
+
+  static async deleteRKAP(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await RKAPService.deleteRkap(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data RKAP untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data RKAP', 200);
+    } catch (error: any) {
+      console.error('[RKAPController] Error deleting rkap:', error);
+      return sendError(res, 'Gagal menghapus data RKAP', 500, error.message);
+    }
+  }
 }
+

@@ -61,4 +61,33 @@ export class KetersediaanSistemController {
       return sendError(res, 'Gagal menyimpan data ketersediaan sistem', 500, error.message);
     }
   }
+
+  static async deleteKetersediaan(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await KetersediaanSistemService.deleteKetersediaan(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data ketersediaan sistem untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data ketersediaan sistem', 200);
+    } catch (error: any) {
+      console.error('[KetersediaanSistemController] Error deleting ketersediaan sistem:', error);
+      return sendError(res, 'Gagal menghapus data ketersediaan sistem', 500, error.message);
+    }
+  }
 }
+

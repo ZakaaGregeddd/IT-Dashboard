@@ -52,4 +52,31 @@ export class PcSupportController {
       return sendError(res, 'Gagal menyimpan data PC Support', 500, error.message);
     }
   }
+
+  static async deletePcSupport(req: Request, res: Response) {
+    try {
+      const { tahun } = req.query;
+
+      if (!tahun) {
+        return sendError(res, 'Tahun wajib dikirimkan', 400);
+      }
+
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(tahunNum)) {
+        return sendError(res, 'Format tahun harus berupa angka', 400);
+      }
+
+      const deleted = await PcSupportService.deletePcSupport(tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data PC support untuk tahun tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data PC support', 200);
+    } catch (error: any) {
+      console.error('[PcSupportController] Error deleting PC support:', error);
+      return sendError(res, 'Gagal menghapus data PC support', 500, error.message);
+    }
+  }
 }

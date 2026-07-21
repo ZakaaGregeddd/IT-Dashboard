@@ -179,4 +179,21 @@ export class RKAPService {
       });
     });
   }
+
+  static async deleteRkap(bulan: number, tahun: number) {
+    const master = await prisma.laporan_rkap_ti.findFirst({
+      where: { bulan, tahun },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_rkap_ti.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

@@ -204,4 +204,25 @@ export class KetersediaanScmcService {
       });
     });
   }
+
+  static async deleteKetersediaan(bulan: number, tahun: number) {
+    const master = await prisma.laporan_ketersediaan_master.findFirst({
+      where: {
+        bulan,
+        tahun,
+        kategori_ketersediaan: 'REPORT_SCMC',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_ketersediaan_master.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

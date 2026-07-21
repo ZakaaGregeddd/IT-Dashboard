@@ -67,4 +67,36 @@ export class UtilisasiStorageController {
       return sendError(res, 'Gagal menyimpan data utilisasi storage', 500, error.message);
     }
   }
+
+  /**
+   * Delete Storage utilization data by month & year
+   */
+  static async deleteUtilisasi(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await UtilisasiStorageService.deleteUtilisasi(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data utilisasi storage untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data utilisasi storage', 200);
+    } catch (error: any) {
+      console.error('[UtilisasiStorageController] Error deleting storage utilisasi:', error);
+      return sendError(res, 'Gagal menghapus data utilisasi storage', 500, error.message);
+    }
+  }
 }
+

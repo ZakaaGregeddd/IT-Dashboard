@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', RestoreController.getWorkOrder);
 router.post('/', RestoreController.saveWorkOrder);
+router.delete('/', RestoreController.deleteRestore);
 
 export default router;
+

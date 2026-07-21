@@ -1,2 +1,3 @@
 // Export reusable global components
-export {};
+export { DeletePeriodModal } from './DeletePeriodModal';
+

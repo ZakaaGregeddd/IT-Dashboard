@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', KetersediaanScmcController.getKetersediaan);
 router.post('/', KetersediaanScmcController.saveKetersediaan);
+router.delete('/', KetersediaanScmcController.deleteKetersediaan);
 
 export default router;
+

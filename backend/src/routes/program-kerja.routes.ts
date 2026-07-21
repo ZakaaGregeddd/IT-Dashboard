@@ -11,5 +11,7 @@ const router = Router();
 //alt no login
 router.get('/', ProgramKerjaController.getProgramKerja);
 router.post('/', ProgramKerjaController.saveProgramKerja);
+router.delete('/', ProgramKerjaController.deleteProgramKerja);
 
 export default router;
+

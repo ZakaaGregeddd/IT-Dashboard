@@ -209,4 +209,21 @@ export class SDMService {
       });
     });
   }
+
+  static async deleteSdm(bulan: number, tahun: number) {
+    const master = await prisma.laporan_sdm_it.findFirst({
+      where: { bulan, tahun },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_sdm_it.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

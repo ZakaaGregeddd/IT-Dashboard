@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', SDMController.getSDM);
 router.post('/', SDMController.saveSDM);
+router.delete('/', SDMController.deleteSdm);
 
 export default router;
+

@@ -282,4 +282,28 @@ export class UtilisasiStorageService {
       });
     });
   }
+
+  /**
+   * Hapus data utilisasi Storage server berdasarkan bulan & tahun
+   */
+  static async deleteUtilisasi(bulan: number, tahun: number) {
+    const master = await prisma.laporan_utilisasi_server_master.findFirst({
+      where: {
+        bulan,
+        tahun,
+        tipe_utilisasi: 'SERVER_STORAGE',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_utilisasi_server_master.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

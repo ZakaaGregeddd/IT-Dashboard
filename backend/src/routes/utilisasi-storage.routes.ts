@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', UtilisasiStorageController.getUtilisasi);
 router.post('/', UtilisasiStorageController.saveUtilisasi);
+router.delete('/', UtilisasiStorageController.deleteUtilisasi);
 
 export default router;
+

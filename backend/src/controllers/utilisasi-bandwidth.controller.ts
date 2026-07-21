@@ -59,4 +59,33 @@ export class UtilisasiBandwidthController {
       return sendError(res, 'Gagal menyimpan data utilisasi Bandwidth', 500, error.message);
     }
   }
+
+  static async deleteUtilisasi(req: Request, res: Response) {
+    try {
+      const { bulan, tahun } = req.query;
+
+      if (!bulan || !tahun) {
+        return sendError(res, 'Bulan dan tahun wajib dikirimkan', 400);
+      }
+
+      const bulanNum = parseInt(bulan as string, 10);
+      const tahunNum = parseInt(tahun as string, 10);
+
+      if (isNaN(bulanNum) || isNaN(tahunNum)) {
+        return sendError(res, 'Format bulan dan tahun harus berupa angka', 400);
+      }
+
+      const deleted = await UtilisasiBandwidthService.deleteUtilisasi(bulanNum, tahunNum);
+
+      if (!deleted) {
+        return sendError(res, 'Data utilisasi bandwidth untuk periode tersebut tidak ditemukan', 404);
+      }
+
+      return sendSuccess(res, null, 'Berhasil menghapus data utilisasi bandwidth', 200);
+    } catch (error: any) {
+      console.error('[UtilisasiBandwidthController] Error deleting Bandwidth utilisasi:', error);
+      return sendError(res, 'Gagal menghapus data utilisasi bandwidth', 500, error.message);
+    }
+  }
 }
+

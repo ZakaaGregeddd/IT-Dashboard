@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Save, CheckCircle, AlertTriangle, X } from 'lucide-react';
+import { Save, CheckCircle, AlertTriangle, X, Trash2 } from 'lucide-react';
+import { DeletePeriodModal } from '@/components/DeletePeriodModal';
 import { BaseDoughnutChart } from '@/components/charts/BaseDoughnutChart';
 import { Line } from 'react-chartjs-2';
 import {
@@ -171,8 +172,43 @@ export const RealisasiRkapPage: React.FC = () => {
 
   // UI state
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const monthsNumMap: Record<string, number> = {
+    'Januari': 1, 'Februari': 2, 'Maret': 3, 'April': 4, 'Mei': 5, 'Juni': 6,
+    'Juli': 7, 'Agustus': 8, 'September': 9, 'Oktober': 10, 'November': 11, 'Desember': 12
+  };
+
+  const handleConfirmDelete = async () => {
+    const monthNum = monthsNumMap[bulan] || 1;
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/rkap?bulan=${monthNum}&tahun=${tahun}`, {
+        method: 'DELETE'
+      });
+      const result = await response.json();
+      if (result.success) {
+        setIsDeleteModalOpen(false);
+        setRealisasiInput('');
+        setCostReductionInput('');
+        setDataMap(prev => {
+          const next = { ...prev };
+          delete next[dataKey];
+          return next;
+        });
+      } else {
+        alert(result.message || 'Gagal menghapus data.');
+      }
+    } catch (error) {
+      console.error('Failed to delete RKAP data:', error);
+      alert('Terjadi kesalahan saat menghapus data.');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const dataKey = `${tahun}-${bulan}`;
   const activeData = dataMap[dataKey];
@@ -597,6 +633,14 @@ export const RealisasiRkapPage: React.FC = () => {
           <div className="p-3.5 border-t border-slate-200 bg-slate-50/40 flex justify-end gap-2.5">
             <button 
               type="button"
+              onClick={() => setIsDeleteModalOpen(true)}
+              className="flex items-center gap-1.5 bg-red-600 text-white px-4 py-1.5 rounded font-semibold text-[10px] hover:bg-red-700 transition-all shadow-sm uppercase tracking-wider"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Hapus Data Periode
+            </button>
+            <button 
+              type="button"
               onClick={() => {
                 if (activeData) {
                   setRealisasiInput(formatNumber(activeData.realisasi));
@@ -685,6 +729,14 @@ export const RealisasiRkapPage: React.FC = () => {
         onConfirm={handleConfirmSave}
         title="Konfirmasi Penyimpanan"
         message={`Apakah Anda yakin ingin menyimpan perubahan Realisasi (${realisasiInput}) dan Cost Reduction (${costReductionInput}) untuk ${bulan} ${tahun}?`}
+      />
+
+      <DeletePeriodModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        periodText={`${bulan} ${tahun}`}
+        isDeleting={isDeleting}
       />
 
     </div>

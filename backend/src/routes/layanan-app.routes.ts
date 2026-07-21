@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', LayananAppController.getWorkOrder);
 router.post('/', LayananAppController.saveWorkOrder);
+router.delete('/', LayananAppController.deleteLayananApp);
 
 export default router;
+

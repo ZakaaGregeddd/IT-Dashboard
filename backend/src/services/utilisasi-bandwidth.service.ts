@@ -234,4 +234,21 @@ export class UtilisasiBandwidthService {
       });
     });
   }
+
+  static async deleteUtilisasi(bulan: number, tahun: number) {
+    const master = await prisma.laporan_utilisasi_bandwidth.findFirst({
+      where: { bulan, tahun },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_utilisasi_bandwidth.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

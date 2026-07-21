@@ -5,5 +5,7 @@ const router = Router();
 
 router.get('/', UtilisasiCpuController.getUtilisasi);
 router.post('/', UtilisasiCpuController.saveUtilisasi);
+router.delete('/', UtilisasiCpuController.deleteUtilisasi);
 
 export default router;
+

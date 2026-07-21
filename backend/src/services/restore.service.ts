@@ -216,4 +216,24 @@ export class RestoreService {
       });
     });
   }
+
+  static async deleteRestore(tahun: number) {
+    const master = await prisma.laporan_work_order.findFirst({
+      where: {
+        tahun,
+        kategori_layanan: 'RESTORE_ELLIPSE',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_work_order.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

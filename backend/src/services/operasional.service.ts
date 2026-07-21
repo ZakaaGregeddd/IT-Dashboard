@@ -216,4 +216,24 @@ export class OperasionalService {
       });
     });
   }
+
+  static async deleteOperasional(tahun: number) {
+    const master = await prisma.laporan_work_order.findFirst({
+      where: {
+        tahun,
+        kategori_layanan: 'OPERASIONAL_TI',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_work_order.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+

@@ -197,4 +197,25 @@ export class UtilisasiWanBackupService {
       });
     });
   }
+
+  static async deleteUtilisasi(bulan: number, tahun: number) {
+    const master = await prisma.laporan_infrastruktur_master.findFirst({
+      where: {
+        bulan,
+        tahun,
+        tipe_infrastruktur: 'KETERSEDIAAN_BACKUP',
+      },
+    });
+
+    if (!master) {
+      return false;
+    }
+
+    await prisma.laporan_infrastruktur_master.delete({
+      where: { id: master.id },
+    });
+
+    return true;
+  }
 }
+
