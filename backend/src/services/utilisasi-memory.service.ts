@@ -75,28 +75,26 @@ export class UtilisasiMemoryService {
       };
     }
 
-    // Bangun daftar detail berdasarkan daftar server terbaru
-    const detail_utilisasi_memory = latestMaster.detail_utilisasi_memory.map((latestServer) => {
-      // Temukan server yang cocok di periode saat ini
-      const matchingCurrent = currentMaster?.detail_utilisasi_memory.find(
-        (c) => c.nama_server.toLowerCase() === latestServer.nama_server.toLowerCase()
-      );
-
-      return {
-        id: matchingCurrent?.id, // sertakan ID jika ada agar frontend dapat memperbaruinya
-        urutan: latestServer.urutan,
-        nama_server: latestServer.nama_server,
-        memory_gb: currentMaster
-          ? (matchingCurrent ? (Number(matchingCurrent.memory_gb) ?? 0) : 0)
-          : 0,
-        utilisasi_gb: currentMaster
-          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_gb) ?? 0) : 0)
-          : 0,
-        utilisasi_persen: currentMaster
-          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
-          : 0,
-      };
-    });
+    // Bangun daftar detail berdasarkan daftar server terbaru atau data periode saat ini
+    const detail_utilisasi_memory = (currentMaster && currentMaster.detail_utilisasi_memory.length > 0)
+      ? currentMaster.detail_utilisasi_memory
+          .map((item) => ({
+            id: item.id,
+            urutan: item.urutan,
+            nama_server: item.nama_server,
+            memory_gb: item.memory_gb ?? 0,
+            utilisasi_gb: Number(item.utilisasi_gb) ?? 0,
+            utilisasi_persen: Number(item.utilisasi_persen) ?? 0,
+          }))
+          .sort((a, b) => a.urutan - b.urutan)
+      : latestMaster.detail_utilisasi_memory.map((latestServer) => ({
+          id: undefined,
+          urutan: latestServer.urutan,
+          nama_server: latestServer.nama_server,
+          memory_gb: 0,
+          utilisasi_gb: 0,
+          utilisasi_persen: 0,
+        }));
 
     const totalMemory = detail_utilisasi_memory.reduce((acc, cur) => acc + cur.memory_gb, 0);
     const totalUtilMemory = detail_utilisasi_memory.reduce((acc, cur) => acc + cur.utilisasi_gb, 0);

@@ -103,26 +103,44 @@ export class UtilisasiStorageService {
       };
     }
 
-    const detail_utilisasi_storage = this.DEFAULT_DETAILS.map((def) => {
-      const match = master.detail_utilisasi_storage.find(
-        (d) => d.nama_storage.toLowerCase() === def.nama_storage.toLowerCase()
-      );
+    const detail_utilisasi_storage = (master.detail_utilisasi_storage && master.detail_utilisasi_storage.length > 0)
+      ? master.detail_utilisasi_storage
+          .map((item) => {
+            const capacity = Number(item.capacity_tb) ?? 0;
+            const utilisasi = Number(item.utilisasi_tb) ?? 0;
+            const free = capacity - utilisasi;
+            const p = capacity > 0 ? (utilisasi / capacity) * 100 : 0;
+            return {
+              id: item.id,
+              urutan: item.urutan,
+              nama_storage: item.nama_storage,
+              capacity_tb: capacity,
+              utilisasi_tb: utilisasi,
+              free_tb: free,
+              utilisasi_persen: p,
+            };
+          })
+          .sort((a, b) => a.urutan - b.urutan)
+      : this.DEFAULT_DETAILS.map((def) => {
+          const match = master.detail_utilisasi_storage.find(
+            (d) => d.nama_storage.toLowerCase() === def.nama_storage.toLowerCase()
+          );
 
-      const capacity = match ? (Number(match.capacity_tb) ?? def.capacity_tb) : def.capacity_tb;
-      const utilisasi = match ? (Number(match.utilisasi_tb) ?? 0) : 0;
-      const free = capacity - utilisasi;
-      const p = capacity > 0 ? (utilisasi / capacity) * 100 : 0;
+          const capacity = match ? (Number(match.capacity_tb) ?? def.capacity_tb) : def.capacity_tb;
+          const utilisasi = match ? (Number(match.utilisasi_tb) ?? 0) : 0;
+          const free = capacity - utilisasi;
+          const p = capacity > 0 ? (utilisasi / capacity) * 100 : 0;
 
-      return {
-        id: match?.id,
-        urutan: def.urutan,
-        nama_storage: def.nama_storage,
-        capacity_tb: capacity,
-        utilisasi_tb: utilisasi,
-        free_tb: free,
-        utilisasi_persen: p,
-      };
-    });
+          return {
+            id: match?.id,
+            urutan: def.urutan,
+            nama_storage: def.nama_storage,
+            capacity_tb: capacity,
+            utilisasi_tb: utilisasi,
+            free_tb: free,
+            utilisasi_persen: p,
+          };
+        });
 
     const totalCapacity = detail_utilisasi_storage.reduce((acc, cur) => acc + cur.capacity_tb, 0);
     const totalUtil = detail_utilisasi_storage.reduce((acc, cur) => acc + cur.utilisasi_tb, 0);

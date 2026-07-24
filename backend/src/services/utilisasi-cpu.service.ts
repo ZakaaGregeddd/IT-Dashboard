@@ -77,28 +77,26 @@ export class UtilisasiCpuService {
       };
     }
 
-    // Bangun daftar detail berdasarkan daftar server terbaru
-    const detail_utilisasi_cpu = latestMaster.detail_utilisasi_cpu.map((latestServer) => {
-      // Temukan server yang cocok di periode saat ini
-      const matchingCurrent = currentMaster?.detail_utilisasi_cpu.find(
-        (c) => c.nama_server.toLowerCase() === latestServer.nama_server.toLowerCase()
-      );
-
-      return {
-        id: matchingCurrent?.id, // sertakan ID jika ada agar frontend dapat memperbaruinya
-        urutan: latestServer.urutan,
-        nama_server: latestServer.nama_server,
-        cpu_cores: currentMaster 
-          ? (matchingCurrent ? (matchingCurrent.cpu_cores ?? 0) : 0)
-          : 0,
-        utilisasi_ghz: currentMaster
-          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_ghz) ?? 0) : 0)
-          : 0,
-        utilisasi_persen: currentMaster
-          ? (matchingCurrent ? (Number(matchingCurrent.utilisasi_persen) ?? 0) : 0)
-          : 0,
-      };
-    });
+    // Bangun daftar detail berdasarkan daftar server terbaru atau data periode saat ini
+    const detail_utilisasi_cpu = (currentMaster && currentMaster.detail_utilisasi_cpu.length > 0)
+      ? currentMaster.detail_utilisasi_cpu
+          .map((item) => ({
+            id: item.id,
+            urutan: item.urutan,
+            nama_server: item.nama_server,
+            cpu_cores: item.cpu_cores ?? 0,
+            utilisasi_ghz: Number(item.utilisasi_ghz) ?? 0,
+            utilisasi_persen: Number(item.utilisasi_persen) ?? 0,
+          }))
+          .sort((a, b) => a.urutan - b.urutan)
+      : latestMaster.detail_utilisasi_cpu.map((latestServer) => ({
+          id: undefined,
+          urutan: latestServer.urutan,
+          nama_server: latestServer.nama_server,
+          cpu_cores: 0,
+          utilisasi_ghz: 0,
+          utilisasi_persen: 0,
+        }));
 
     // Hitung total berdasarkan detail periode saat ini
     const totalCpuCores = detail_utilisasi_cpu.reduce((acc, cur) => acc + cur.cpu_cores, 0);
