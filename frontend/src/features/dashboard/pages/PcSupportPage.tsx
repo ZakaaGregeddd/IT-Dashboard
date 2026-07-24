@@ -67,6 +67,11 @@ const FilterSelect: React.FC<FilterSelectProps> = ({ label, value, onChange, opt
 
 const yearsList = Array.from({ length: 9 }, (_, i) => (2020 + i).toString());
 
+const monthsList = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+
 export const PcSupportPage: React.FC = () => {
   const getCurrentYear = () => new Date().getFullYear().toString();
 
@@ -131,15 +136,34 @@ export const PcSupportPage: React.FC = () => {
         setIsLoading(true);
         const response = await fetch(`http://localhost:5000/api/work-order/pc-support?tahun=${tahun}`);
         const result = await response.json();
+        
+        const defaultRows = monthsList.map((monthName, idx) => ({
+          urutan: idx + 1,
+          bulan_teks: monthName,
+          wo_masuk: 0,
+          wo_selesai: 0
+        }));
+
         if (result.success && result.data && Array.isArray(result.data.detail_pc_support)) {
-          const parsed = result.data.detail_pc_support.map((item: any) => ({
-            ...item,
-            wo_masuk: parseInt(item.wo_masuk, 10) || 0,
-            wo_selesai: parseInt(item.wo_selesai, 10) || 0
-          }));
-          setSystemRows(parsed);
+          const apiDetails = result.data.detail_pc_support;
+          const merged = defaultRows.map((defRow) => {
+            const apiMatch = apiDetails.find(
+              (item: any) => item.bulan_teks.toLowerCase() === defRow.bulan_teks.toLowerCase()
+            );
+            if (apiMatch) {
+              return {
+                id: apiMatch.id,
+                urutan: defRow.urutan,
+                bulan_teks: defRow.bulan_teks,
+                wo_masuk: parseInt(apiMatch.wo_masuk, 10) || 0,
+                wo_selesai: parseInt(apiMatch.wo_selesai, 10) || 0
+              };
+            }
+            return defRow;
+          });
+          setSystemRows(merged);
         } else {
-          setSystemRows([]);
+          setSystemRows(defaultRows);
         }
       } catch (error) {
         console.error('Failed to fetch PC Support active data:', error);
@@ -194,12 +218,29 @@ export const PcSupportPage: React.FC = () => {
         setTimeout(() => setShowToast(false), 3000);
         fetchAllHistoricalData();
         if (result.data && result.data.detail_pc_support) {
-          const parsed = result.data.detail_pc_support.map((item: any) => ({
-            ...item,
-            wo_masuk: parseInt(item.wo_masuk, 10) || 0,
-            wo_selesai: parseInt(item.wo_selesai, 10) || 0
+          const apiDetails = result.data.detail_pc_support;
+          const defaultRows = monthsList.map((monthName, idx) => ({
+            urutan: idx + 1,
+            bulan_teks: monthName,
+            wo_masuk: 0,
+            wo_selesai: 0
           }));
-          setSystemRows(parsed);
+          const merged = defaultRows.map((defRow) => {
+            const apiMatch = apiDetails.find(
+              (item: any) => item.bulan_teks.toLowerCase() === defRow.bulan_teks.toLowerCase()
+            );
+            if (apiMatch) {
+              return {
+                id: apiMatch.id,
+                urutan: defRow.urutan,
+                bulan_teks: defRow.bulan_teks,
+                wo_masuk: parseInt(apiMatch.wo_masuk, 10) || 0,
+                wo_selesai: parseInt(apiMatch.wo_selesai, 10) || 0
+              };
+            }
+            return defRow;
+          });
+          setSystemRows(merged);
         }
       } else {
         alert('Gagal menyimpan data: ' + result.message);
